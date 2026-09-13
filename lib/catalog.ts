@@ -274,7 +274,7 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
     resultsSummary: summarize(realResults, exampleResults),
     calibration: CALIBRATION_BUCKETS,
     realCalibration: learn?.buckets ?? CALIBRATION_BUCKETS.map((bucket) => ({ ...bucket, observed: null, n: 0, quality: "UNAVAILABLE" as const })),
-    routine: ops.stages.slate.lastRunAt ? routineFromOps(ops) : SUNDAY_ROUTINE,
+    routine: Object.values(ops.stages).some((stage) => stage.lastRunAt) ? routineFromOps(ops) : SUNDAY_ROUTINE,
     sources,
     automation,
     featureFlags: flags,

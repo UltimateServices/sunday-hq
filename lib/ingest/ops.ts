@@ -134,8 +134,14 @@ export async function buildHealth(): Promise<DataHealthView> {
     const idx = issues.findIndex((issue) => issue.toLowerCase().includes("player-prop"));
     if (idx >= 0) issues.splice(idx, 1);
   }
-  if (ops.ingest.lastFailureAt && (!ops.ingest.lastSuccessAt || ops.ingest.lastFailureAt > ops.ingest.lastSuccessAt)) {
-    issues.push(`Last ingest failure: ${ops.ingest.lastFailureNote ?? "unknown"}`);
+  const failureNote = ops.ingest.lastFailureNote;
+  if (
+    failureNote &&
+    ops.ingest.lastFailureAt &&
+    (!ops.ingest.lastSuccessAt || ops.ingest.lastFailureAt > ops.ingest.lastSuccessAt) &&
+    !issues.includes(failureNote)
+  ) {
+    issues.push(`Last ingest failure: ${failureNote}`);
   }
   if (snapshot?.freshness === "STALE") issues.push("Live odds snapshot is STALE — seed shown with warning.");
   const unique = [...new Set(issues)];
