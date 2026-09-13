@@ -3,7 +3,7 @@ import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { derivedTeamTotals, impliedTeamTotals } from "@/lib/team-totals";
 import type { QualifierGrade, QualifierLens, Side, WhySections } from "@/lib/types/domain";
-import type { DerivedTeamTotal, EnvironmentTier } from "@/lib/types/domain";
+import type { DerivedTeamTotal, EnvironmentTier, Game } from "@/lib/types/domain";
 
 export type TeamTotalRow = DerivedTeamTotal & {
   teamAbbr: string;
@@ -40,10 +40,10 @@ function lensesFor(env: EnvironmentTier, teamId: string): Record<QualifierLens, 
   return { GOOD_PLAYER: "UNKNOWN", GOOD_MATCHUP: "UNKNOWN", GOOD_PROJECTION: "LEAN", GOOD_BET: "UNKNOWN" };
 }
 
-export function teamTotalRows(): TeamTotalRow[] {
-  return derivedTeamTotals().map((row) => {
+export function teamTotalRows(games: Game[] = GAMES): TeamTotalRow[] {
+  return derivedTeamTotals(games).map((row) => {
     const team = TEAM_BY_ID[row.teamId];
-    const game = GAMES.find((g) => g.id === row.gameId)!;
+    const game = games.find((g) => g.id === row.gameId) ?? GAMES.find((g) => g.id === row.gameId)!;
     const implied = impliedTeamTotals(game);
     const model = modelFor(row);
     const edge = model !== null && row.line.value !== null ? model - row.line.value : null;

@@ -155,3 +155,44 @@ CREATE TABLE model_weights (
   updated_by TEXT,
   updated_at TIMESTAMPTZ NOT NULL
 );
+
+CREATE TABLE odds_snapshots (
+  id TEXT PRIMARY KEY,
+  as_of TIMESTAMPTZ NOT NULL,
+  source TEXT NOT NULL,
+  status TEXT NOT NULL,
+  game_lines JSONB NOT NULL,
+  prop_lines JSONB NOT NULL,
+  last_success_at TIMESTAMPTZ,
+  last_failure_at TIMESTAMPTZ
+);
+
+CREATE TABLE card_locks (
+  id TEXT PRIMARY KEY,
+  prop_id TEXT NOT NULL,
+  placed_at TIMESTAMPTZ NOT NULL,
+  line NUMERIC,
+  odds NUMERIC,
+  projection NUMERIC,
+  confidence TEXT,
+  health TEXT,
+  weather TEXT
+);
+
+CREATE TABLE settlements (
+  prop_id TEXT PRIMARY KEY,
+  result TEXT,
+  actual NUMERIC,
+  closing_line NUMERIC,
+  clv NUMERIC,
+  source TEXT NOT NULL,
+  settled_at TIMESTAMPTZ
+);
+
+CREATE TABLE cron_runs (
+  stage TEXT PRIMARY KEY,
+  last_run_at TIMESTAMPTZ,
+  status TEXT NOT NULL,
+  fingerprint TEXT,
+  note TEXT
+);

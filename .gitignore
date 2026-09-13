@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local ingest overlays (serverless uses Blob or memory)
+/data/snapshots/*.json
+!/data/snapshots/.gitkeep
+
 # vercel
 .vercel
 

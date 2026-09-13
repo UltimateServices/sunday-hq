@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/cron/sunday-refresh?stage=slate", "schedule": "0 15 * * 0" },
+    { "path": "/api/cron/sunday-refresh?stage=injuries", "schedule": "5 15 * * 0" },
+    { "path": "/api/cron/sunday-refresh?stage=weather", "schedule": "10 15 * * 0" },
+    { "path": "/api/cron/sunday-refresh?stage=odds", "schedule": "0 16 * * 0" },
+    { "path": "/api/cron/sunday-refresh?stage=projections", "schedule": "15 16 * * 0" },
+    { "path": "/api/cron/sunday-refresh?stage=odds", "schedule": "0 19 * * 0" },
+    { "path": "/api/cron/sunday-refresh?stage=odds", "schedule": "0 23 * * 0" },
+    { "path": "/api/cron/sunday-refresh?stage=settle", "schedule": "0 12 * * 1" },
+    { "path": "/api/cron/sunday-refresh?stage=monday-learn", "schedule": "0 14 * * 1" }
+  ]
+}

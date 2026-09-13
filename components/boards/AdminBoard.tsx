@@ -8,21 +8,27 @@ import {
   SUNDAY_ROUTINE,
   THRESHOLDS,
 } from "@/data/week1/admin";
-import { DATA_HEALTH } from "@/lib/refresh";
 import { SCHEMA_STUBS } from "@/lib/types/schema";
 import { Section } from "@/components/shared/Section";
 import { ToneChip } from "@/components/ds/badges";
+import type { WeekCatalog } from "@/lib/catalog";
 
 function stamp(iso: string | null) {
   return iso ? new Date(iso).toLocaleString() : "PENDING";
 }
 
-export function AdminBoard() {
+export function AdminBoard({ catalog }: { catalog?: WeekCatalog }) {
+  const sources = catalog?.sources ?? DATA_SOURCES;
+  const automation = catalog?.automation ?? AUTOMATION;
+  const flags = catalog?.featureFlags ?? FEATURE_FLAGS;
+  const routine = catalog?.routine ?? SUNDAY_ROUTINE;
+  const health = catalog?.health;
+
   return (
     <div className="space-y-8">
       <Section title="Data Sources">
         <div className="grid gap-2 md:grid-cols-2">
-          {DATA_SOURCES.map((s) => (
+          {sources.map((s) => (
             <article key={s.id} className="rounded-lg border border-line bg-card p-3">
               <div className="mb-1 flex items-center justify-between">
                 <p className="font-semibold">{s.name}</p>
@@ -84,7 +90,7 @@ export function AdminBoard() {
       </Section>
       <Section title="Automation">
         <div className="space-y-2">
-          {AUTOMATION.map((a) => (
+          {automation.map((a) => (
             <article key={a.id} className="flex items-center justify-between rounded-lg border border-line bg-card p-3">
               <div>
                 <p className="font-semibold">{a.label}</p>
@@ -113,7 +119,7 @@ export function AdminBoard() {
       </Section>
       <Section title="Feature Flags">
         <div className="grid gap-2 md:grid-cols-2">
-          {FEATURE_FLAGS.map((f) => (
+          {flags.map((f) => (
             <article key={f.id} className="rounded-lg border border-line bg-card p-3">
               <div className="flex items-center justify-between">
                 <p className="font-semibold">{f.label}</p>
@@ -126,17 +132,23 @@ export function AdminBoard() {
       </Section>
       <Section title="Data Health">
         <article className="rounded-lg border border-line bg-card p-3">
-          <ToneChip tone="orange">{DATA_HEALTH.state}</ToneChip>
+          <ToneChip tone={health?.state === "HEALTHY" ? "green" : "orange"}>{health?.state ?? "DEGRADED"}</ToneChip>
           <ul className="mt-2 list-disc pl-5 text-sm">
-            {DATA_HEALTH.issues.map((i) => (
+            {(health?.issues ?? ["DraftKings player-prop odds not ingested"]).map((i) => (
               <li key={i}>{i}</li>
             ))}
           </ul>
+          <p className="mt-3 text-[11px] text-muted">
+            Ingest last success {stamp(health?.ingestLastSuccessAt ?? null)} · last failure{" "}
+            {stamp(health?.ingestLastFailureAt ?? null)}
+            {health?.ingestLastFailureNote ? ` · ${health.ingestLastFailureNote}` : ""}
+          </p>
+          <p className="mt-1 text-[11px] text-muted">Snapshot storage: {catalog?.storage ?? "seed"}</p>
         </article>
       </Section>
       <Section title="Sunday routine">
         <ol className="space-y-2">
-          {SUNDAY_ROUTINE.map((step) => (
+          {routine.map((step) => (
             <li key={step.id} className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card p-3">
               <div>
                 <p className="font-semibold">{step.label}</p>
