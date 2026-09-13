@@ -1,11 +1,4 @@
-import type {
-  MarketType,
-  MeasuredNumber,
-  PropMarket,
-  QualifierGrade,
-  QualifierLens,
-  Side,
-} from "@/lib/types/domain";
+import type { MarketType, MeasuredNumber, PropMarket, Side } from "@/lib/types/domain";
 
 const AS_OF = "2026-09-13T12:00:00-04:00";
 
@@ -48,13 +41,6 @@ function lowSample(value: number, note: string): MeasuredNumber {
     note,
   };
 }
-
-const unknownLenses: Record<QualifierLens, QualifierGrade> = {
-  GOOD_PLAYER: "UNKNOWN",
-  GOOD_MATCHUP: "UNKNOWN",
-  GOOD_PROJECTION: "UNKNOWN",
-  GOOD_BET: "UNKNOWN",
-};
 
 function prop(partial: Omit<PropMarket, "oddsAmerican" | "median" | "confidence"> & {
   oddsAmerican?: MeasuredNumber;

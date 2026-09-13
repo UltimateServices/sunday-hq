@@ -5,7 +5,14 @@ import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { computePricing, type EvComputation } from "@/lib/odds";
 import { healthLabel } from "@/lib/health";
-import type { HealthState, PropMarket } from "@/lib/types/domain";
+import { confidenceGrade } from "@/lib/ui/confidence";
+import type {
+  ConfidenceGrade,
+  HealthState,
+  MeasuredNumber,
+  PropMarket,
+  WhySections,
+} from "@/lib/types/domain";
 
 export type PropView = PropMarket & {
   playerName: string;
@@ -16,6 +23,14 @@ export type PropView = PropMarket & {
   healthLabel: string;
   pricing: EvComputation;
   bookLabel: string;
+  confidenceGrade: ConfidenceGrade;
+  whySections: WhySections;
+  distribution: {
+    floor: MeasuredNumber;
+    mean: MeasuredNumber;
+    median: MeasuredNumber;
+    ceiling: MeasuredNumber;
+  };
 };
 
 export function toPropView(prop: PropMarket, assumedJuice = true): PropView {
@@ -25,6 +40,21 @@ export function toPropView(prop: PropMarket, assumedJuice = true): PropView {
   const health: HealthState = injury?.health ?? "NO_KNOWN_LIMITATION";
   const away = TEAM_BY_ID[game.awayTeamId].abbr;
   const home = TEAM_BY_ID[game.homeTeamId].abbr;
+  const pricing = computePricing({
+    model: prop.model,
+    line: prop.line,
+    odds: prop.oddsAmerican,
+    side: prop.side,
+    allowAssumedJuice: assumedJuice,
+  });
+
+  const unavailable: MeasuredNumber = {
+    value: null,
+    quality: "UNAVAILABLE",
+    source: "sunday-hq",
+    asOf: null,
+    note: "Trained distribution tails are Phase 3.",
+  };
 
   return {
     ...prop,
@@ -35,13 +65,40 @@ export function toPropView(prop: PropMarket, assumedJuice = true): PropView {
     health,
     healthLabel: healthLabel(health),
     bookLabel: prop.book === "DRAFTKINGS" ? "DK" : prop.book === "CONSENSUS" ? "Consensus" : "Unknown",
-    pricing: computePricing({
-      model: prop.model,
-      line: prop.line,
-      odds: prop.oddsAmerican,
-      side: prop.side,
-      allowAssumedJuice: assumedJuice,
+    pricing,
+    confidenceGrade: confidenceGrade({
+      hasModel: prop.model.value !== null,
+      hasLine: prop.line.value !== null,
+      hasVerifiedOdds: prop.oddsAmerican.value !== null && prop.oddsAmerican.quality === "VERIFIED",
+      health,
+      lineQuality: prop.line.quality,
+      modelQuality: prop.model.quality,
     }),
+    whySections: {
+      modelCase: prop.why,
+      supporting: [
+        prop.matchupNote,
+        health === "NO_KNOWN_LIMITATION"
+          ? "Availability: NO KNOWN LIMITATION (not “healthy”)."
+          : `Availability: ${healthLabel(health)}.`,
+      ],
+      risks: prop.risks,
+      marketContext: [
+        `Book: ${prop.book}. Line quality ${prop.line.quality}.`,
+        prop.oddsAmerican.note ?? "DK player-prop odds not ingested.",
+        prop.movement.note,
+      ],
+      dataQuality: [
+        `Line ${prop.line.quality} · Model ${prop.model.quality} · Odds ${prop.oddsAmerican.quality}`,
+        "Week 1 = LOW SAMPLE. Placeholder model is not a trained engine.",
+      ],
+    },
+    distribution: {
+      floor: unavailable,
+      mean: prop.model,
+      median: prop.median,
+      ceiling: unavailable,
+    },
   };
 }
 

@@ -1,4 +1,5 @@
 import { AVOIDS, CHANGES, NEWS } from "@/data/week1/news";
+import { ALERTS } from "@/data/week1/alerts";
 import { GAMES } from "@/data/week1/games";
 import { INJURIES } from "@/data/week1/injuries";
 import { WEEK1_META } from "@/data/week1/meta";
@@ -8,6 +9,7 @@ import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER } from "@/data/week1/weather";
 import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
 import { MARKET_LABEL, toPropView, type PropView } from "@/lib/prop-view";
+import { liveStatus } from "@/lib/game-window";
 import type { EnvironmentTier, Position } from "@/lib/types/domain";
 
 export type SummaryCard = {
@@ -27,6 +29,11 @@ export type EnvironmentRow = {
   indoor: boolean;
   tier: EnvironmentTier;
   note: string;
+  kickoff: string;
+  window: "1PM" | "4PM" | "SNF";
+  live: ReturnType<typeof liveStatus>;
+  weatherImpact: (typeof WEATHER)[number]["impact"];
+  weatherSummary: string;
 };
 
 function rankable(view: PropView): boolean {
@@ -41,32 +48,24 @@ export function buildCommandCenter() {
   const views = PROPS.map((p) => toPropView(p));
   const overs = views.filter((v) => v.side === "OVER" && v.market !== "ANYTIME_TD");
   const unders = views.filter((v) => v.side === "UNDER");
-  const yardage = views.filter((v) =>
-    ["PASS_YDS", "RUSH_YDS", "REC_YDS"].includes(v.market),
-  );
+  const yardage = views.filter((v) => ["PASS_YDS", "RUSH_YDS", "REC_YDS"].includes(v.market));
 
   const bestOver = [...overs].filter(rankable).sort(byEdgeDesc)[0];
   const bestUnder = [...unders].filter(rankable).sort(byEdgeDesc)[0];
-
-  const teamTotals = derivedTeamTotals().sort(
-    (a, b) => (b.line.value ?? 0) - (a.line.value ?? 0),
-  );
+  const teamTotals = derivedTeamTotals().sort((a, b) => (b.line.value ?? 0) - (a.line.value ?? 0));
   const bestTeamTotal = teamTotals[0];
-
   const shootout = GAMES.find((g) => g.id === "tb-cin")!;
   const gibbs = views.find((v) => v.playerId === "gibbs" && v.market === "RUSH_YDS");
   const burrow = views.find((v) => v.playerId === "burrow" && v.side === "OVER");
 
   const summaryCards: SummaryCard[] = [
     {
-      id: "best-prop",
-      label: "Best Prop",
+      id: "best-over",
+      label: "Best Over",
       value: bestOver
-        ? `${bestOver.playerName} ${MARKET_LABEL[bestOver.market]} ${bestOver.side} ${bestOver.line.value}`
+        ? `${bestOver.playerName} ${MARKET_LABEL[bestOver.market]} O ${bestOver.line.value}`
         : "DATA UNAVAILABLE",
-      sub: bestOver
-        ? `Placeholder edge ${bestOver.pricing.edge.value?.toFixed(1)} · EV not a DK price`
-        : "No priced over",
+      sub: bestOver ? `Placeholder edge ${bestOver.pricing.edge.value?.toFixed(1)} yd · EV not a DK price` : "No priced over",
       href: bestOver ? `/players/${bestOver.playerId}` : "/props",
       tone: "green",
     },
@@ -76,9 +75,7 @@ export function buildCommandCenter() {
       value: bestUnder
         ? `${bestUnder.playerName} ${MARKET_LABEL[bestUnder.market]} U ${bestUnder.line.value}`
         : "DATA UNAVAILABLE",
-      sub: bestUnder
-        ? `Placeholder edge ${bestUnder.pricing.edge.value?.toFixed(1)} · line quality ${bestUnder.line.quality}`
-        : "No priced under",
+      sub: bestUnder ? `Placeholder edge ${bestUnder.pricing.edge.value?.toFixed(1)} yd · ${bestUnder.line.quality}` : "No priced under",
       href: bestUnder ? `/players/${bestUnder.playerId}` : "/props",
       tone: "blue",
     },
@@ -93,20 +90,10 @@ export function buildCommandCenter() {
     {
       id: "best-tt",
       label: "Best Team Total",
-      value: bestTeamTotal
-        ? `${TEAM_BY_ID[bestTeamTotal.teamId].abbr} ${bestTeamTotal.line.value?.toFixed(1)}`
-        : "DATA UNAVAILABLE",
+      value: bestTeamTotal ? `${TEAM_BY_ID[bestTeamTotal.teamId].abbr} ${bestTeamTotal.line.value?.toFixed(1)}` : "DATA UNAVAILABLE",
       sub: "Derived from DK spread + total. Not a listed team-total ticket.",
       href: "/team-totals",
       tone: "yellow",
-    },
-    {
-      id: "best-env",
-      label: "Best Game Environment",
-      value: `TB @ CIN ${shootout.total.value}`,
-      sub: "Highest Sunday DK total. Shootout ≠ automatic overs.",
-      href: "/games/tb-cin",
-      tone: "green",
     },
     {
       id: "best-qb",
@@ -125,6 +112,14 @@ export function buildCommandCenter() {
       tone: "green",
     },
     {
+      id: "best-env",
+      label: "Best Game Environment",
+      value: `TB @ CIN ${shootout.total.value}`,
+      sub: "Highest Sunday DK total. Shootout ≠ automatic overs.",
+      href: "/games/tb-cin",
+      tone: "green",
+    },
+    {
       id: "warning",
       label: "Biggest Warning",
       value: "ATL QB room is OUT / OUT",
@@ -139,13 +134,8 @@ export function buildCommandCenter() {
     const home = TEAM_BY_ID[game.homeTeamId].abbr;
     const spread = game.spreadHome.value;
     const spreadText =
-      spread === null
-        ? "DATA UNAVAILABLE"
-        : spread === 0
-          ? "PK"
-          : spread < 0
-            ? `${home} ${spread}`
-            : `${away} -${spread}`;
+      spread === null ? "DATA UNAVAILABLE" : spread === 0 ? "PK" : spread < 0 ? `${home} ${spread}` : `${away} -${spread}`;
+    const wx = WEATHER.find((w) => w.gameId === game.id);
     return {
       gameId: game.id,
       matchup: `${away} @ ${home}`,
@@ -168,6 +158,11 @@ export function buildCommandCenter() {
                 : game.indoor
                   ? "Indoor"
                   : "Outdoor · hourly WX PENDING",
+      kickoff: game.kickoffLabel,
+      window: (game.window === "SNF" ? "SNF" : game.window === "LATE" ? "4PM" : "1PM") as EnvironmentRow["window"],
+      live: liveStatus(game),
+      weatherImpact: wx?.impact ?? "UNKNOWN",
+      weatherSummary: wx?.summary ?? "DATA UNAVAILABLE",
     };
   }).sort((a, b) => (b.total ?? 0) - (a.total ?? 0));
 
@@ -180,26 +175,11 @@ export function buildCommandCenter() {
     .filter((v) => v.volumeTag === "HIGH" && v.market !== "ANYTIME_TD" && v.side === "OVER")
     .sort((a, b) => (b.line.value ?? 0) - (a.line.value ?? 0));
 
-  const movement = [
-    {
-      id: "mov-ten",
-      label: "NYJ @ TEN total",
-      detail: "38.5 consensus / owner floor → 39.5 DK (ESPN widget)",
-      direction: "UP" as const,
-    },
-    {
-      id: "mov-atl",
-      label: "ATL QB",
-      detail: "Starter market voided. Rush is the only active QB path.",
-      direction: "DOWN" as const,
-    },
-    {
-      id: "mov-lv",
-      label: "LV TE",
-      detail: "Bowers off the board. Mayer 39.5 consensus opened as residual.",
-      direction: "UP" as const,
-    },
-  ];
+  const criticalNews = NEWS.filter((n) => n.severity === "CRITICAL" || n.severity === "WATCH");
+  const materialWeather = WEATHER.filter((w) => w.impact === "SIGNIFICANT" || w.impact === "MODERATE");
+  const materialInjuries = INJURIES.filter((i) =>
+    ["OUT", "QUESTIONABLE", "GAME_TIME_DECISION", "EXPECTED_LIMITED", "HIGH_RISK"].includes(i.health),
+  );
 
   return {
     meta: WEEK1_META,
@@ -215,14 +195,17 @@ export function buildCommandCenter() {
       lowestTotal: Math.min(...GAMES.map((g) => g.total.value ?? 99)),
     },
     summaryCards,
-    news: NEWS,
+    news: criticalNews,
     changes: CHANGES,
+    alerts: ALERTS.filter((a) => a.severity === "CRITICAL" || a.severity === "IMPORTANT"),
     opportunities: [...views].filter(rankable).sort(byEdgeDesc).slice(0, 8),
+    top5: [...views].filter(rankable).sort(byEdgeDesc).slice(0, 5),
     volume,
     tdLeaders: views.filter((v) => v.market === "ANYTIME_TD"),
     environments,
-    weather: WEATHER,
-    injuries: INJURIES,
+    environmentTop5: environments.slice(0, 5),
+    weather: materialWeather,
+    injuries: materialInjuries,
     leaders: {
       QB: leadersFor("QB"),
       RB: leadersFor("RB"),
@@ -232,12 +215,9 @@ export function buildCommandCenter() {
     teamTotals,
     overs: overs.filter((v) => v.line.value !== null),
     unders: unders.filter((v) => v.line.value !== null),
-    movement,
     avoids: AVOIDS,
     games: GAMES,
-    implied: Object.fromEntries(
-      GAMES.map((g) => [g.id, impliedTeamTotals(g)]),
-    ),
+    implied: Object.fromEntries(GAMES.map((g) => [g.id, impliedTeamTotals(g)])),
     views,
   };
 }

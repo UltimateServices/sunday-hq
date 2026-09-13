@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { PropTable } from "@/components/shared/PropTable";
+import { TDCard } from "@/components/ds/TDCard";
 import { PROPS } from "@/data/week1/props";
 import { toPropView } from "@/lib/prop-view";
 
@@ -11,9 +11,13 @@ export default function TouchdownsPage() {
         layer="Layer 2 · Research Board"
         title="Touchdowns"
         readiness="PLACEHOLDER"
-        lede="Anytime TD research board. DK anytime odds are not ingested. Names are volume/role leans, not priced bets."
+        lede="Shared TDCard. Anytime prices DATA UNAVAILABLE. Research names, not tickets."
       />
-      <PropTable views={views} />
+      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+        {views.map((view) => (
+          <TDCard key={view.id} view={view} />
+        ))}
+      </div>
     </div>
   );
 }

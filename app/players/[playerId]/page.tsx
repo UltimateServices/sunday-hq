@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DataStatus } from "@/components/shared/DataStatus";
 import { HealthBadge } from "@/components/shared/HealthBadge";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PlayerCard } from "@/components/ds/PlayerCard";
 import { PropCard } from "@/components/shared/PropCard";
 import { Section } from "@/components/shared/Section";
 import { WhyDrawer } from "@/components/shared/WhyDrawer";
@@ -37,6 +38,15 @@ export default async function PlayerDeepDive({ params }: PageProps<"/players/[pl
         layer="Layer 3 · Deep Dive"
         title={player.name}
         lede={`${team.abbr} ${player.position}${player.depth ? ` · depth ${player.depth}` : ""}. Four lenses stay separate.`}
+      />
+      <PlayerCard
+        id={player.id}
+        name={player.name}
+        team={team.abbr}
+        position={player.position}
+        health={inj?.health ?? "NO_KNOWN_LIMITATION"}
+        projection={fan?.ppr}
+        note={player.notes}
       />
       <div className="flex flex-wrap gap-2">
         <HealthBadge state={inj?.health ?? "NO_KNOWN_LIMITATION"} />
@@ -88,6 +98,7 @@ export default async function PlayerDeepDive({ params }: PageProps<"/players/[pl
               GOOD_BET: "UNKNOWN",
             }
           }
+          sections={primary?.whySections}
           why={primary?.why ?? ["No seeded prop. Deep-dive route exists so research is not blocked."]}
           risks={primary?.risks ?? ["Do not invent a line or a bet."]}
         />

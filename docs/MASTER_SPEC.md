@@ -94,9 +94,7 @@ Do not optimize for the fastest MVP at the expense of this foundation.
 
 ## 12. Command Center order
 
-Week/Date/Last Updated strip → Critical news → What Changed → Top Opportunities → Top Volume → TD Leaders → Game Environments → Weather → Injury Board → QB/RB/WR/TE leaders → Team Totals → Prop Overs → Prop Unders → Market Movement → Best Boost → Parlays → Avoid → My Card.
-
-Summary cards: Best Prop · Best Under · Best TD · Best Team Total · Best Game Environment · Best QB Matchup · Best RB Matchup · Biggest Warning.
+Visual composition is defined in `docs/UI_BLUEPRINT.md` (desktop 4×2 primary cards, scoreboard strip, mobile reorder). Product content that must remain: hero strip, eight summary cards (BEST OVER / UNDER / TD / TEAM TOTAL / QB MATCHUP / RB MATCHUP / GAME ENVIRONMENT / BIGGEST WARNING), critical news, what changed, opportunities, volume, TDs, weather, injuries, environments, overs + unders, parlays, my card. Missing engines stay PENDING.
 
 ## 13. Prop card fields
 

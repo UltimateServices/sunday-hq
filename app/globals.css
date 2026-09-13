@@ -59,3 +59,18 @@ body {
 ::selection {
   background: color-mix(in oklab, var(--gold) 40%, transparent);
 }
+
+.action-btn {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.action-btn:hover {
+  color: var(--text);
+  border-color: color-mix(in oklab, var(--gold) 50%, var(--line));
+}

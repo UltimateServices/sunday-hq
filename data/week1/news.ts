@@ -68,6 +68,7 @@ export const CHANGES: ChangeItem[] = [
     to: "Tua OUT, Penix OUT, Rush starts",
     implication: "ATL pass environment downgraded. Rush under is the structural lean if a real line appears.",
     quality: "VERIFIED",
+    category: "LINEUP",
   },
   {
     id: "chg-bowers",
@@ -76,6 +77,7 @@ export const CHANGES: ChangeItem[] = [
     to: "Bowers OUT — Mayer 39.5 consensus",
     implication: "TE residual, not a WR1. Vacuum can leak to Jeanty / WRs.",
     quality: "VERIFIED",
+    category: "INJURY",
   },
   {
     id: "chg-kamara",
@@ -84,6 +86,7 @@ export const CHANGES: ChangeItem[] = [
     to: "SOURCE CONFLICT; Etienne 56.5 consensus",
     implication: "Do not settle health to OUT. Etienne volume is conditional.",
     quality: "SOURCE_CONFLICT",
+    category: "INJURY",
   },
   {
     id: "chg-ten-total",
@@ -92,6 +95,7 @@ export const CHANGES: ChangeItem[] = [
     to: "39.5 DK via ESPN widget",
     implication: "Still the lowest Sunday total. Movement +1.0 vs owner seed opener.",
     quality: "CONSENSUS",
+    category: "MARKET",
   },
   {
     id: "chg-nabers",
@@ -100,6 +104,25 @@ export const CHANGES: ChangeItem[] = [
     to: "Full practice, his call",
     implication: "Upgrade to GAME-TIME DECISION, not NO KNOWN LIMITATION.",
     quality: "CONSENSUS",
+    category: "INJURY",
+  },
+  {
+    id: "chg-jax-wx",
+    title: "CLE @ JAX weather",
+    from: "No material flag",
+    to: "Significant heat / storm ESTIMATE",
+    implication: "Passing overs weather-taxed until NWS hourly is live.",
+    quality: "ESTIMATE",
+    category: "WEATHER",
+  },
+  {
+    id: "chg-mayer-proj",
+    title: "Mayer receiving projection",
+    from: "Backup TE residual",
+    to: "Placeholder mean 45 vs 39.5 consensus",
+    implication: "Projection moved on Bowers OUT. Still not a priced GOOD BET.",
+    quality: "ESTIMATE",
+    category: "PROJECTION",
   },
 ];
 

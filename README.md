@@ -4,7 +4,8 @@ Private NFL Props & Parlay Intelligence Platform for UltimateServices.
 
 This is **not** a simple picks page. Workflow: collect → verify → normalize → model → compare → rank → explain → monitor → record → learn.
 
-Binding product contract: [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md).
+Binding product contract: [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md).  
+Binding UI contract: [`docs/UI_BLUEPRINT.md`](docs/UI_BLUEPRINT.md).
 
 ## Stack
 

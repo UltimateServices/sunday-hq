@@ -201,6 +201,8 @@ export type NewsItem = {
   source: string;
 };
 
+export type ChangeCategory = "INJURY" | "PROJECTION" | "MARKET" | "WEATHER" | "LINEUP";
+
 export type ChangeItem = {
   id: string;
   title: string;
@@ -208,7 +210,58 @@ export type ChangeItem = {
   to: string;
   implication: string;
   quality: DataQuality;
+  category: ChangeCategory;
 };
+
+export type LiveStatus = "UPCOMING" | "LIVE" | "FINAL";
+
+export type GameWindowFilter = "ALL" | "EARLY" | "LATE" | "SNF";
+
+export type ConfidenceGrade = "A+" | "A" | "A-" | "B+" | "B" | "B-" | "C" | "PASS";
+
+export type AlertKind = "INJURIES" | "WEATHER" | "MARKETS" | "PROJECTIONS";
+
+export type AlertSeverity = "INFO" | "WATCH" | "IMPORTANT" | "CRITICAL";
+
+export type AlertItem = {
+  id: string;
+  kind: AlertKind;
+  severity: AlertSeverity;
+  title: string;
+  body: string;
+  href: string;
+  asOf: string;
+};
+
+export type WhySections = {
+  modelCase: string[];
+  supporting: string[];
+  risks: string[];
+  marketContext: string[];
+  dataQuality: string[];
+};
+
+export type StatusChipId =
+  | "HEALTHY"
+  | "QUESTIONABLE"
+  | "LIMITED"
+  | "OUT"
+  | "DOME"
+  | "WIND"
+  | "RAIN"
+  | "SNOW"
+  | "ROLE_CHANGE"
+  | "LINE_MOVE"
+  | "STEAM"
+  | "HIGH_EDGE"
+  | "HIGH_VOLATILITY"
+  | "LOW_SAMPLE"
+  | "SOURCE_CONFLICT"
+  | "STALE_DATA";
+
+export type EdgeUnit = "yards" | "prob" | "ev";
+
+export type DataHealthState = "HEALTHY" | "DEGRADED";
 
 export type FantasyProjection = {
   playerId: string;

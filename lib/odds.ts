@@ -6,7 +6,6 @@ export function americanToImplied(odds: number): number {
 }
 
 export function expectedValue(modelProb: number, oddsAmerican: number): number {
-  const implied = americanToImplied(oddsAmerican);
   const profit = oddsAmerican < 0 ? 100 / Math.abs(oddsAmerican) : oddsAmerican / 100;
   return modelProb * profit - (1 - modelProb) * 1;
 }
