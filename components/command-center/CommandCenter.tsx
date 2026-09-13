@@ -3,7 +3,6 @@ import { AlertRow } from "@/components/ds/AlertRow";
 import { GameCard } from "@/components/ds/GameCard";
 import { HealthBadge, StatusChip, ToneChip } from "@/components/ds/badges";
 import { ParlayCard } from "@/components/ds/ParlayCard";
-import { PendingPanel } from "@/components/shared/PendingPanel";
 import { PropCard } from "@/components/ds/PropCard";
 import { RankingTable } from "@/components/ds/RankingTable";
 import { Section } from "@/components/shared/Section";
@@ -11,8 +10,8 @@ import { StatTile } from "@/components/ds/StatTile";
 import { TDCard } from "@/components/ds/TDCard";
 import { EmptyState } from "@/components/ds/EmptyState";
 import type { CommandCenterVM } from "@/lib/command-center";
-import { pendingForPhase } from "@/lib/pending";
 import { PLAYER_BY_ID } from "@/data/week1/players";
+import { PARLAYS } from "@/data/week1/parlays";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { formatNumber } from "@/lib/format";
 import { PrimaryCards } from "./PrimaryCards";
@@ -21,7 +20,9 @@ import { WhatChanged } from "./WhatChanged";
 import { MyCardPreview } from "./MyCardPreview";
 
 export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
-  const pending5 = pendingForPhase(5)!;
+  const conservative = PARLAYS.find((p) => p.profile === "Conservative");
+  const balanced = PARLAYS.find((p) => p.profile === "Balanced");
+  const aggressive = PARLAYS.find((p) => p.profile === "Aggressive");
 
   return (
     <div className="space-y-8">
@@ -142,16 +143,13 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
         </Section>
         <Section id="parlay-preview" title="Parlay preview">
           <div className="grid gap-2 md:grid-cols-3">
-            <ParlayCard profile="Conservative" />
-            <ParlayCard profile="Balanced" />
-            <ParlayCard profile="Aggressive" />
+            <ParlayCard profile="Conservative" construct={conservative} />
+            <ParlayCard profile="Balanced" construct={balanced} />
+            <ParlayCard profile="Aggressive" construct={aggressive} />
           </div>
         </Section>
         <Section id="my-card-preview" title="My Card preview">
           <MyCardPreview />
-          <div className="mt-3">
-            <PendingPanel capability={pending5} />
-          </div>
         </Section>
       </div>
 
@@ -223,7 +221,7 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
           </div>
         </Section>
         <Section title="Parlays">
-          <ParlayCard profile="Balanced" />
+          <ParlayCard profile="Balanced" construct={balanced} />
         </Section>
       </div>
     </div>

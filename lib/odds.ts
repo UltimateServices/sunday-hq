@@ -29,6 +29,78 @@ const ASSUMED_JUICE = -110;
  * Missing DK odds → implied/EV UNAVAILABLE.
  * Optional illustrative path uses assumed -110 and is always ESTIMATE.
  */
+export function isProbabilityMarket(market: string): boolean {
+  return ["ANYTIME_TD", "FIRST_TD", "TWO_PLUS_TD", "RUSH_TD", "PASS_TD", "REC_TD"].includes(market);
+}
+
+export function computeBinaryPricing(input: {
+  modelProb: MeasuredNumber;
+  odds: MeasuredNumber;
+  allowAssumedJuice?: boolean;
+}): EvComputation {
+  const edge: MeasuredNumber = {
+    value: input.modelProb.value === null ? null : input.modelProb.value - 0.5,
+    quality: input.modelProb.quality,
+    source: "model-prob-vs-0.5",
+    asOf: input.modelProb.asOf,
+    note: "Probability edge vs a 50% coin. Not a priced bet.",
+  };
+  if (input.modelProb.value === null) {
+    return computePricing({
+      model: input.modelProb,
+      line: { value: 0.5, quality: "ESTIMATE", source: "td-threshold", asOf: null },
+      odds: input.odds,
+      side: "OVER",
+      allowAssumedJuice: input.allowAssumedJuice,
+    });
+  }
+  if (input.odds.value !== null) {
+    return {
+      modelProb: input.modelProb,
+      impliedProb: {
+        value: americanToImplied(input.odds.value),
+        quality: input.odds.quality,
+        source: input.odds.source,
+        asOf: input.odds.asOf,
+      },
+      ev: {
+        value: expectedValue(input.modelProb.value, input.odds.value),
+        quality: worseQuality(input.modelProb.quality, input.odds.quality),
+        source: "ev-binary",
+        asOf: input.odds.asOf,
+      },
+      edge,
+    };
+  }
+  if (input.allowAssumedJuice) {
+    return {
+      modelProb: input.modelProb,
+      impliedProb: {
+        value: americanToImplied(-110),
+        quality: "ESTIMATE",
+        source: "assumed-juice",
+        asOf: null,
+        note: "DK anytime/TD price unknown. Implied uses assumed -110 for ranking only.",
+      },
+      ev: {
+        value: expectedValue(input.modelProb.value, -110),
+        quality: "ESTIMATE",
+        source: "assumed-juice",
+        asOf: null,
+        note: "Illustrative EV at assumed -110. Not a DraftKings price.",
+      },
+      edge,
+    };
+  }
+  return computePricing({
+    model: input.modelProb,
+    line: { value: 0.5, quality: "ESTIMATE", source: "td-threshold", asOf: null },
+    odds: input.odds,
+    side: "OVER",
+    allowAssumedJuice: false,
+  });
+}
+
 export function computePricing(input: {
   model: MeasuredNumber;
   line: MeasuredNumber;

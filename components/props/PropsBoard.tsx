@@ -6,8 +6,7 @@ import type { PropView } from "@/lib/prop-view";
 import { RankingTable } from "@/components/ds/RankingTable";
 import { FilterDrawer } from "@/components/ds/FilterDrawer";
 import { EmptyState } from "@/components/ds/EmptyState";
-import { PendingPanel } from "@/components/shared/PendingPanel";
-import { pendingForPhase } from "@/lib/pending";
+import { SeedBanner } from "@/components/shared/SeedBanner";
 import { GAME_BY_ID } from "@/data/week1/games";
 import { matchesWindow } from "@/lib/game-window";
 
@@ -92,7 +91,9 @@ export function PropsBoard({ views }: { views: PropView[] }) {
 
   return (
     <div className="space-y-4">
-      <PendingPanel capability={pendingForPhase(3)!} />
+      <SeedBanner>
+        Placeholder normal CDF + assumed -110 ranking. DK player-prop odds remain DATA UNAVAILABLE — never shown as a verified book price.
+      </SeedBanner>
       <div className="hidden md:block">{filters}</div>
       <FilterDrawer title="Prop filters">{filters}</FilterDrawer>
       {filtered.length === 0 ? <EmptyState /> : <RankingTable views={filtered} />}

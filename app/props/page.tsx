@@ -12,7 +12,6 @@ export default function PropsPage() {
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Props"
-        readiness="PLACEHOLDER"
         lede="URL-driven filters. Sticky sortable table. Row expansion for floor/median/mean/ceiling. DK player-prop odds remain DATA UNAVAILABLE."
       />
       <Suspense fallback={<PageSkeleton />}>

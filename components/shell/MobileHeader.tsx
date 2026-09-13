@@ -6,7 +6,7 @@ import { ALERTS } from "@/data/week1/alerts";
 import { ToneChip } from "@/components/ds/badges";
 
 export function MobileHeader() {
-  const { setSearchOpen, setAlertsOpen, refreshView } = useShell();
+  const { setSearchOpen, setAlertsOpen, refreshView, finalCard, setFinalCard } = useShell();
   const meta = seedRefresh();
 
   return (
@@ -18,6 +18,9 @@ export function MobileHeader() {
         </div>
         <div className="flex items-center gap-1">
           <ToneChip tone="orange">Degraded</ToneChip>
+          <button type="button" onClick={() => setFinalCard(!finalCard)} className="action-btn">
+            {finalCard ? "Card ON" : "Card"}
+          </button>
           <button type="button" onClick={refreshView} className="action-btn">
             Ref
           </button>

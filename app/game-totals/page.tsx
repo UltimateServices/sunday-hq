@@ -1,38 +1,18 @@
-import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { DataStatus } from "@/components/shared/DataStatus";
-import { GAMES } from "@/data/week1/games";
-import { TEAM_BY_ID } from "@/data/week1/teams";
-import { formatNumber } from "@/lib/format";
+import { SeedBanner } from "@/components/shared/SeedBanner";
+import { GameTotalsBoard } from "@/components/boards/GameTotalsBoard";
+import { gameTotalRows } from "@/lib/game-total-view";
 
 export default function GameTotalsPage() {
-  const rows = [...GAMES].sort((a, b) => (b.total.value ?? 0) - (a.total.value ?? 0));
   return (
     <div className="space-y-6">
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Game Totals"
-        lede="Sunday totals from DraftKings via ESPN widget. TB@CIN 50.5 is the ceiling. NYJ@TEN 39.5 is the floor (owner seed cited 38.5 opener)."
+        lede="Sunday totals from DraftKings via ESPN widget. Open / current / move / environment / weather. TB@CIN 50.5 ceiling. NYJ@TEN 39.5 floor."
       />
-      <div className="space-y-2">
-        {rows.map((game) => (
-          <Link key={game.id} href={`/games/${game.id}`} className="flex items-center justify-between rounded-lg border border-line bg-card p-3">
-            <div>
-              <p className="font-semibold">
-                {TEAM_BY_ID[game.awayTeamId].abbr} @ {TEAM_BY_ID[game.homeTeamId].abbr}
-              </p>
-              <p className="text-xs text-muted">
-                {game.kickoffLabel}
-                {game.openingTotal ? ` · opener/consensus ${game.openingTotal.value}` : ""}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="num text-2xl text-gold">{formatNumber(game.total.value)}</p>
-              <DataStatus quality={game.total.quality} />
-            </div>
-          </Link>
-        ))}
-      </div>
+      <SeedBanner>NYJ@TEN opener 38.5 is owner/consensus; 39.5 is the captured DK print. Highest total is not an automatic over.</SeedBanner>
+      <GameTotalsBoard rows={gameTotalRows()} />
     </div>
   );
 }

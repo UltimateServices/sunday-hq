@@ -1,23 +1,23 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { TDCard } from "@/components/ds/TDCard";
+import { SeedBanner } from "@/components/shared/SeedBanner";
+import { TouchdownsBoard } from "@/components/boards/TouchdownsBoard";
 import { PROPS } from "@/data/week1/props";
 import { toPropView } from "@/lib/prop-view";
 
 export default function TouchdownsPage() {
-  const views = PROPS.filter((p) => p.market === "ANYTIME_TD" || p.tdRole).map((p) => toPropView(p));
+  const views = PROPS.filter((p) =>
+    ["ANYTIME_TD", "FIRST_TD", "TWO_PLUS_TD", "RUSH_TD"].includes(p.market),
+  ).map((p) => toPropView(p));
+
   return (
     <div className="space-y-6">
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Touchdowns"
-        readiness="PLACEHOLDER"
-        lede="Shared TDCard. Anytime prices DATA UNAVAILABLE. Research names, not tickets."
+        lede="Anytime / First TD / 2+ / QB rush. Model P is ESTIMATE. DK anytime prices remain DATA UNAVAILABLE."
       />
-      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-        {views.map((view) => (
-          <TDCard key={view.id} view={view} />
-        ))}
-      </div>
+      <SeedBanner>Research names and placeholder probabilities. Not tickets. No LOCK language.</SeedBanner>
+      <TouchdownsBoard views={views} />
     </div>
   );
 }

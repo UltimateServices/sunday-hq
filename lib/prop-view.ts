@@ -3,7 +3,7 @@ import { PLAYER_BY_ID } from "@/data/week1/players";
 import { GAME_BY_ID } from "@/data/week1/games";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
-import { computePricing, type EvComputation } from "@/lib/odds";
+import { computeBinaryPricing, computePricing, isProbabilityMarket, type EvComputation } from "@/lib/odds";
 import { healthLabel } from "@/lib/health";
 import { confidenceGrade } from "@/lib/ui/confidence";
 import type {
@@ -40,13 +40,19 @@ export function toPropView(prop: PropMarket, assumedJuice = true): PropView {
   const health: HealthState = injury?.health ?? "NO_KNOWN_LIMITATION";
   const away = TEAM_BY_ID[game.awayTeamId].abbr;
   const home = TEAM_BY_ID[game.homeTeamId].abbr;
-  const pricing = computePricing({
-    model: prop.model,
-    line: prop.line,
-    odds: prop.oddsAmerican,
-    side: prop.side,
-    allowAssumedJuice: assumedJuice,
-  });
+  const pricing = isProbabilityMarket(prop.market)
+    ? computeBinaryPricing({
+        modelProb: prop.model,
+        odds: prop.oddsAmerican,
+        allowAssumedJuice: assumedJuice,
+      })
+    : computePricing({
+        model: prop.model,
+        line: prop.line,
+        odds: prop.oddsAmerican,
+        side: prop.side,
+        allowAssumedJuice: assumedJuice,
+      });
 
   const unavailable: MeasuredNumber = {
     value: null,
@@ -118,6 +124,8 @@ export const MARKET_LABEL: Record<string, string> = {
   RECEPTIONS: "Receptions",
   REC_TD: "Rec TD",
   ANYTIME_TD: "Anytime TD",
+  FIRST_TD: "First TD",
+  TWO_PLUS_TD: "2+ TD",
   ALT_YDS: "Alt Yds",
   TEAM_TOTAL: "Team Total",
   GAME_TOTAL: "Game Total",

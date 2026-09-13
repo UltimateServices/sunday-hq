@@ -1,12 +1,17 @@
-import { StubRoute } from "@/components/shared/StubRoute";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { SeedBanner } from "@/components/shared/SeedBanner";
+import { ParlaysBoard } from "@/components/boards/ParlaysBoard";
 
 export default function ParlaysPage() {
   return (
-    <StubRoute
-      title="Parlays"
-      phase={5}
-      readiness="PENDING"
-      lede="SGP and multi-game parlays. Correlation, same-game leakage, and no 'lock' language. Board exists; engine does not."
-    />
+    <div className="space-y-6">
+      <PageHeader
+        layer="Layer 3 · Ticket"
+        title="Parlays"
+        lede="SGP / cross / TD / Conservative / Balanced / Aggressive. Combined P is an independent product. Correlation chips stay honest."
+      />
+      <SeedBanner>No DK parlay price. Stacked same-game products are optimistic. Not a recommendation to fire.</SeedBanner>
+      <ParlaysBoard />
+    </div>
   );
 }

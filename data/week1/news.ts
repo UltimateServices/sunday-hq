@@ -69,6 +69,8 @@ export const CHANGES: ChangeItem[] = [
     implication: "ATL pass environment downgraded. Rush under is the structural lean if a real line appears.",
     quality: "VERIFIED",
     category: "LINEUP",
+    severity: "CRITICAL",
+    edgeImpact: "LOST",
   },
   {
     id: "chg-bowers",
@@ -78,6 +80,8 @@ export const CHANGES: ChangeItem[] = [
     implication: "TE residual, not a WR1. Vacuum can leak to Jeanty / WRs.",
     quality: "VERIFIED",
     category: "INJURY",
+    severity: "CRITICAL",
+    edgeImpact: "IMPROVED",
   },
   {
     id: "chg-kamara",
@@ -87,6 +91,8 @@ export const CHANGES: ChangeItem[] = [
     implication: "Do not settle health to OUT. Etienne volume is conditional.",
     quality: "SOURCE_CONFLICT",
     category: "INJURY",
+    severity: "IMPORTANT",
+    edgeImpact: "IMPROVED",
   },
   {
     id: "chg-ten-total",
@@ -96,6 +102,8 @@ export const CHANGES: ChangeItem[] = [
     implication: "Still the lowest Sunday total. Movement +1.0 vs owner seed opener.",
     quality: "CONSENSUS",
     category: "MARKET",
+    severity: "WATCH",
+    edgeImpact: "LOST",
   },
   {
     id: "chg-nabers",
@@ -105,6 +113,8 @@ export const CHANGES: ChangeItem[] = [
     implication: "Upgrade to GAME-TIME DECISION, not NO KNOWN LIMITATION.",
     quality: "CONSENSUS",
     category: "INJURY",
+    severity: "WATCH",
+    edgeImpact: "NONE",
   },
   {
     id: "chg-jax-wx",
@@ -114,6 +124,8 @@ export const CHANGES: ChangeItem[] = [
     implication: "Passing overs weather-taxed until NWS hourly is live.",
     quality: "ESTIMATE",
     category: "WEATHER",
+    severity: "IMPORTANT",
+    edgeImpact: "IMPROVED",
   },
   {
     id: "chg-mayer-proj",
@@ -123,6 +135,8 @@ export const CHANGES: ChangeItem[] = [
     implication: "Projection moved on Bowers OUT. Still not a priced GOOD BET.",
     quality: "ESTIMATE",
     category: "PROJECTION",
+    severity: "INFO",
+    edgeImpact: "IMPROVED",
   },
 ];
 

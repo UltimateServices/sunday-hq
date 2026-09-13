@@ -6,6 +6,7 @@ import { MoreDrawer } from "@/components/shell/MoreDrawer";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { ShellProvider } from "@/components/shell/ShellProvider";
 import { TopHeader } from "@/components/shell/TopHeader";
+import { MainStage } from "@/components/shell/MainStage";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col">
           <TopHeader />
           <MobileHeader />
-          <main className="flex-1 px-3 py-4 pb-20 sm:px-5 lg:px-6 lg:pb-6">{children}</main>
+          <MainStage>{children}</MainStage>
         </div>
       </div>
       <MobileBottomNav />

@@ -83,12 +83,12 @@ If a capability cannot ship, **stub the route / empty board and mark PENDING**. 
 | Phase | Ships | Status in this PR |
 | --- | --- | --- |
 | 1 | App shell, nav, types, schema stubs, games/players, Command Center | LIVE |
-| 2 | Injuries, weather, fantasy placeholders, position boards | LIVE / PLACEHOLDER |
-| 3 | Props EV full engine | PENDING stub |
-| 4 | Matchup engines | PENDING stub |
-| 5 | Parlays, boosts, My Card logic | PENDING stub |
-| 6 | Results, CLV, calibration | PENDING stub |
-| 7 | Alerts, admin weights | PENDING stub |
+| 2 | Injuries, weather, fantasy placeholders, position boards | LIVE |
+| 3 | Props / TD / team totals / game totals / fantasy boards (seed EV + Why) | LIVE · seed engine |
+| 4 | Matchup boards + market movement heat/timeline | LIVE · LOW SAMPLE scores |
+| 5 | Parlays, boosts, My Card, Final Card | LIVE · seed constructs |
+| 6 | Results, CLV, calibration (EXAMPLE/SEED until settle) | LIVE · illustrative |
+| 7 | Alerts wired + admin weights / settings | LIVE · no secrets |
 
 Do not optimize for the fastest MVP at the expense of this foundation.
 
