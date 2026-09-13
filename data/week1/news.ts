@@ -1,0 +1,142 @@
+import type { AvoidItem, ChangeItem, NewsItem } from "@/lib/types/domain";
+
+const AS_OF = "2026-09-13T12:00:00-04:00";
+
+export const NEWS: NewsItem[] = [
+  {
+    id: "news-atl-qb",
+    severity: "CRITICAL",
+    title: "Tua + Penix OUT — Cooper Rush starts at PIT",
+    body: "Atlanta is down its top two quarterbacks. Rush is the Week 1 starter. Bijan / London / Pitts remain usable as players; ATL passing props are a downgrade environment.",
+    gameId: "atl-pit",
+    playerIds: ["tua", "penix", "rush"],
+    asOf: AS_OF,
+    quality: "VERIFIED",
+    source: "ESPN inactives / Falcons injury report",
+  },
+  {
+    id: "news-bowers",
+    severity: "CRITICAL",
+    title: "Bowers OUT after meniscus surgery — Mayer is the Raiders TE",
+    body: "Bowers misses Week 1 and likely more. Mayer 39.5 receiving consensus is the residual line. Do not treat Mayer as Bowers.",
+    gameId: "mia-lv",
+    playerIds: ["bowers", "mayer"],
+    asOf: AS_OF,
+    quality: "VERIFIED",
+    source: "ESPN Week 1 inactives",
+  },
+  {
+    id: "news-kamara",
+    severity: "CRITICAL",
+    title: "Kamara SOURCE CONFLICT — Etienne is the volume lean",
+    body: "Owner seed: OUT. CBS: QUESTIONABLE. ESPN: bench risk, affects Etienne passing downs. Etienne consensus 56.5. Wait for inactives before a bet-grade.",
+    gameId: "no-det",
+    playerIds: ["kamara", "etienne"],
+    asOf: AS_OF,
+    quality: "SOURCE_CONFLICT",
+    source: "Owner seed + CBS + ESPN",
+  },
+  {
+    id: "news-nabers",
+    severity: "WATCH",
+    title: "Nabers GAME-TIME DECISION (ACL return)",
+    body: "Full practice. Expectation is he plays; he said the decision is his. No consensus yard line in seed. Do not invent one.",
+    gameId: "dal-nyg",
+    playerIds: ["nabers"],
+    asOf: AS_OF,
+    quality: "CONSENSUS",
+    source: "ESPN / Nabers comments",
+  },
+  {
+    id: "news-jax-wx",
+    severity: "WATCH",
+    title: "CLE @ JAX — significant heat / storm flag",
+    body: "Owner seed marks this as the weather game. Live NWS hourly is not wired. Passing overs are weather-taxed until a verified forecast lands.",
+    gameId: "cle-jax",
+    playerIds: ["lawrence"],
+    asOf: AS_OF,
+    quality: "ESTIMATE",
+    source: "Owner Week 1 seed",
+  },
+];
+
+export const CHANGES: ChangeItem[] = [
+  {
+    id: "chg-atl-qb",
+    title: "ATL QB",
+    from: "Tua named starter",
+    to: "Tua OUT, Penix OUT, Rush starts",
+    implication: "ATL pass environment downgraded. Rush under is the structural lean if a real line appears.",
+    quality: "VERIFIED",
+  },
+  {
+    id: "chg-bowers",
+    title: "LV TE",
+    from: "Bowers featured",
+    to: "Bowers OUT — Mayer 39.5 consensus",
+    implication: "TE residual, not a WR1. Vacuum can leak to Jeanty / WRs.",
+    quality: "VERIFIED",
+  },
+  {
+    id: "chg-kamara",
+    title: "NO RB",
+    from: "Kamara lead",
+    to: "SOURCE CONFLICT; Etienne 56.5 consensus",
+    implication: "Do not settle health to OUT. Etienne volume is conditional.",
+    quality: "SOURCE_CONFLICT",
+  },
+  {
+    id: "chg-ten-total",
+    title: "NYJ @ TEN total",
+    from: "38.5 consensus / owner floor",
+    to: "39.5 DK via ESPN widget",
+    implication: "Still the lowest Sunday total. Movement +1.0 vs owner seed opener.",
+    quality: "CONSENSUS",
+  },
+  {
+    id: "chg-nabers",
+    title: "NYG WR",
+    from: "ACL — Week 1 in doubt",
+    to: "Full practice, his call",
+    implication: "Upgrade to GAME-TIME DECISION, not NO KNOWN LIMITATION.",
+    quality: "CONSENSUS",
+  },
+];
+
+export const AVOIDS: AvoidItem[] = [
+  {
+    id: "avoid-atl-pass",
+    title: "ATL passing stack / Rush overs",
+    reason: "Emergency QB start. GOOD PLAYER is NO. Do not chase ATL pass yards.",
+    severity: "HIGH",
+    href: "/games/atl-pit",
+  },
+  {
+    id: "avoid-bowers",
+    title: "Brock Bowers anything",
+    reason: "OUT. Meniscus surgery. Not a game-time hope.",
+    severity: "HIGH",
+    href: "/players/bowers",
+  },
+  {
+    id: "avoid-kamara",
+    title: "Kamara as a priced play",
+    reason: "SOURCE CONFLICT plus likely limited role. Etienne is the research successor, not a lock.",
+    severity: "HIGH",
+    href: "/players/kamara",
+  },
+  {
+    id: "avoid-nabers-bet",
+    title: "Nabers as a GOOD BET",
+    reason: "GAME-TIME DECISION. No consensus line. Player quality ≠ bet quality.",
+    severity: "MED",
+    href: "/players/nabers",
+  },
+  {
+    id: "avoid-jax-pass-over",
+    title: "CLE @ JAX passing overs",
+    reason: "Heat/storm flag + 40.5 total. Unders are the weather-honest side until NWS is live.",
+    severity: "MED",
+    href: "/games/cle-jax",
+  },
+];
