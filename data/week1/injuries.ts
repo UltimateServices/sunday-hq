@@ -1,0 +1,128 @@
+import type { InjuryRecord } from "@/lib/types/domain";
+
+const AS_OF = "2026-09-13T12:00:00-04:00";
+
+export const INJURIES: InjuryRecord[] = [
+  {
+    id: "inj-tua",
+    playerId: "tua",
+    teamId: "atl",
+    gameId: "atl-pit",
+    health: "OUT",
+    bodyPart: "Oblique",
+    headline: "Tua Tagovailoa OUT — Cooper Rush starts",
+    detail:
+      "Atlanta's named starter was added to the injury report after Thursday practice and is ruled out. Michael Penix Jr. is also out, so Cooper Rush starts at Pittsburgh.",
+    quality: "VERIFIED",
+    sources: ["ESPN Week 1 inactives", "Falcons final injury report (SI)"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: ["rush", "bijan"],
+  },
+  {
+    id: "inj-penix",
+    playerId: "penix",
+    teamId: "atl",
+    gameId: "atl-pit",
+    health: "OUT",
+    bodyPart: "Knee",
+    headline: "Michael Penix Jr. OUT",
+    detail: "Unavailable Week 1 while recovering from a knee injury. Does not replace Tua.",
+    quality: "VERIFIED",
+    sources: ["ESPN Week 1 inactives", "Falcons final injury report"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: ["rush"],
+  },
+  {
+    id: "inj-bowers",
+    playerId: "bowers",
+    teamId: "lv",
+    gameId: "mia-lv",
+    health: "OUT",
+    bodyPart: "Knee / meniscus",
+    headline: "Brock Bowers OUT — Mayer inherits TE usage",
+    detail:
+      "Meniscus surgery Wednesday. Misses Week 1 and likely more. Michael Mayer is the on-roster TE beneficiary; Juwan Johnson is a separate Saints stream, not a Raiders replacement.",
+    quality: "VERIFIED",
+    sources: ["ESPN Week 1 inactives"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: ["mayer"],
+  },
+  {
+    id: "inj-kamara",
+    playerId: "kamara",
+    teamId: "no",
+    gameId: "no-det",
+    health: "QUESTIONABLE",
+    bodyPart: "Knee / MCL",
+    headline: "Alvin Kamara — SOURCE CONFLICT",
+    detail:
+      "Owner Week 1 seed marked Kamara OUT with Etienne as the volume successor. CBS listed Kamara QUESTIONABLE (full Friday). ESPN said he is likely left on fantasy benches and that his presence affects Etienne passing-down work. Sunday HQ does not collapse this to a single state: board shows QUESTIONABLE with SOURCE CONFLICT and treats Etienne as the primary volume lean until a verified inactive.",
+    quality: "SOURCE_CONFLICT",
+    sources: ["Owner seed (OUT)", "CBS (QUESTIONABLE)", "ESPN (limited / bench risk)"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: ["etienne"],
+  },
+  {
+    id: "inj-nabers",
+    playerId: "nabers",
+    teamId: "nyg",
+    gameId: "dal-nyg",
+    health: "GAME_TIME_DECISION",
+    bodyPart: "Knee (ACL return)",
+    headline: "Malik Nabers — GAME-TIME DECISION",
+    detail:
+      "Full practice week after 2025 ACL. Expectation from reporters is that he plays, but Nabers said the decision is his. Not listed as NO KNOWN LIMITATION.",
+    quality: "CONSENSUS",
+    sources: ["ESPN Week 1 inactives", "Giants / Harbaugh comments"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: [],
+  },
+  {
+    id: "inj-odunze",
+    playerId: "odunze",
+    teamId: "chi",
+    gameId: "chi-car",
+    health: "MINOR_CONCERN",
+    bodyPart: "Calf",
+    headline: "Rome Odunze expected to suit up (calf)",
+    detail:
+      "Limited all week; stated Friday he will play. Residual calf risk remains. Not 100% / not NO KNOWN LIMITATION.",
+    quality: "CONSENSUS",
+    sources: ["ESPN Week 1 inactives", "CBS injury tracker"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: [],
+  },
+  {
+    id: "inj-jeanty",
+    playerId: "jeanty",
+    teamId: "lv",
+    gameId: "mia-lv",
+    health: "MINOR_CONCERN",
+    bodyPart: "Ankle",
+    headline: "Ashton Jeanty will play (ankle)",
+    detail: "Full practice after a preseason ankle. ESPN: will play. Residual concern, not a clean bill.",
+    quality: "CONSENSUS",
+    sources: ["ESPN Week 1 inactives"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: [],
+  },
+  {
+    id: "inj-love-rb",
+    playerId: "love-rb",
+    teamId: "ari",
+    gameId: "ari-lac",
+    health: "EXPECTED_LIMITED",
+    bodyPart: "Ankle",
+    headline: "Jeremiyah Love expected to play; usage uncertain",
+    detail:
+      "Limited Wed/Thu, listed RB2. ESPN: expected to play, possibly managed touches. Week 1 LOW SAMPLE on role.",
+    quality: "LOW_SAMPLE",
+    sources: ["ESPN Week 1 inactives"],
+    asOf: AS_OF,
+    beneficiaryPlayerIds: [],
+  },
+];
+
+export function injuryForPlayer(playerId: string): InjuryRecord | undefined {
+  return INJURIES.find((row) => row.playerId === playerId);
+}
