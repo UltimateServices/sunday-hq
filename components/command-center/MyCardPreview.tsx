@@ -3,12 +3,12 @@
 import { useShell } from "@/components/shell/ShellProvider";
 
 export function MyCardPreview() {
-  const { watch, card } = useShell();
+  const { bets } = useShell();
   return (
     <div className="grid gap-2 md:grid-cols-3">
-      <Bucket title="Watching" count={watch.length} />
-      <Bucket title="Ready" count={card.length} />
-      <Bucket title="Placed" count={0} />
+      <Bucket title="Watching" count={bets.filter((b) => b.status === "WATCHING").length} />
+      <Bucket title="Ready" count={bets.filter((b) => b.status === "READY").length} />
+      <Bucket title="Placed" count={bets.filter((b) => b.status === "PLACED").length} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { PendingPanel } from "@/components/shared/PendingPanel";
-import { pendingForPhase } from "@/lib/pending";
+import { SeedBanner } from "@/components/shared/SeedBanner";
+import { SettingsBoard } from "@/components/boards/SettingsBoard";
 
 export default function SettingsPage() {
   return (
@@ -8,15 +8,10 @@ export default function SettingsPage() {
       <PageHeader
         layer="System"
         title="Settings"
-        readiness="PENDING"
-        lede="Display density, default window, Final Card confirmation. Secrets never live here."
+        lede="Default game window, density, alert floor, Final Card confirmation. Device-local only."
       />
-      <PendingPanel capability={pendingForPhase(7)!} />
-      <ul className="space-y-2 text-sm text-muted">
-        <li>Default game window: ALL / EARLY / LATE / SNF — PENDING persist</li>
-        <li>Final Card mode confirmation — UI toggle lives in the header now</li>
-        <li>Alert severity filters — drawer tabs already wired</li>
-      </ul>
+      <SeedBanner>Preferences persist in localStorage. No secrets, no book logins.</SeedBanner>
+      <SettingsBoard />
     </div>
   );
 }

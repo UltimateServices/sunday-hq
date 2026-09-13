@@ -137,8 +137,11 @@ Compact `PropCard`s. Filter drawer. Prefer cards over giant tables.
 | Phase | UI |
 | --- | --- |
 | 1 | Shell, sidebar, header, Command Center, games list/detail, player profile, mobile layout |
-| 2 | Props / QB / RB / WR / TE / Injuries / Weather — partial tables matching column specs |
-| 3–6 | Remaining routes exist with Pending panels matching this blueprint |
+| 2 | Props / QB / RB / WR / TE / Injuries / Weather — tables matching column specs |
+| 3 | Touchdowns tabs + table, team totals Best Over/Under, game totals open/current/move |
+| 4 | Matchup BEST/WORST + factor breakdown, markets heat/timeline, My Card + alerts |
+| 5 | Parlay generator, boosts Best/2nd/3rd, Final Card declutter |
+| 6 | Results + model performance + admin/settings |
 
 ## 9. Reconciliation with Master Spec
 

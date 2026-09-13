@@ -6,7 +6,7 @@ export const PENDING_CAPABILITIES: PendingCapability[] = [
     phase: 3,
     title: "Props EV engine",
     summary:
-      "Independent projection distribution vs DraftKings price: model prob, implied, EV, CLV-ready snapshots. Overs and unders with no side bias.",
+      "Seed UI is live (placeholder CDF + assumed -110 ESTIMATE). Still blocked from verified EV: live DK prop odds, trained distribution, alt ladders.",
     blockedBy: [
       "Live DraftKings prop odds ingest",
       "Trained projection model (not placeholder CDF)",

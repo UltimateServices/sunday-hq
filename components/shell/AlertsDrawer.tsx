@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ALERTS } from "@/data/week1/alerts";
 import { AlertRow } from "@/components/ds/AlertRow";
+import { EmptyState } from "@/components/ds/EmptyState";
 import type { AlertKind } from "@/lib/types/domain";
 import { useShell } from "./ShellProvider";
 
@@ -40,9 +41,11 @@ export function AlertsDrawer() {
           ))}
         </div>
         <div className="space-y-2">
-          {rows.map((alert) => (
-            <AlertRow key={alert.id} alert={alert} />
-          ))}
+          {rows.length === 0 ? (
+            <EmptyState />
+          ) : (
+            rows.map((alert) => <AlertRow key={alert.id} alert={alert} />)
+          )}
         </div>
       </aside>
     </div>

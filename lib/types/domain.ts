@@ -55,6 +55,8 @@ export type MarketType =
   | "RECEPTIONS"
   | "REC_TD"
   | "ANYTIME_TD"
+  | "FIRST_TD"
+  | "TWO_PLUS_TD"
   | "ALT_YDS"
   | "TEAM_TOTAL"
   | "GAME_TOTAL"
@@ -203,6 +205,10 @@ export type NewsItem = {
 
 export type ChangeCategory = "INJURY" | "PROJECTION" | "MARKET" | "WEATHER" | "LINEUP";
 
+export type AlertKind = "INJURIES" | "WEATHER" | "MARKETS" | "PROJECTIONS";
+
+export type AlertSeverity = "INFO" | "WATCH" | "IMPORTANT" | "CRITICAL";
+
 export type ChangeItem = {
   id: string;
   title: string;
@@ -211,6 +217,8 @@ export type ChangeItem = {
   implication: string;
   quality: DataQuality;
   category: ChangeCategory;
+  severity: AlertSeverity;
+  edgeImpact?: "LOST" | "IMPROVED" | "NONE";
 };
 
 export type LiveStatus = "UPCOMING" | "LIVE" | "FINAL";
@@ -218,10 +226,6 @@ export type LiveStatus = "UPCOMING" | "LIVE" | "FINAL";
 export type GameWindowFilter = "ALL" | "EARLY" | "LATE" | "SNF";
 
 export type ConfidenceGrade = "A+" | "A" | "A-" | "B+" | "B" | "B-" | "C" | "PASS";
-
-export type AlertKind = "INJURIES" | "WEATHER" | "MARKETS" | "PROJECTIONS";
-
-export type AlertSeverity = "INFO" | "WATCH" | "IMPORTANT" | "CRITICAL";
 
 export type AlertItem = {
   id: string;
@@ -269,6 +273,147 @@ export type FantasyProjection = {
   ppr: MeasuredNumber;
   halfPpr: MeasuredNumber;
   standard: MeasuredNumber;
+  deskPpr?: MeasuredNumber;
+  disagreement?: boolean;
+  flexEligible?: boolean;
+  note: string;
+};
+
+export type CardStatus = "WATCHING" | "READY" | "PLACED" | "SETTLED";
+
+export type CardReview = "LINE_MOVED" | "EDGE_LOST" | "EDGE_IMPROVED" | null;
+
+export type CardBet = {
+  id: string;
+  propId: string;
+  status: CardStatus;
+  units: number | null;
+  placedAt: string | null;
+  settledAt: string | null;
+  result: "WIN" | "LOSS" | "PUSH" | "VOID" | null;
+  lineAtAdd: number | null;
+  currentLine: number | null;
+  review: CardReview;
+  note: string;
+  seedLabel: "EXAMPLE" | "SEED" | "SESSION";
+};
+
+export type MatchupFactor = {
+  id: string;
+  label: string;
+  score: number | null;
+  quality: DataQuality;
+  note: string;
+};
+
+export type MatchupGrade = {
+  id: string;
+  playerId: string;
+  gameId: string;
+  position: Position;
+  panel: "BEST" | "WORST" | "MID";
+  overall: MeasuredNumber;
+  factors: MatchupFactor[];
+  lenses: Record<QualifierLens, QualifierGrade>;
+  why: WhySections;
+  note: string;
+};
+
+export type ParlayKind = "SGP" | "CROSS" | "TD" | "CONSERVATIVE" | "BALANCED" | "AGGRESSIVE";
+
+export type ParlayCorrelation = "STACKED" | "SAME_GAME" | "ANTI_CORR" | "INDEPENDENT" | "UNKNOWN";
+
+export type ParlayLeg = {
+  propId: string;
+  label: string;
+  modelProb: MeasuredNumber;
+};
+
+export type ParlayConstruct = {
+  id: string;
+  kind: ParlayKind;
+  profile: "Conservative" | "Balanced" | "Aggressive";
+  title: string;
+  legs: ParlayLeg[];
+  combinedProb: MeasuredNumber;
+  correlation: ParlayCorrelation;
+  correlationNote: string;
+  whyFit: string[];
+  howLoses: string[];
+  lenses: Record<QualifierLens, QualifierGrade>;
+};
+
+export type BoostCandidate = {
+  id: string;
+  title: string;
+  legs: string[];
+  minOdds: number;
+  normalEv: MeasuredNumber;
+  boostedEv: MeasuredNumber;
+  note: string;
+};
+
+export type BoostOffer = {
+  id: string;
+  label: string;
+  boostPct: number;
+  minOdds: number;
+  minLegs: number;
+  markets: string[];
+  expires: string;
+  quality: DataQuality;
+  candidates: BoostCandidate[];
+};
+
+export type ResultRow = {
+  id: string;
+  label: string;
+  market: string;
+  side: Side;
+  units: number;
+  result: "WIN" | "LOSS" | "PUSH" | "VOID";
+  clv: MeasuredNumber;
+  closingLine: MeasuredNumber;
+  lineTaken: MeasuredNumber;
+  seedLabel: "EXAMPLE" | "SEED";
+  note: string;
+  week: number;
+};
+
+export type CalibrationBucket = {
+  label: string;
+  predicted: number;
+  observed: number | null;
+  n: number;
+  quality: DataQuality;
+};
+
+export type MarketMoveEvent = {
+  id: string;
+  gameId: string;
+  market: "GAME_TOTAL" | "SPREAD" | "TEAM_TOTAL" | "PROP";
+  at: string;
+  from: number | null;
+  to: number | null;
+  heat: "QUIET" | "WARM" | "STEAM";
+  note: string;
+  quality: DataQuality;
+};
+
+export type AdminWeight = {
+  id: string;
+  name: string;
+  weight: number;
+  updatedBy: string;
+  updatedAt: string;
+  note: string;
+};
+
+export type SundayRoutineStep = {
+  id: string;
+  label: string;
+  status: "DONE" | "LIVE" | "PENDING";
+  at: string | null;
   note: string;
 };
 

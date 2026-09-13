@@ -1,12 +1,17 @@
-import { StubRoute } from "@/components/shared/StubRoute";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { SeedBanner } from "@/components/shared/SeedBanner";
+import { BoostsBoard } from "@/components/boards/BoostsBoard";
 
 export default function BoostsPage() {
   return (
-    <StubRoute
-      title="Boosts"
-      phase={5}
-      readiness="PENDING"
-      lede="Profit-boost inventory and residual EV after the boost. DraftKings-primary. No boost is a guaranteed plus-EV ticket."
-    />
+    <div className="space-y-6">
+      <PageHeader
+        layer="Layer 3 · Ticket"
+        title="Boosts"
+        lede="Boost % / min odds / legs / markets. Best / 2nd / 3rd use with Normal EV vs Boosted EV. Boosts do not create guaranteed plus-EV."
+      />
+      <SeedBanner>Seed inventory, not a live DK boost feed. EV stays ESTIMATE at assumed juice.</SeedBanner>
+      <BoostsBoard />
+    </div>
   );
 }

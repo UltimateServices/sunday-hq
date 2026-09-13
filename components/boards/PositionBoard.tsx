@@ -25,8 +25,7 @@ export function PositionBoard({
       <PageHeader
         layer="Layer 2 · Research Board"
         title={title}
-        readiness="PLACEHOLDER"
-        lede="Phase 2 board using shared PlayerCard + RankingTable. Week 1 = LOW SAMPLE."
+        lede="Position board using shared PlayerCard + RankingTable. Week 1 = LOW SAMPLE."
       />
       <Section title="Roster on Sunday slate">
         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
