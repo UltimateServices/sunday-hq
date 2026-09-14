@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { ALERTS } from "@/data/week1/alerts";
 import { CHANGES } from "@/data/week1/news";
 import { DATA_HEALTH, seedRefresh } from "@/lib/refresh";
@@ -33,10 +33,23 @@ const fallback: PublicOps = {
   envChecks: [],
 };
 
-const LiveOpsContext = createContext<PublicOps>(fallback);
+type LiveOpsValue = PublicOps & { reload: () => Promise<void> };
+
+const LiveOpsContext = createContext<LiveOpsValue>({ ...fallback, reload: async () => undefined });
 
 export function LiveOpsProvider({ children }: { children: React.ReactNode }) {
   const [ops, setOps] = useState<PublicOps>(fallback);
+
+  const reload = useCallback(async () => {
+    try {
+      const response = await fetch("/api/ops/status", { cache: "no-store" });
+      if (!response.ok) return;
+      const json = (await response.json()) as PublicOps;
+      setOps(json);
+    } catch {
+      // seed fallback stays
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,11 +71,11 @@ export function LiveOpsProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const value = useMemo(() => ops, [ops]);
+  const value = useMemo(() => ({ ...ops, reload }), [ops, reload]);
   return <LiveOpsContext.Provider value={value}>{children}</LiveOpsContext.Provider>;
 }
 
-export function useLiveOps(): PublicOps {
+export function useLiveOps(): LiveOpsValue {
   return useContext(LiveOpsContext);
 }
 

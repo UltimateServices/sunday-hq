@@ -8,5 +8,5 @@ export const dynamic = "force-dynamic";
 export default async function WideReceiversPage() {
   const catalog = await getWeekCatalog();
   const views = catalog.props.filter((p) => PLAYER_BY_ID[p.playerId]?.position === "WR").map((p) => toPropView(p));
-  return <PositionBoard position="WR" title="Wide Receivers" views={views} />;
+  return <PositionBoard position="WR" title="Wide Receivers" views={views} matchups={catalog.matchups} />;
 }

@@ -1,4 +1,8 @@
-export { ToneChip, StatusChip, HealthBadge, ProjectionBadge, ConfidenceBadge, WeatherBadge, MarketMovementBadge, EdgeBadge, EVBadge } from "./badges";
+export { ToneChip, StatusChip, HealthBadge, ProjectionBadge, ConfidenceBadge, WeatherBadge, MarketMovementBadge, EdgeBadge, EVBadge, RoleBadge } from "./badges";
+export { InfoTip } from "./InfoTip";
+export { WindowSwitcher } from "./WindowSwitcher";
+export { ScriptBars } from "./ScriptBars";
+export { EnvScoreTiles } from "./EnvScoreTiles";
 export { WhyDrawer } from "./WhyDrawer";
 export { FilterDrawer } from "./FilterDrawer";
 export { StatTile } from "./StatTile";

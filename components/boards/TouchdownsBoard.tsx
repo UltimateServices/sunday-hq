@@ -56,6 +56,19 @@ export function TouchdownsBoard({ views }: { views: PropView[] }) {
       </div>
       <div className="hidden md:block">{filters}</div>
       <FilterDrawer title="TD filters">{filters}</FilterDrawer>
+      {rows[0] ? (
+        <article className="surface p-4">
+          <p className="text-[12px] text-muted">Top {TABS.find((t) => t.id === tab)?.label} candidate</p>
+          <p className="mt-1 text-[22px] font-semibold tracking-tight">{rows[0].playerName}</p>
+          <p className="mt-1 text-[14px] text-muted">
+            {rows[0].matchup} · {rows[0].tdRole ?? "Role UNKNOWN"} · model {formatMeasured(rows[0].pricing.modelProb, 1, "pct")}
+          </p>
+          <p className="mt-2 text-[13px] text-muted">Book anytime price DATA UNAVAILABLE. Research name only.</p>
+          <div className="mt-3">
+            <TDCard view={rows[0]} />
+          </div>
+        </article>
+      ) : null}
       {rows.length === 0 ? (
         <EmptyState />
       ) : (

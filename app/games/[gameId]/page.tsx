@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DataStatus } from "@/components/shared/DataStatus";
 import { HealthBadge } from "@/components/shared/HealthBadge";
@@ -7,16 +6,21 @@ import { PropCard } from "@/components/shared/PropCard";
 import { Section } from "@/components/shared/Section";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { WhyDrawer } from "@/components/shared/WhyDrawer";
+import { EnvScoreTiles } from "@/components/ds/EnvScoreTiles";
+import { ScriptBars } from "@/components/ds/ScriptBars";
+import { InfoTip } from "@/components/ds/InfoTip";
 import { GAMES } from "@/data/week1/games";
 import { INJURIES } from "@/data/week1/injuries";
 import { NEWS } from "@/data/week1/news";
-import { SUNDAY_PLAYERS } from "@/data/week1/players";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { getWeekCatalog } from "@/lib/catalog";
 import { gameScript } from "@/lib/game-script";
 import { formatNumber, formatPct, spreadLabel } from "@/lib/format";
-import { toPropView } from "@/lib/prop-view";
-import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
+import { MARKET_LABEL, toPropView } from "@/lib/prop-view";
+import { derivedTeamTotals, impliedTeamTotals } from "@/lib/team-totals";
+import { buildGameDeskRow, gamePlayers, movesForGameDesk } from "@/lib/game-desk";
+import { GamePlayerTable } from "@/components/games/GamePlayerTable";
+import { GameBestBets } from "@/components/games/GameBestBets";
 
 export const dynamic = "force-dynamic";
 
@@ -39,18 +43,16 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
   const props = catalog.props.filter((p) => p.gameId === game.id).map((p) => toPropView(p));
   const injuries = INJURIES.filter((i) => i.gameId === game.id);
   const news = NEWS.filter((n) => n.gameId === game.id);
-  const players = SUNDAY_PLAYERS.filter((p) => p.teamId === game.awayTeamId || p.teamId === game.homeTeamId);
-  const tier = environmentFor(game, {
-    qbDowngrade: game.id === "atl-pit",
-    weatherRisk: wx?.impact === "SIGNIFICANT",
-  });
+  const players = gamePlayers(game);
+  const desk = buildGameDeskRow(catalog, game);
+  const moves = movesForGameDesk(game.id);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        layer="Layer 3 · Deep Dive"
+        layer="Deep dive"
         title={`${away.city} ${away.name} @ ${home.city} ${home.name}`}
-        lede={`${game.kickoffLabel} · ${game.network} · ${game.venue}. Why drawers stay attached to every prop.`}
+        lede={`${game.kickoffLabel} · ${game.network} · ${game.venue}. Environment scores are ESTIMATE.`}
       />
       <div className="grid gap-2 sm:grid-cols-4">
         <Tile label="Total" value={formatNumber(game.total.value)} note={game.total.note} />
@@ -59,17 +61,21 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
         <Tile label={`${home.abbr} impl.`} value={formatNumber(implied.home)} />
       </div>
       <div className="flex flex-wrap gap-2">
-        <StatusBadge tone="blue">{tier.replaceAll("_", " ")}</StatusBadge>
+        <StatusBadge tone="blue">{desk.tier.replaceAll("_", " ")}</StatusBadge>
         <DataStatus quality={game.total.quality} />
         <StatusBadge tone={game.indoor ? "green" : "yellow"}>{game.indoor ? "INDOOR" : "OUTDOOR"}</StatusBadge>
       </div>
+
+      <Section title="Environment">
+        <EnvScoreTiles scores={desk.env} />
+      </Section>
 
       <Section title="Why this environment">
         <WhyDrawer
           title={`${away.abbr} @ ${home.abbr}`}
           lenses={{
             GOOD_PLAYER: "UNKNOWN",
-            GOOD_MATCHUP: tier === "SHOOTOUT" ? "LEAN" : tier === "CAPPED" || tier === "QB_DOWNGRADE" ? "NO" : "UNKNOWN",
+            GOOD_MATCHUP: desk.tier === "SHOOTOUT" ? "LEAN" : desk.tier === "CAPPED" || desk.tier === "QB_DOWNGRADE" ? "NO" : "UNKNOWN",
             GOOD_PROJECTION: "UNKNOWN",
             GOOD_BET: "UNKNOWN",
           }}
@@ -83,6 +89,27 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
             "Coverage on /matchups is a script proxy, not a CB rank.",
           ]}
         />
+      </Section>
+
+      <Section title="Key factors">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="surface p-4">
+            <p className="text-[12px] text-muted">Positive</p>
+            <ul className="mt-2 space-y-1 text-[14px] leading-relaxed">
+              {desk.positives.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="surface p-4">
+            <p className="text-[12px] text-muted">Negative</p>
+            <ul className="mt-2 space-y-1 text-[14px] leading-relaxed">
+              {desk.negatives.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </Section>
 
       {news.length > 0 ? (
@@ -99,10 +126,16 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
       ) : null}
 
       <Section title="Game script">
-        <article className="rounded-lg border border-line bg-card p-3">
-          <p className="text-[10px] tracking-wide text-muted uppercase">ESTIMATE · spread logistic</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-3">
-            <Tile label={`${TEAM_BY_ID[game.homeTeamId].abbr} P(win)`} value={formatPct(script.pHomeWin)} />
+        <article className="surface p-4">
+          <ScriptBars
+            homeLabel={home.abbr}
+            awayLabel={away.abbr}
+            pHomeWin={script.pHomeWin}
+            pAwayWin={script.pAwayWin}
+            pClose={1 - script.pBlowout}
+          />
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <Tile label={`${home.abbr} P(win)`} value={formatPct(script.pHomeWin)} />
             <Tile label="P(blowout)" value={formatPct(script.pBlowout)} />
             <Tile label="Cover" value="~50% (no vig split)" />
           </div>
@@ -144,17 +177,38 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
         )}
       </Section>
 
-      <Section title="Players on this slate">
-        <div className="flex flex-wrap gap-2">
-          {players.map((player) => (
-            <Link key={player.id} href={`/players/${player.id}`} className="rounded-md border border-line px-2 py-1 text-sm hover:border-gold/50">
-              {player.name} <span className="text-muted">{player.position}</span>
-            </Link>
-          ))}
-        </div>
+      <Section title="Players">
+        <GamePlayerTable players={players} views={props} />
       </Section>
 
-      <Section title="Props">
+      <Section title="Best bets">
+        <GameBestBets views={props} totals={totals} live={catalog.liveGate.actionable} />
+      </Section>
+
+      <Section title="Market movement">
+        <p className="mb-2 text-[13px] text-muted">
+          <InfoTip term="Market Heat" /> Seed / catalog prints only. Player-prop tape stays DATA UNAVAILABLE.
+        </p>
+        {moves.length === 0 ? (
+          <p className="text-sm text-muted">No stored move for this game.</p>
+        ) : (
+          <ol className="space-y-2">
+            {moves.map((move) => (
+              <li key={move.id} className="surface p-3">
+                <p className="text-[13px] text-muted">
+                  {MARKET_LABEL[move.market] ?? move.market} · {move.heat} · {move.quality}
+                </p>
+                <p className="num mt-1 text-[18px]">
+                  {formatNumber(move.from)} → {formatNumber(move.to)}
+                </p>
+                <p className="mt-1 text-[13px] leading-relaxed text-muted">{move.note}</p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </Section>
+
+      <Section title="All props">
         {props.length === 0 ? (
           <p className="text-sm text-muted">No seeded props for this game. Board remains; numbers are not invented.</p>
         ) : (

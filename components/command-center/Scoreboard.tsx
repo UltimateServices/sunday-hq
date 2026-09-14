@@ -1,27 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { GameCard } from "@/components/ds/GameCard";
+import { WindowSwitcher } from "@/components/ds/WindowSwitcher";
+import { useShell } from "@/components/shell/ShellProvider";
 import type { EnvironmentRow } from "@/lib/command-center";
 
-const FILTERS = ["ALL", "1PM", "4PM", "SNF"] as const;
-
 export function Scoreboard({ rows }: { rows: EnvironmentRow[] }) {
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("ALL");
-  const visible = useMemo(
-    () => (filter === "ALL" ? rows : rows.filter((r) => r.window === filter)),
-    [filter, rows],
-  );
+  const { gameWindow, setGameWindow } = useShell();
+  const visible = useMemo(() => {
+    if (gameWindow === "ALL") return rows;
+    if (gameWindow === "EARLY") return rows.filter((r) => r.window === "1PM");
+    if (gameWindow === "LATE") return rows.filter((r) => r.window === "4PM");
+    return rows.filter((r) => r.window === "SNF");
+  }, [gameWindow, rows]);
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap gap-1">
-        {FILTERS.map((f) => (
-          <button key={f} type="button" onClick={() => setFilter(f)} className={`action-btn ${filter === f ? "text-gold" : ""}`}>
-            {f}
-          </button>
-        ))}
-      </div>
+      <WindowSwitcher value={gameWindow} onChange={setGameWindow} />
       <div className="flex gap-2 overflow-x-auto pb-1">
         {visible.map((row) => (
           <div key={row.gameId} className="min-w-[220px] max-w-[260px] shrink-0">

@@ -15,6 +15,7 @@ import { TEAM_BY_ID } from "@/data/week1/teams";
 import { getWeekCatalog } from "@/lib/catalog";
 import { formatMeasured } from "@/lib/format";
 import { toPropView } from "@/lib/prop-view";
+import { PlayerDesk } from "@/components/players/PlayerDesk";
 
 export const dynamic = "force-dynamic";
 
@@ -64,86 +65,94 @@ export default async function PlayerDeepDive({ params }: PageProps<"/players/[pl
       </div>
       {player.notes ? <p className="text-sm text-muted">{player.notes}</p> : null}
 
-      {catalog.matchups.find((row) => row.playerId === player.id) ? (
-        <Section title="Matchup engine">
-          {(() => {
-            const grade = catalog.matchups.find((row) => row.playerId === player.id)!;
-            return (
-              <article className="rounded-lg border border-line bg-card p-3">
-                <p className="num text-xl text-gold">{grade.overall.value}</p>
-                <p className="text-sm text-muted">{grade.note}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {grade.factors.map((factor) => (
-                    <div key={factor.id} className="rounded-md border border-line bg-bg-elev p-2">
-                      <p className="text-[10px] text-muted uppercase">{factor.label}</p>
-                      <p className="num text-sm">{factor.score ?? "—"}</p>
-                      <p className="text-[11px] text-muted">{factor.note}</p>
+      <PlayerDesk
+        overview={
+          <div className="space-y-6">
+            {inj ? (
+              <Section title="Health">
+                <p className="text-sm">{inj.detail}</p>
+                <p className="mt-2 text-xs text-muted">Sources: {inj.sources.join(" · ")}</p>
+              </Section>
+            ) : (
+              <Section title="Health">
+                <p className="text-sm">
+                  No injury row in the Week 1 seed. Rendered as NO KNOWN LIMITATION — never “100% healthy”.
+                </p>
+              </Section>
+            )}
+            <Section title="Fantasy placeholder">
+              {fan ? (
+                <div className="grid grid-cols-3 gap-2">
+                  <Tile label="PPR" value={formatMeasured(fan.ppr)} />
+                  <Tile label="Half" value={formatMeasured(fan.halfPpr)} />
+                  <Tile label="Std" value={formatMeasured(fan.standard)} />
+                </div>
+              ) : (
+                <p className="text-sm text-muted">DATA UNAVAILABLE — no placeholder projection stored for this player.</p>
+              )}
+              {fan ? <p className="mt-2 text-sm text-muted">{fan.note}</p> : null}
+            </Section>
+            <Section title="Why">
+              <WhyDrawer
+                title={player.name}
+                lenses={
+                  primary?.lenses ?? {
+                    GOOD_PLAYER: "UNKNOWN",
+                    GOOD_MATCHUP: "UNKNOWN",
+                    GOOD_PROJECTION: "UNKNOWN",
+                    GOOD_BET: "UNKNOWN",
+                  }
+                }
+                sections={primary?.whySections}
+                why={primary?.why ?? ["No seeded prop. Deep-dive route exists so research is not blocked."]}
+                risks={primary?.risks ?? ["Do not invent a line or a bet."]}
+              />
+            </Section>
+          </div>
+        }
+        props={
+          <Section title="Props">
+            {props.length === 0 ? (
+              <p className="text-sm text-muted">No seeded props. Route kept. Numbers are not fabricated.</p>
+            ) : (
+              <div className="grid gap-2 lg:grid-cols-2">
+                {props.map((view) => (
+                  <PropCard key={view.id} view={view} />
+                ))}
+              </div>
+            )}
+          </Section>
+        }
+        matchups={
+          catalog.matchups.find((row) => row.playerId === player.id) ? (
+            <Section title="Matchup engine">
+              {(() => {
+                const grade = catalog.matchups.find((row) => row.playerId === player.id)!;
+                return (
+                  <article className="rounded-lg border border-line bg-card p-3">
+                    <p className="num text-xl text-gold">{grade.overall.value}</p>
+                    <p className="text-sm text-muted">{grade.note}</p>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      {grade.factors.map((factor) => (
+                        <div key={factor.id} className="rounded-md border border-line bg-bg-elev p-2">
+                          <p className="text-[10px] text-muted uppercase">{factor.label}</p>
+                          <p className="num text-sm">{factor.score ?? "—"}</p>
+                          <p className="text-[11px] text-muted">{factor.note}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <WhyDrawer title={`${player.name} matchup`} lenses={grade.lenses} sections={grade.why} />
-                </div>
-              </article>
-            );
-          })()}
-        </Section>
-      ) : null}
-
-      {inj ? (
-        <Section title="Health">
-          <p className="text-sm">{inj.detail}</p>
-          <p className="mt-2 text-xs text-muted">Sources: {inj.sources.join(" · ")}</p>
-        </Section>
-      ) : (
-        <Section title="Health">
-          <p className="text-sm">
-            No injury row in the Week 1 seed. Rendered as NO KNOWN LIMITATION — never “100% healthy”.
-          </p>
-        </Section>
-      )}
-
-      <Section title="Fantasy placeholder">
-        {fan ? (
-          <div className="grid grid-cols-3 gap-2">
-            <Tile label="PPR" value={formatMeasured(fan.ppr)} />
-            <Tile label="Half" value={formatMeasured(fan.halfPpr)} />
-            <Tile label="Std" value={formatMeasured(fan.standard)} />
-          </div>
-        ) : (
-          <p className="text-sm text-muted">DATA UNAVAILABLE — no placeholder projection stored for this player.</p>
-        )}
-        {fan ? <p className="mt-2 text-sm text-muted">{fan.note}</p> : null}
-      </Section>
-
-      <Section title="Why">
-        <WhyDrawer
-          title={player.name}
-          lenses={
-            primary?.lenses ?? {
-              GOOD_PLAYER: "UNKNOWN",
-              GOOD_MATCHUP: "UNKNOWN",
-              GOOD_PROJECTION: "UNKNOWN",
-              GOOD_BET: "UNKNOWN",
-            }
-          }
-          sections={primary?.whySections}
-          why={primary?.why ?? ["No seeded prop. Deep-dive route exists so research is not blocked."]}
-          risks={primary?.risks ?? ["Do not invent a line or a bet."]}
-        />
-      </Section>
-
-      <Section title="Props">
-        {props.length === 0 ? (
-          <p className="text-sm text-muted">No seeded props. Route kept. Numbers are not fabricated.</p>
-        ) : (
-          <div className="grid gap-2 lg:grid-cols-2">
-            {props.map((view) => (
-              <PropCard key={view.id} view={view} />
-            ))}
-          </div>
-        )}
-      </Section>
+                    <div className="mt-3">
+                      <WhyDrawer title={`${player.name} matchup`} lenses={grade.lenses} sections={grade.why} />
+                    </div>
+                  </article>
+                );
+              })()}
+            </Section>
+          ) : (
+            <p className="text-sm text-muted">No stored matchup grade for this player.</p>
+          )
+        }
+      />
     </div>
   );
 }

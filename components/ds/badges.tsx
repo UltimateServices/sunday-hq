@@ -150,4 +150,10 @@ export function formatEdgeEv(value: number | null): string {
   return `${formatSigned(value * 100, 1)}% EV`;
 }
 
+export function RoleBadge({ role }: { role: string }) {
+  const tone: StatusTone =
+    role === "ROLE_UNCERTAIN" ? "orange" : role === "WORKHORSE" || role === "LEAD_BACK" ? "green" : "blue";
+  return <ToneChip tone={tone}>{role.replaceAll("_", " ")}</ToneChip>;
+}
+
 export { formatNumber, formatPct };

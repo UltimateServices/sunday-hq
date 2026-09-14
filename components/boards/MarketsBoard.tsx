@@ -41,8 +41,54 @@ export function MarketsBoard({
   const active = drawer ? eventsFor(drawer) : [];
   const activeGame = drawer ? incomingGames.find((g) => g.id === drawer) : null;
 
+  const heroes = useMemo(() => {
+    const scored = moves
+      .filter((m) => m.from !== null && m.to !== null)
+      .map((m) => ({ event: m, delta: (m.to ?? 0) - (m.from ?? 0) }))
+      .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+    const largest = scored[0];
+    const reverse = scored.filter((row) => row.delta < 0).sort((a, b) => a.delta - b.delta)[0];
+    const byGame = new Map<string, number>();
+    for (const move of moves) byGame.set(move.gameId, (byGame.get(move.gameId) ?? 0) + 1);
+    const mostActiveId = [...byGame.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    const mostActiveGame = incomingGames.find((g) => g.id === mostActiveId);
+    return [
+      {
+        label: "Largest line move",
+        value: largest ? `${largest.delta > 0 ? "+" : ""}${largest.delta.toFixed(1)}` : "DATA UNAVAILABLE",
+        detail: largest ? largest.event.note : "No stored open→current pair.",
+      },
+      {
+        label: "Odds move",
+        value: "DATA UNAVAILABLE",
+        detail: "Player-prop / juice tape is not live. Do not invent a DK price.",
+      },
+      {
+        label: "Most active market",
+        value: mostActiveGame
+          ? `${TEAM_BY_ID[mostActiveGame.awayTeamId].abbr} @ ${TEAM_BY_ID[mostActiveGame.homeTeamId].abbr}`
+          : "DATA UNAVAILABLE",
+        detail: mostActiveId ? `${byGame.get(mostActiveId)} stored prints` : "No events.",
+      },
+      {
+        label: "Largest reverse move",
+        value: reverse ? reverse.delta.toFixed(1) : "DATA UNAVAILABLE",
+        detail: reverse ? reverse.event.note : "No reverse print in this seed.",
+      },
+    ];
+  }, [moves, incomingGames]);
+
   return (
     <div className="space-y-4">
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {heroes.map((hero) => (
+          <article key={hero.label} className="surface p-4">
+            <p className="text-[12px] text-muted">{hero.label}</p>
+            <p className="mt-1 text-[20px] font-semibold tracking-tight">{hero.value}</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted">{hero.detail}</p>
+          </article>
+        ))}
+      </div>
       <div className="flex flex-wrap gap-1">
         {(["ALL", "QUIET", "WARM", "STEAM"] as const).map((h) => (
           <button key={h} type="button" onClick={() => setHeat(h)} className={`action-btn ${heat === h ? "text-gold" : ""}`}>

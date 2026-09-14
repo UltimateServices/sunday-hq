@@ -36,6 +36,9 @@ export function GameCard({
   weatherSummary,
   live,
   note,
+  injuryCount,
+  bestProp,
+  primaryRisk,
 }: {
   id: string;
   matchup: string;
@@ -48,6 +51,9 @@ export function GameCard({
   weatherSummary?: string;
   live: LiveStatus;
   note?: string;
+  injuryCount?: number;
+  bestProp?: string | null;
+  primaryRisk?: string | null;
 }) {
   return (
     <Link href={`/games/${id}`} className="surface block p-4 transition-colors hover:bg-card-hover">
@@ -63,7 +69,10 @@ export function GameCard({
         <ToneChip tone={LIVE_TONE[live]}>{LIVE[live]}</ToneChip>
         <ToneChip tone={TIER[tier]}>{tier.replaceAll("_", " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}</ToneChip>
         <WeatherBadge impact={weatherImpact} indoor={indoor} summary={weatherSummary} />
+        {injuryCount !== undefined ? <ToneChip tone={injuryCount > 0 ? "orange" : "blue"}>{injuryCount} inj</ToneChip> : null}
       </div>
+      {bestProp ? <p className="mt-3 text-[13px] leading-relaxed text-ink/90">Lean · {bestProp}</p> : null}
+      {primaryRisk ? <p className="mt-1 text-[13px] leading-relaxed text-muted">Risk · {primaryRisk}</p> : null}
       {note ? <p className="mt-3 text-[13px] leading-relaxed text-muted">{note}</p> : null}
     </Link>
   );
