@@ -30,7 +30,7 @@ export const PARLAYS: ParlayConstruct[] = [
       "Both legs are volume expressions of the same script.",
     ],
     howLoses: [
-      "Montgomery vultures scores while Gibbs still clears yards — or the reverse.",
+      "A DET committee back or Goff / St. Brown scores while Gibbs still clears yards — or Gibbs is held under the rush line. No second Lions RB is in the desk.",
       "NO boxes DET and the game stays 17–13.",
       "No DK SGP price — this is a construct, not a ticket.",
     ],
@@ -78,7 +78,7 @@ export const PARLAYS: ParlayConstruct[] = [
     ],
     howLoses: [
       "Any one miss kills the ticket.",
-      "Lamar / Montgomery / Higgins vulture paths.",
+      "Lamar sneak, a DET committee score, or Higgins.",
       "DK anytime prices DATA UNAVAILABLE — do not treat combined P as a book number.",
     ],
     lenses: { GOOD_PLAYER: "YES", GOOD_MATCHUP: "LEAN", GOOD_PROJECTION: "UNKNOWN", GOOD_BET: "NO" },
