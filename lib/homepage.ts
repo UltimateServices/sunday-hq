@@ -1,15 +1,19 @@
+import { PROPS } from "@/data/week1/props";
 import { WEEK1_META } from "@/data/week1/meta";
+import { TEAM_BY_ID } from "@/data/week1/teams";
+import { environmentFor } from "@/lib/team-totals";
 import type { WeekCatalog } from "@/lib/catalog";
+import { oneLineWhy, qualityLabel } from "@/lib/copy";
 import { isProbabilityMarket } from "@/lib/odds";
-import { toPropView, type PropView } from "@/lib/prop-view";
-import { teamTotalRows, type TeamTotalRow } from "@/lib/team-total-view";
-import type { AlertItem, ConfidenceGrade } from "@/lib/types/domain";
+import { MARKET_LABEL, toPropView, type PropView } from "@/lib/prop-view";
+import { formatMeasured } from "@/lib/format";
+import type { ConfidenceGrade, DataQuality, Game } from "@/lib/types/domain";
 
 export const HOME_PICK_LIMIT = 10;
-export const HOME_ALERT_LIMIT = 4;
 
 export type HomeTape = "LIVE" | "STALE" | "ESTIMATE";
-export type HomeChip = "ALL" | "OVERS" | "UNDERS" | "TDS" | "TEAM_TOTALS";
+export type HomeSectionId = "PROPS" | "OVERS" | "UNDERS" | "SPREADS";
+export type HomeEdgeUnit = "yards" | "prob";
 
 const CONF_WEIGHT: Record<ConfidenceGrade, number> = {
   "A+": 8,
@@ -22,25 +26,40 @@ const CONF_WEIGHT: Record<ConfidenceGrade, number> = {
   PASS: -20,
 };
 
+export type HomeScanRow = {
+  id: string;
+  href: string;
+  who: string;
+  what: string;
+  context: string;
+  line: string;
+  edgeValue: number | null;
+  edgeUnit: HomeEdgeUnit;
+  grade: ConfidenceGrade;
+  why: string;
+  quality: DataQuality;
+  qualityLabel: string;
+};
+
+export type HomeSection = {
+  id: HomeSectionId;
+  title: string;
+  lede: string;
+  rows: HomeScanRow[];
+};
+
 export function isTdMarket(market: string): boolean {
   return market === "ANYTIME_TD" || market === "FIRST_TD" || market === "TWO_PLUS_TD";
 }
 
-export function homeChipFor(view: PropView): Exclude<HomeChip, "ALL" | "TEAM_TOTALS"> {
-  if (isTdMarket(view.market)) return "TDS";
-  if (view.side === "UNDER") return "UNDERS";
-  return "OVERS";
-}
-
-/**
- * Cross-market rank. EV at assumed -110 is ESTIMATE for ranking only — never a DK price.
- * Confidence is the second axis so a high-edge PASS does not outrank a priced B- lean.
- */
-export function pickRankScore(view: PropView): number {
-  if (view.confidenceGrade === "PASS") return Number.NEGATIVE_INFINITY;
-  const ev = view.pricing.ev.value ?? -1;
-  const prob = view.pricing.modelProb.value ?? 0.5;
-  return ev * 220 + CONF_WEIGHT[view.confidenceGrade] * 5 + (prob - 0.5) * 18;
+/** Grade first, then edge. A high-edge PASS never outranks a priced lean. */
+export function compareGradeThenEdge(
+  a: { grade: ConfidenceGrade; edge: number | null },
+  b: { grade: ConfidenceGrade; edge: number | null },
+): number {
+  const grade = CONF_WEIGHT[b.grade] - CONF_WEIGHT[a.grade];
+  if (grade !== 0) return grade;
+  return (b.edge ?? Number.NEGATIVE_INFINITY) - (a.edge ?? Number.NEGATIVE_INFINITY);
 }
 
 function rankablePlayerPick(view: PropView): boolean {
@@ -50,37 +69,148 @@ function rankablePlayerPick(view: PropView): boolean {
   return view.line.value !== null;
 }
 
-function rankTeamTotal(row: TeamTotalRow): number {
-  return Math.abs(row.edge ?? 0);
+function propRow(view: PropView): HomeScanRow {
+  const td = isProbabilityMarket(view.market);
+  const what = td
+    ? MARKET_LABEL[view.market]
+    : `${MARKET_LABEL[view.market]} ${view.side === "OVER" ? "over" : "under"}`;
+  const line = td ? formatMeasured(view.model, 1, "pct") : `${view.side === "OVER" ? "O" : "U"} ${formatMeasured(view.line)}`;
+  return {
+    id: view.id,
+    href: `/players/${view.playerId}`,
+    who: view.playerName,
+    what,
+    context: `${view.teamAbbr} ${view.position} · ${view.matchup}`,
+    line,
+    edgeValue: view.pricing.edge.value,
+    edgeUnit: td ? "prob" : "yards",
+    grade: view.confidenceGrade,
+    why: oneLineWhy(view.whySections.modelCase, view.matchupNote),
+    quality: view.line.quality,
+    qualityLabel: qualityLabel(view.line.quality),
+  };
 }
 
-export function buildHomepage(catalog: WeekCatalog) {
-  const views = catalog.props.map((prop) => toPropView(prop));
-  const mixed = views.filter(rankablePlayerPick).sort((a, b) => pickRankScore(b) - pickRankScore(a));
-  const overs = views
-    .filter((view) => view.side === "OVER" && !isTdMarket(view.market) && view.confidenceGrade !== "PASS" && view.line.value !== null)
-    .sort((a, b) => pickRankScore(b) - pickRankScore(a));
-  const unders = views
-    .filter((view) => view.side === "UNDER" && view.confidenceGrade !== "PASS" && view.line.value !== null)
-    .sort((a, b) => pickRankScore(b) - pickRankScore(a));
-  const tds = views
-    .filter((view) => isTdMarket(view.market) && view.confidenceGrade !== "PASS" && view.model.value !== null)
-    .sort((a, b) => pickRankScore(b) - pickRankScore(a));
-  const teamTotals = teamTotalRows(catalog.games)
-    .filter((row) => row.line.value !== null && row.edge !== null)
-    .sort((a, b) => rankTeamTotal(b) - rankTeamTotal(a));
+function favoriteSpread(game: Game): {
+  who: string;
+  line: string;
+  matchup: string;
+} {
+  const away = TEAM_BY_ID[game.awayTeamId].abbr;
+  const home = TEAM_BY_ID[game.homeTeamId].abbr;
+  const matchup = `${away} @ ${home}`;
+  const spread = game.spreadHome.value;
+  if (spread === null) return { who: matchup, line: "DATA UNAVAILABLE", matchup };
+  if (spread === 0) return { who: matchup, line: "PK", matchup };
+  if (spread < 0) return { who: home, line: `${home} ${spread}`, matchup };
+  return { who: away, line: `${away} −${spread}`, matchup };
+}
 
-  const alerts = [...catalog.alerts]
-    .filter((alert) => alert.severity === "CRITICAL" || alert.severity === "IMPORTANT")
+/** Posted-line research grade only. No cover model — never A / A+. */
+export function spreadConfidenceGrade(game: Game): ConfidenceGrade {
+  if (game.spreadHome.value === null || game.spreadHome.quality === "UNAVAILABLE") return "PASS";
+  return "C";
+}
+
+function spreadWhy(game: Game): string {
+  const note = game.spreadHome.note?.trim();
+  if (note) return oneLineWhy([note], note);
+  const env = environmentFor(game, {
+    qbDowngrade: game.id === "atl-pit",
+    weatherRisk: game.id === "cle-jax",
+  });
+  if (env === "QB_DOWNGRADE") return "QB room is OUT. Line is posted; no trained cover model.";
+  if (env === "WEATHER_RISK") return "Weather can move this number. No trained cover model.";
+  return "Game spread from the catalog. No trained cover model.";
+}
+
+function spreadRow(game: Game): HomeScanRow | null {
+  if (game.spreadHome.value === null) return null;
+  const fav = favoriteSpread(game);
+  const grade = spreadConfidenceGrade(game);
+  if (grade === "PASS") return null;
+  return {
+    id: `spread-${game.id}`,
+    href: `/games/${game.id}`,
+    who: fav.who,
+    what: "Spread",
+    context: `${fav.matchup} · ${game.kickoffLabel}`,
+    line: fav.line,
+    edgeValue: null,
+    edgeUnit: "yards",
+    grade,
+    why: spreadWhy(game),
+    quality: game.spreadHome.quality,
+    qualityLabel: qualityLabel(game.spreadHome.quality),
+  };
+}
+
+function takeTop10(rows: HomeScanRow[]): HomeScanRow[] {
+  return [...rows].sort((a, b) => compareGradeThenEdge({ grade: a.grade, edge: a.edgeValue }, { grade: b.grade, edge: b.edgeValue })).slice(0, HOME_PICK_LIMIT);
+}
+
+/**
+ * Shareable Home. Always builds the four Top-10 lists from catalog or Week 1 seed.
+ * Live-gate never hides the structure — rows stay labeled research, not tickets.
+ */
+export function buildHomepage(catalog: WeekCatalog) {
+  const live = catalog.liveGate.actionable;
+  const propSource = catalog.props.length > 0 ? catalog.props : PROPS;
+  const views = propSource.map((prop) => toPropView(prop));
+  const rankable = views.filter(rankablePlayerPick);
+  const props = takeTop10(rankable.map(propRow));
+  const overs = takeTop10(
+    rankable.filter((view) => view.side === "OVER").map(propRow),
+  );
+  const unders = takeTop10(
+    rankable.filter((view) => view.side === "UNDER").map(propRow),
+  );
+  const spreadRows = catalog.games
+    .map(spreadRow)
+    .filter((row): row is HomeScanRow => row !== null)
     .sort((a, b) => {
-      if (a.severity === b.severity) return 0;
-      return a.severity === "CRITICAL" ? -1 : 1;
+      const gradeEdge = compareGradeThenEdge({ grade: a.grade, edge: a.edgeValue }, { grade: b.grade, edge: b.edgeValue });
+      if (gradeEdge !== 0) return gradeEdge;
+      const gameA = catalog.gameById[a.id.replace("spread-", "")];
+      const gameB = catalog.gameById[b.id.replace("spread-", "")];
+      const absA = Math.abs(gameA?.spreadHome.value ?? 99);
+      const absB = Math.abs(gameB?.spreadHome.value ?? 99);
+      if (absA !== absB) return absA - absB;
+      return (gameA?.kickoffIso ?? "").localeCompare(gameB?.kickoffIso ?? "");
     })
-    .slice(0, HOME_ALERT_LIMIT);
+    .slice(0, HOME_PICK_LIMIT);
 
   const tape: HomeTape = catalog.oddsFresh ? "LIVE" : catalog.snapshot?.status === "LIVE" ? "STALE" : "ESTIMATE";
-  const liveGate = catalog.liveGate;
-  const showPicks = liveGate.actionable;
+  const notLiveLede = "Not live. Research ranks from seed/catalog — not a bet slip.";
+
+  const sections: HomeSection[] = [
+    {
+      id: "PROPS",
+      title: "Top 10 Props",
+      lede: live ? "Highest grade, then edge. Player props only." : notLiveLede,
+      rows: props,
+    },
+    {
+      id: "OVERS",
+      title: "Top 10 Overs",
+      lede: live ? "Overs first-class. Same grade + edge rank." : notLiveLede,
+      rows: overs,
+    },
+    {
+      id: "UNDERS",
+      title: "Top 10 Unders",
+      lede: live ? "Unders first-class. Same grade + edge rank." : notLiveLede,
+      rows: unders,
+    },
+    {
+      id: "SPREADS",
+      title: "Top 10 Spreads",
+      lede: live
+        ? "Posted game lines. Cover edge stays unavailable until a spread model ships."
+        : "Game lines from seed/catalog. Quality labeled. No cover model.",
+      rows: spreadRows,
+    },
+  ];
 
   return {
     week: WEEK1_META.week,
@@ -92,21 +222,12 @@ export function buildHomepage(catalog: WeekCatalog) {
     healthState: catalog.health.state,
     healthIssues: catalog.health.issues.slice(0, 3),
     tape,
+    live,
     liveBanner: catalog.liveBanner,
     staleWarning: catalog.staleWarning,
-    alerts,
-    liveGate,
-    picks: showPicks
-      ? {
-          ALL: mixed.slice(0, HOME_PICK_LIMIT),
-          OVERS: overs.slice(0, HOME_PICK_LIMIT),
-          UNDERS: unders.slice(0, HOME_PICK_LIMIT),
-          TDS: tds.slice(0, HOME_PICK_LIMIT),
-        }
-      : { ALL: [], OVERS: [], UNDERS: [], TDS: [] },
-    teamTotals: showPicks ? teamTotals.slice(0, HOME_PICK_LIMIT) : [],
+    liveGate: catalog.liveGate,
+    sections,
   };
 }
 
 export type HomepageVM = ReturnType<typeof buildHomepage>;
-export type HomepageAlert = AlertItem;

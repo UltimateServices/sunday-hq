@@ -49,18 +49,22 @@ Severity: **INFO · WATCH · IMPORTANT · CRITICAL**
 
 `HEALTHY` as a chip is **system/data health only**. Player availability never renders “HEALTHY” or “100% healthy” — it uses the Master Spec enum (`NO KNOWN LIMITATION`, …).
 
-## 2. Live Home `/`
+## 2. Shareable Home `/`
 
-Mobile-first. Above the fold, in this order:
+Dead simple. Built to share. Mobile-first. Global live-gate banner stays above the page.
 
-1. Week / last refresh / data health chip (LIVE · STALE · ESTIMATE — never invent DK odds)
-2. Critical alerts strip (max 3–5, CRITICAL / IMPORTANT only)
-3. **BEST PICKS THIS WEEK** — one ranked list of top projected singles (overs + unders + TDs mixed by edge/confidence), prop-card format, Why button
-4. Quick chips: Overs · Unders · TDs · Team Totals (filter the list — do not duplicate giant tables)
-5. My Card summary (watching / ready counts)
-6. Link: Full Command Center → `/dashboard`
+On the page, in this order:
 
-Use the live snapshot when fresh; otherwise seed with STALE / ESTIMATE labels.
+1. Week + one-line lede (not a hero dump)
+2. **Top 10 Props** — highest grade, then edge
+3. **Top 10 Overs**
+4. **Top 10 Unders**
+5. **Top 10 Spreads** — posted game lines from seed/catalog; quality labeled; no invented cover edge
+6. Link: Command Center → `/dashboard`
+
+Card contract (every row): **who / what / line / edge / grade / short why**. Apple-calm `surface` cards. No alerts strip, no filter chips, no My Card, no scoreboard, no parlays, no Why drawers, no research tables.
+
+When tape is not LIVE: keep the four-section layout. Cards carry a **Not live** chip and muted line treatment. Stubs / short lists OK. Never style Home as a live bet slip on seed.
 
 ## 2b. Command Center `/dashboard`
 
@@ -89,7 +93,7 @@ Critical Alerts → Top 5 Opportunities → My Card → TDs → Injuries → Wea
 
 `/` `/dashboard` `/games` `/games/[id]` `/props` `/quarterbacks` `/running-backs` `/wide-receivers` `/tight-ends` `/touchdowns` `/team-totals` `/game-totals` `/fantasy` `/compare` `/matchups` `/weather` `/injuries` `/markets` `/parlays` `/boosts` `/my-card` `/results` `/model-performance` `/players/[id]` `/teams/[id]` `/admin` `/settings`
 
-`/lines` remains as a redirect to `/markets`. `/` is Live Home. `/dashboard` is Command Center.
+`/lines` remains as a redirect to `/markets`. `/` is the shareable Top-10 Home. `/dashboard` is Command Center.
 
 ## 4. Shared design system (reuse everywhere)
 
@@ -149,7 +153,7 @@ Compact `PropCard`s. Filter drawer. Prefer cards over giant tables.
 
 | Phase | UI |
 | --- | --- |
-| 1 | Shell, sidebar, header, Live Home `/`, Command Center `/dashboard`, games list/detail, player profile, mobile layout |
+| 1 | Shell, sidebar, header, Top-10 Home `/`, Command Center `/dashboard`, games list/detail, player profile, mobile layout |
 | 2 | Props / QB / RB / WR / TE / Injuries / Weather — tables matching column specs |
 | 3 | Touchdowns tabs + table, team totals Best Over/Under, game totals open/current/move |
 | 4 | Matchup BEST/WORST + factor breakdown, markets heat/timeline, My Card + alerts |
@@ -163,3 +167,4 @@ Compact `PropCard`s. Filter drawer. Prefer cards over giant tables.
 - No unit inflation / loss chasing
 - PENDING stubs stay; do not hide missing engines
 - Seed data stays labeled CONSENSUS / ESTIMATE / UNAVAILABLE / SOURCE CONFLICT
+- Home `/` is Top-10 only (Props / Overs / Unders / Spreads). Research stays on `/dashboard` and in the menu.

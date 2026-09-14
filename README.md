@@ -2,7 +2,7 @@
 
 Private NFL Props & Parlay Intelligence Platform for UltimateServices.
 
-`/` is a live **best picks** homepage. Full research Command Center lives at `/dashboard`. Workflow: collect → verify → normalize → model → compare → rank → explain → monitor → record → learn.
+`/` is a shareable **Top 10** homepage (Props / Overs / Unders / Spreads). Full research Command Center lives at `/dashboard`. Workflow: collect → verify → normalize → model → compare → rank → explain → monitor → record → learn.
 
 Binding product contract: [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md).  
 Binding UI contract: [`docs/UI_BLUEPRINT.md`](docs/UI_BLUEPRINT.md).
@@ -46,7 +46,7 @@ Set these in the Vercel project → Settings → Environment Variables (Producti
 
 Vercel Cron (already in `vercel.json`) hits `/api/cron/sunday-refresh?stage=…`. Production must have `CRON_SECRET`. Enable Cron Jobs on the project.
 
-Without `ODDS_API_KEY`: ingest still runs and timestamps the miss. No verified DraftKings number is invented. Homepage + parlays + pick boards show **Not live — do not bet from this page.**
+Without `ODDS_API_KEY`: ingest still runs and timestamps the miss. No verified DraftKings number is invented. Home still shows the Top-10 layout with **Not live** labels. Parlays + pick boards stay hidden. Banner: **Not live — do not bet from this page.**
 
 Tomorrow morning (keys only): [`docs/TOMORROW_GO_LIVE.md`](docs/TOMORROW_GO_LIVE.md).
 

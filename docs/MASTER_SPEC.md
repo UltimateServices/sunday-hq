@@ -10,12 +10,12 @@ Org: UltimateServices. App: Next.js on Vercel. Book: **DraftKings-primary**.
 
 ## 2. Three layers
 
-1. **Live Home (`/`)** — best projected singles of the week. Not the research dump.
+1. **Shareable Home (`/`)** — four Top-10 lists only. Not the research dump.
 2. **Command Center (`/dashboard`)** — full Sunday research terminal. Ordered sections are mandatory (see §12).
 3. **Research Boards** — position, market, injury, weather, lines.
 4. **Deep Dive** — `/games/[id]` and `/players/[id]` with **Why drawers**.
 
-Home is a ranked picks surface. Command Center stays the encyclopedia. Do not delete the research dump to make Home simpler.
+Home is a shareable Top-10 surface. Command Center stays the encyclopedia. Do not paint the research dump on `/`.
 
 ## 3. Workflow (non-skippable)
 
@@ -52,7 +52,7 @@ Forbidden: **LOCK**, **GUARANTEED**, **100% BET**, “can’t miss”, “print�
 
 Allowed: lean, research, placeholder, estimate, unavailable.
 
-**Live gate:** seed / ESTIMATE / STALE / missing `ODDS_API_KEY` must not look bettable. Narratives (`whyFit` / `howLoses`) must not name teammates or opponents who are not in `data/week1/players.ts` (or a later live player DB). Prefer roster-derived or generic copy (“committee RB vultures TDs”). Montgomery is Houston, not Detroit.
+**Live gate:** seed / ESTIMATE / STALE / missing `ODDS_API_KEY` must not look bettable. Home still shows the Top-10 layout with not-live labels. Narratives (`whyFit` / `howLoses`) must not name teammates or opponents who are not in `data/week1/players.ts` (or a later live player DB). Prefer roster-derived or generic copy (“committee RB vultures TDs”). Montgomery is Houston, not Detroit.
 
 ## 7. Pricing rules
 
@@ -85,7 +85,7 @@ If a capability cannot ship, **stub the route / empty board and mark PENDING**. 
 
 | Phase | Ships | Status in this PR |
 | --- | --- | --- |
-| 1 | App shell, nav, Live Home, Command Center, games/players | LIVE |
+| 1 | App shell, nav, Top-10 Home, Command Center, games/players | LIVE |
 | 2 | Injuries, weather, fantasy placeholders, position boards | LIVE · NWS hourly + roof OPEN/CLOSED/UNKNOWN |
 | 3 | Props / TD / team totals / game totals / fantasy boards (seed EV + Why) | LIVE · seed engine + live DK overlay |
 | 4 | Matchup boards + market movement heat/timeline | LIVE · factor engine + /compare |
@@ -97,7 +97,16 @@ Do not optimize for the fastest MVP at the expense of this foundation.
 
 ## 12. Home vs Command Center
 
-`/` is the live picks homepage (week / refresh / health, 3–5 decision alerts, one ranked BEST PICKS list, Overs/Unders/TDs/Team Totals chips, My Card counts, link to Command Center). If tape is not fresh LIVE DraftKings, Home shows the live-required state and **no seed tickets**. Do not paint every board on first load.
+`/` is the shareable Top-10 homepage. Four sections, in this order, each ranked by **highest grade then edge** (confidence + edge):
+
+1. **Top 10 Props**
+2. **Top 10 Overs**
+3. **Top 10 Unders**
+4. **Top 10 Spreads**
+
+Each card is scannable only: **who / what / line / edge / grade / short why**. No alerts dump, no My Card, no scoreboard, no parlays, no Why drawers, no research boards on Home. Link out to Command Center and the menu.
+
+**Live-gate:** when tape is not fresh LIVE DraftKings, keep the banner **Not live — do not bet from this page.** The four-section layout still renders. Cards use seed/catalog rows with **Not live** labels (stubs OK). Home must never look like a live bet slip on seed. Spreads use posted game lines from seed/catalog when present and label quality honestly. Missing cover edge stays unavailable — do not invent a spread model.
 
 `/dashboard` is Command Center. Visual composition is defined in `docs/UI_BLUEPRINT.md` (desktop 4×2 primary cards, scoreboard strip, mobile reorder). Product content that must remain there: hero strip, eight summary cards (BEST OVER / UNDER / TD / TEAM TOTAL / QB MATCHUP / RB MATCHUP / GAME ENVIRONMENT / BIGGEST WARNING), critical news, what changed, opportunities, volume, TDs, weather, injuries, environments, overs + unders, parlays, my card. Missing engines stay PENDING.
 
@@ -115,7 +124,7 @@ When My Card ships: **no loss chasing** and **no unit inflation** after early ga
 - `.env*` is gitignored. Document names only in `.env.example`.
 - Game spreads/totals in the Week 1 seed are **DK via ESPN schedule widget (2026-09-13)**.
 - Player props in the seed are **CONSENSUS / ESTIMATE** unless a later ingest marks them verified.
-- Live DK tape comes from **The Odds API** (`ODDS_API_KEY`) with `bookmakers=draftkings,fanduel,betmgm,caesars`. DraftKings is the decision book; other books are compare-only. Without the key **or** when tape is seed / ESTIMATE / STALE / DEGRADED: homepage, parlays, and pick boards **hide seed constructs** and lead with **Not live — do not bet from this page.** Never invent a verified DK price. Desk steps: `docs/TOMORROW_GO_LIVE.md`.
+- Live DK tape comes from **The Odds API** (`ODDS_API_KEY`) with `bookmakers=draftkings,fanduel,betmgm,caesars`. DraftKings is the decision book; other books are compare-only. Without the key **or** when tape is seed / ESTIMATE / STALE / DEGRADED: lead with **Not live — do not bet from this page.** Home still shows the Top-10 structure with not-live labels. Parlays and pick boards **hide seed constructs**. Never invent a verified DK price. Desk steps: `docs/TOMORROW_GO_LIVE.md`.
 - Outdoor weather comes from **NWS hourly** (`NWS_USER_AGENT` required by NWS; a documented default is used if unset). Retractable roofs stay `UNKNOWN` unless a lid source exists.
 - Settlement uses the **ESPN public site API** (no key): scoreboard + summary box scores. Closing line is the last **pre-kick** odds snapshot. CLV is REAL only when both exist.
 - NYJ@TEN: owner seed 38.5 floor; ESPN DK widget 39.5 at capture — both stored, movement labeled.
@@ -123,9 +132,9 @@ When My Card ships: **no loss chasing** and **no unit inflation** after early ga
 ## 16. Architecture
 
 ```
-app/           App Router pages (Live Home, Command Center, boards) + api/ingest, api/settle, api/cron
+app/           App Router pages (Top-10 Home, Command Center, boards) + api/ingest, api/settle, api/cron
 components/    Shell, homepage, Command Center, boards, shared
-lib/           types, nav, homepage rank, odds/EV, ingest, settle, Sunday refresh
+lib/           types, nav, homepage Top-10 rank, odds/EV, ingest, settle, Sunday refresh
 data/          Week 1 seed + snapshots overlay + SQL schema stub
 docs/          This contract
 ```
