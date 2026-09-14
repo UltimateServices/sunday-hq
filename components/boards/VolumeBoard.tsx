@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FilterDrawer } from "@/components/ds/FilterDrawer";
 import { VolumeTable } from "@/components/boards/VolumeTable";
 import { SeedBanner } from "@/components/shared/SeedBanner";
+import { useShell } from "@/components/shell/ShellProvider";
 import { filterVolumeRows, type VolumeBoardTab, type VolumeRow } from "@/lib/volume-board";
 import type { GameWindowFilter, Position } from "@/lib/types/domain";
 import type { VolumeStability } from "@/lib/volume-stability";
@@ -31,9 +32,11 @@ export function VolumeBoard({ rows, research }: { rows: VolumeRow[]; research: b
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const { gameWindow } = useShell();
   const tab = (params.get("tab") as VolumeBoardTab) || "SAFE";
   const pos = (params.get("pos") as Position | "ALL") || "ALL";
-  const window = (params.get("window") as GameWindowFilter) || "ALL";
+  const windowParam = (params.get("window") as GameWindowFilter) || "ALL";
+  const window = windowParam === "ALL" ? gameWindow : windowParam;
   const stability = (params.get("stability") as VolumeStability | "ALL") || "ALL";
 
   function setParam(key: string, value: string) {
@@ -73,7 +76,7 @@ export function VolumeBoard({ rows, research }: { rows: VolumeRow[]; research: b
         <Field label="Pos" value={pos} onChange={(value) => setParam("pos", value)} options={["ALL", "QB", "RB", "WR", "TE"]} />
         <Field
           label="Window"
-          value={window}
+          value={windowParam}
           onChange={(value) => setParam("window", value)}
           options={["ALL", "EARLY", "LATE", "SNF"]}
         />

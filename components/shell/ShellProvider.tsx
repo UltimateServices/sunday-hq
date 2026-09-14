@@ -4,7 +4,16 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, u
 import { SEED_CARD } from "@/data/week1/card";
 import { PROP_BY_ID } from "@/data/week1/props";
 import { applyLockToBet, buildLockSnapshot, livePropFromSnapshot } from "@/lib/card/lock";
-import { CARD_KEY, DEFAULT_SETTINGS, SETTINGS_KEY, STARS_KEY, type AppSettings } from "@/lib/settings";
+import {
+  CARD_KEY,
+  DEFAULT_SETTINGS,
+  SETTINGS_EVENT,
+  SETTINGS_KEY,
+  STARS_KEY,
+  readSettings,
+  writeSettings,
+  type AppSettings,
+} from "@/lib/settings";
 import type { OddsSnapshot } from "@/lib/ingest/types";
 import type { CardBet, CardStatus, GameWindowFilter } from "@/lib/types/domain";
 
@@ -102,9 +111,11 @@ function subscribeStars(onStoreChange: () => void) {
 
 function subscribeWindow(onStoreChange: () => void) {
   window.addEventListener(WINDOW_EVENT, onStoreChange);
+  window.addEventListener(SETTINGS_EVENT, onStoreChange);
   window.addEventListener("storage", onStoreChange);
   return () => {
     window.removeEventListener(WINDOW_EVENT, onStoreChange);
+    window.removeEventListener(SETTINGS_EVENT, onStoreChange);
     window.removeEventListener("storage", onStoreChange);
   };
 }
@@ -121,14 +132,8 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
   const [bets, setBets] = useState<CardBet[]>(SEED_CARD);
 
   const setGameWindow = useCallback((next: GameWindowFilter) => {
-    try {
-      const raw = localStorage.getItem(SETTINGS_KEY);
-      const current = raw ? (JSON.parse(raw) as AppSettings) : DEFAULT_SETTINGS;
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...current, defaultWindow: next }));
-      window.dispatchEvent(new Event(WINDOW_EVENT));
-    } catch {
-      // ignore
-    }
+    writeSettings({ ...readSettings(), defaultWindow: next });
+    window.dispatchEvent(new Event(WINDOW_EVENT));
   }, []);
 
   const watch = useMemo(() => bets.filter((b) => b.status === "WATCHING").map((b) => b.propId), [bets]);
