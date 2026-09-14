@@ -1,25 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { DEFAULT_SETTINGS, SETTINGS_KEY, type AppSettings } from "@/lib/settings";
+import { useState, useSyncExternalStore } from "react";
+import { getServerSettings, readSettings, subscribeSettings, writeSettings, type AppSettings } from "@/lib/settings";
 import { ToneChip } from "@/components/ds/badges";
 import { useShell } from "@/components/shell/ShellProvider";
-
-function persistSettings(next: AppSettings) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
-}
+import { MILESTONE_LABELS, TIMELINE_MILESTONE_IDS, type TimelineMilestoneId } from "@/lib/sunday-timeline";
 
 export function SettingsBoard() {
   const { finalCard, setFinalCard } = useShell();
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const settings = useSyncExternalStore(subscribeSettings, readSettings, getServerSettings);
   const [saved, setSaved] = useState(false);
 
   function update<K extends keyof AppSettings>(key: K, value: AppSettings[K]) {
-    const next = { ...settings, [key]: value };
-    setSettings(next);
-    persistSettings(next);
+    writeSettings({ ...settings, [key]: value });
     setSaved(true);
+  }
+
+  function toggleMilestone(id: TimelineMilestoneId) {
+    const hidden = settings.hiddenTimelineMilestones.includes(id)
+      ? settings.hiddenTimelineMilestones.filter((item) => item !== id)
+      : [...settings.hiddenTimelineMilestones, id];
+    update("hiddenTimelineMilestones", hidden);
   }
 
   return (
@@ -34,6 +35,27 @@ export function SettingsBoard() {
           ))}
         </div>
         <p className="mt-2 text-xs text-muted">Persists locally. Scoreboard / props still honor URL filters when set.</p>
+      </article>
+      <article className="rounded-lg border border-line bg-card p-3">
+        <h2 className="mb-2 text-sm font-semibold">Sunday timeline</h2>
+        <div className="flex flex-wrap gap-1">
+          {TIMELINE_MILESTONE_IDS.map((id) => {
+            const on = !settings.hiddenTimelineMilestones.includes(id);
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => toggleMilestone(id)}
+                className={`action-btn ${on ? "text-gold" : ""}`}
+                aria-pressed={on}
+              >
+                {on ? "On · " : "Hidden · "}
+                {MILESTONE_LABELS[id]}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-xs text-muted">Same configure control as Command Center. Late-game stays PENDING until a separate 4 PM pull exists.</p>
       </article>
       <article className="rounded-lg border border-line bg-card p-3">
         <h2 className="mb-2 text-sm font-semibold">Density</h2>

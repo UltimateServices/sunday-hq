@@ -81,6 +81,28 @@ export function ConfidenceBadge({ grade }: { grade: ConfidenceGrade }) {
   return <ToneChip tone={CONF_TONE[grade]}>Confidence {grade}</ToneChip>;
 }
 
+const STABILITY_TONE = {
+  LOW: "purple",
+  MEDIUM: "yellow",
+  HIGH: "blue",
+  ELITE: "green",
+} as const;
+
+export function VolumeStabilityBadge({
+  value,
+  estimate = true,
+}: {
+  value: "LOW" | "MEDIUM" | "HIGH" | "ELITE";
+  estimate?: boolean;
+}) {
+  return (
+    <ToneChip tone={STABILITY_TONE[value]}>
+      {value}
+      {estimate ? " ESTIMATE" : ""}
+    </ToneChip>
+  );
+}
+
 export function WeatherBadge({
   impact,
   indoor,

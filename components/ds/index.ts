@@ -1,4 +1,4 @@
-export { ToneChip, StatusChip, HealthBadge, ProjectionBadge, ConfidenceBadge, WeatherBadge, MarketMovementBadge, EdgeBadge, EVBadge, RoleBadge, QualityTierChip } from "./badges";
+export { ToneChip, StatusChip, HealthBadge, ProjectionBadge, ConfidenceBadge, VolumeStabilityBadge, WeatherBadge, MarketMovementBadge, EdgeBadge, EVBadge, RoleBadge, QualityTierChip } from "./badges";
 export { InfoTip } from "./InfoTip";
 export { FocusTrap } from "./FocusTrap";
 export { WindowSwitcher } from "./WindowSwitcher";

@@ -10,7 +10,7 @@ import { SeedBanner } from "@/components/shared/SeedBanner";
 import { GAME_BY_ID } from "@/data/week1/games";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { matchesWindow } from "@/lib/game-window";
-import { applyViewParams, QUICK_FILTERS, SAVED_VIEWS } from "@/lib/saved-views";
+import { SavedViewsBar } from "@/components/props/SavedViewsBar";
 import { useShell } from "@/components/shell/ShellProvider";
 import type { ConfidenceGrade } from "@/lib/types/domain";
 
@@ -27,7 +27,7 @@ const CONF_RANK: Record<ConfidenceGrade, number> = {
   "A+": 7,
 };
 
-export function PropsBoard({ views }: { views: PropView[] }) {
+export function PropsBoard({ views, live = false }: { views: PropView[]; live?: boolean }) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -55,11 +55,8 @@ export function PropsBoard({ views }: { views: PropView[] }) {
     const next = new URLSearchParams(params.toString());
     if (!value || value === "ALL") next.delete(key);
     else next.set(key, value);
+    next.delete("view");
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
-  }
-
-  function applyNamed(viewParams: Record<string, string>) {
-    router.replace(`${pathname}?${applyViewParams(params, viewParams).toString()}`, { scroll: false });
   }
 
   const filtered = useMemo(() => {
@@ -136,20 +133,7 @@ export function PropsBoard({ views }: { views: PropView[] }) {
 
   const filters = (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-1">
-        {SAVED_VIEWS.map((view) => (
-          <button key={view.id} type="button" className="action-btn" onClick={() => applyNamed(view.params)}>
-            {view.label}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {QUICK_FILTERS.map((view) => (
-          <button key={view.id} type="button" className="action-btn" onClick={() => applyNamed(view.params)}>
-            {view.label}
-          </button>
-        ))}
-      </div>
+      <SavedViewsBar />
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
         <Field label="Side" value={side} onChange={(v) => setParam("side", v)} options={["ALL", "OVER", "UNDER"]} />
         <Field
@@ -204,9 +188,6 @@ export function PropsBoard({ views }: { views: PropView[] }) {
           />
         </label>
       </div>
-      <p className="text-[12px] text-muted">
-        A/A+ only is empty on Week 1 seed by contract. “No known limitation” is not “healthy”. Assumed −110 EV is ESTIMATE.
-      </p>
     </div>
   );
 
@@ -217,7 +198,16 @@ export function PropsBoard({ views }: { views: PropView[] }) {
       </SeedBanner>
       <div className="hidden md:block">{filters}</div>
       <FilterDrawer title="Prop filters">{filters}</FilterDrawer>
-      {filtered.length === 0 ? <EmptyState /> : <RankingTable views={filtered} />}
+      {!live ? (
+        <EmptyState
+          message="No live props."
+          hint="Saved views still update the URL. Seed constructs stay hidden so they cannot look like tickets."
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <RankingTable views={filtered} />
+      )}
     </div>
   );
 }

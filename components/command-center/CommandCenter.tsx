@@ -81,8 +81,8 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
             <EmptyState message="No live opportunities." hint="Seed props stay hidden until DraftKings tape is fresh." />
           )}
         </Section>
-        <Section id="top-volume" title="Top volume" lede="Highest-volume looks, not automatic bets. Stability is LOW / MEDIUM / HIGH / ELITE.">
-          {live ? <VolumeTable views={vm.volume} /> : <EmptyState message="No live volume rows." />}
+        <Section id="top-volume" title="Top volume" lede="Highest-volume looks, not automatic bets. Stability is LOW / MEDIUM / HIGH / ELITE ESTIMATE. Carries / targets stay DATA UNAVAILABLE.">
+          <VolumeTable rows={vm.volume} research={!live} />
         </Section>
         <Section id="td-leaders" title="Touchdown leaders" lede="Anytime TD research leans.">
           {live ? (
@@ -235,6 +235,9 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
         </Section>
         <Section title="Sunday timeline">
           <SundayTimeline milestones={sundayMilestones(vm.routine)} />
+        </Section>
+        <Section title="Top volume" lede="Role stability ESTIMATE. Not tickets.">
+          <VolumeTable rows={vm.volume.slice(0, 6)} research={!live} />
         </Section>
         <Section title="Overs">
           {live ? (

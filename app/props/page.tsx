@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PageSkeleton } from "@/components/ds/Skeleton";
 import { PropsBoard } from "@/components/props/PropsBoard";
-import { TicketQuarantine } from "@/components/ds/TicketQuarantine";
 import { getWeekCatalog } from "@/lib/catalog";
 import { toPropView } from "@/lib/prop-view";
 
@@ -22,11 +21,9 @@ export default async function PropsPage() {
             : "Prop tickets stay hidden until live DraftKings tape is fresh. Seed lines are not bets."
         }
       />
-      <TicketQuarantine gate={catalog.liveGate} noun="props">
-        <Suspense fallback={<PageSkeleton />}>
-          <PropsBoard views={views} />
-        </Suspense>
-      </TicketQuarantine>
+      <Suspense fallback={<PageSkeleton />}>
+        <PropsBoard views={views} live={catalog.liveGate.actionable} />
+      </Suspense>
     </div>
   );
 }
