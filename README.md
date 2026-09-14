@@ -149,3 +149,5 @@ Secrets never belong in this repo.
 5. Production branch: `main`.
 
 Hobby plans limit cron count — keep the `odds` / `settle` windows if you must trim.
+
+Future: a Fade Board (`/fade`, handicapper-webhook singles) is parked — not in this ship.
