@@ -5,7 +5,8 @@ Private NFL Props & Parlay Intelligence Platform for UltimateServices.
 `/` is a shareable **Top 10** homepage (Props / Overs / Unders / Spreads). Full research Command Center lives at `/dashboard`. Workflow: collect → verify → normalize → model → compare → rank → explain → monitor → record → learn.
 
 Binding product contract: [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md).  
-Binding UI contract: [`docs/UI_BLUEPRINT.md`](docs/UI_BLUEPRINT.md).
+Binding UI contract: [`docs/UI_BLUEPRINT.md`](docs/UI_BLUEPRINT.md).  
+Page-by-page UI spec: [`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md`](docs/UI_BLUEPRINT_PAGE_BY_PAGE.md) (`/` is Top-10 Home; Command Center is `/dashboard`).
 
 Live: https://sunday-hq.vercel.app (production branch `main`).
 
