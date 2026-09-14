@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { titleFromPath } from "@/lib/nav";
 import { seedRefresh } from "@/lib/refresh";
-import { StatusChip, ToneChip } from "@/components/ds/badges";
+import { ToneChip } from "@/components/ds/badges";
 import { useShell } from "./ShellProvider";
 import { useLiveOps } from "./LiveOpsProvider";
 
@@ -15,19 +15,16 @@ export function TopHeader() {
   const ops = useLiveOps();
 
   return (
-    <header className="sticky top-0 z-30 hidden border-b border-line bg-bg-elev/95 backdrop-blur lg:block">
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
+    <header className="sticky top-0 z-30 hidden border-b border-line bg-bg/80 backdrop-blur-xl lg:block">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3.5">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{titleFromPath(pathname)}</p>
-          <p className="text-[11px] text-muted">
+          <p className="truncate text-[17px] font-semibold tracking-tight">{titleFromPath(pathname)}</p>
+          <p className="text-[13px] text-muted">
             Week {meta.week} · {meta.slateLabel}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-[11px]">
-          <span className="text-muted">Last {viewRefreshedAt ? "view " : ""}refresh</span>
-          <span className="num text-ink">{viewRefreshedAt ? new Date(viewRefreshedAt).toLocaleTimeString() : ops.lastRefreshLabel || meta.lastRefreshLabel}</span>
-          <span className="text-muted">Next</span>
-          <span className="text-ink">{ops.nextRefreshLabel || meta.nextRefreshLabel}</span>
+        <div className="flex flex-wrap items-center gap-2 text-[13px]">
+          <span className="text-muted">Updated {viewRefreshedAt ? new Date(viewRefreshedAt).toLocaleTimeString() : ops.lastRefreshLabel || meta.lastRefreshLabel}</span>
           <button type="button" onClick={refreshView} className="action-btn">
             Refresh
           </button>
@@ -41,15 +38,10 @@ export function TopHeader() {
             Settings
           </Link>
           <button type="button" onClick={() => setFinalCard(!finalCard)} className="action-btn">
-            {finalCard ? "Final Card ON" : "Final Card"}
+            {finalCard ? "Final card on" : "Final card"}
           </button>
-          {ops.health.state === "DEGRADED" ? (
-            <StatusChip id="STALE_DATA" />
-          ) : (
-            <StatusChip id="HEALTHY" />
-          )}
           <ToneChip tone={ops.health.state === "DEGRADED" ? "orange" : "green"}>
-            {ops.health.state === "DEGRADED" ? "Degraded" : "Healthy"}
+            {ops.health.state === "DEGRADED" ? "Estimates" : "Current"}
           </ToneChip>
         </div>
       </div>

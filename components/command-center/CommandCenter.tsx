@@ -9,6 +9,7 @@ import { Section } from "@/components/shared/Section";
 import { StatTile } from "@/components/ds/StatTile";
 import { TDCard } from "@/components/ds/TDCard";
 import { EmptyState } from "@/components/ds/EmptyState";
+import { DataHealthBanner } from "@/components/ds/DataHealthBanner";
 import type { CommandCenterVM } from "@/lib/command-center";
 import { PLAYER_BY_ID } from "@/data/week1/players";
 import { PARLAYS } from "@/data/week1/parlays";
@@ -26,9 +27,21 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-2">
-        <p className="text-[10px] tracking-[0.2em] text-gold uppercase">Layer 1 · Command Center</p>
-        <p className="max-w-3xl text-sm text-muted">{vm.meta.seedNote}</p>
+      <header className="space-y-4">
+        <div>
+          <p className="text-[13px] text-muted">Research desk</p>
+          <h1 className="mt-1 text-[32px] font-semibold tracking-tight">Command Center</h1>
+          <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-muted">
+            The full Sunday picture. Best picks live on the home page — this is for going deeper.
+          </p>
+        </div>
+        <DataHealthBanner
+          state={vm.healthState}
+          tape={vm.tape}
+          issues={vm.healthIssues}
+          liveBanner={vm.liveBanner}
+          staleWarning={vm.staleWarning}
+        />
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
           <StatTile label="Week" value={`${vm.stats.week}`} />
           <StatTile label="Season" value={`${vm.stats.season}`} />
@@ -43,7 +56,7 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
 
       <div className="hidden space-y-8 lg:block">
         <PrimaryCards cards={vm.summaryCards} />
-        <Section id="critical-news" title="Critical news">
+        <Section id="critical-news" title="Critical news" lede="Only items that can change a bet.">
           <div className="space-y-2">
             {vm.news.map((item) => (
               <article key={item.id} className="rounded-lg border border-line bg-card p-3">
@@ -54,27 +67,26 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
             ))}
           </div>
         </Section>
-        <Section id="what-changed" title="What Changed Since Last Refresh">
+        <Section id="what-changed" title="What changed" lede="Movement, injuries, and weather since the last pull.">
           <WhatChanged items={vm.changes} />
         </Section>
-        <Section id="scoreboard" title="Sunday scoreboard">
+        <Section id="scoreboard" title="Sunday scoreboard" lede="Environment and weather at a glance.">
           <Scoreboard rows={vm.environments} />
         </Section>
-        <Section id="top-opportunities" title="Top Opportunities">
-          <p className="text-xs text-muted">Ranked by placeholder yard edge. Assumed -110 EV is labeled ESTIMATE, never a DK price.</p>
+        <Section id="top-opportunities" title="Top opportunities" lede="Ranked by edge. Assumed −110 EV is an estimate, never a DraftKings price.">
           <RankingTable views={vm.opportunities} />
         </Section>
-        <Section id="top-volume" title="Top Volume">
+        <Section id="top-volume" title="Top volume" lede="Highest-volume looks, not automatic bets.">
           <RankingTable views={vm.volume} />
         </Section>
-        <Section id="td-leaders" title="TD Leaders">
+        <Section id="td-leaders" title="Touchdown leaders" lede="Anytime TD research leans.">
           <div className="grid gap-2 md:grid-cols-3">
             {vm.tdLeaders.map((view) => (
               <TDCard key={view.id} view={view} />
             ))}
           </div>
         </Section>
-        <Section id="weather" title="Weather · material">
+        <Section id="weather" title="Weather that matters" lede="Only moderate or significant impact.">
           {vm.weather.length === 0 ? (
             <EmptyState message="NO PLAYS MEET FILTERS" />
           ) : (
@@ -89,7 +101,7 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
             </div>
           )}
         </Section>
-        <Section id="injury-board" title="Injuries · material">
+        <Section id="injury-board" title="Injuries that matter" lede="Out, questionable, and high-risk only.">
           <div className="space-y-2">
             {vm.injuries.map((inj) => (
               <article key={inj.id} className="rounded-lg border border-line bg-card p-3">
@@ -110,7 +122,7 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
             ))}
           </div>
         </Section>
-        <Section id="environments" title="Game Environment · top 5">
+        <Section id="environments" title="Best environments" lede="Highest totals and cleanest scripts.">
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-5">
             {vm.environmentTop5.map((row) => (
               <GameCard
@@ -129,7 +141,7 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
             ))}
           </div>
         </Section>
-        <Section id="overs-unders" title="Overs / Unders">
+        <Section id="overs-unders" title="Overs and unders" lede="Both sides stay first-class.">
           <div className="grid gap-4 xl:grid-cols-2">
             <div>
               <h3 className="mb-2 text-xs tracking-wide text-muted uppercase">Overs</h3>
@@ -141,27 +153,27 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
             </div>
           </div>
         </Section>
-        <Section id="parlay-preview" title="Parlay preview">
+        <Section id="parlay-preview" title="Parlay preview" lede="Constructs, not tickets.">
           <div className="grid gap-2 md:grid-cols-3">
             <ParlayCard profile="Conservative" construct={conservative} />
             <ParlayCard profile="Balanced" construct={balanced} />
             <ParlayCard profile="Aggressive" construct={aggressive} />
           </div>
         </Section>
-        <Section id="my-card-preview" title="My Card preview">
+        <Section id="my-card-preview" title="Your card" lede="Watching, ready, and placed.">
           <MyCardPreview />
         </Section>
       </div>
 
       <div className="space-y-8 lg:hidden">
-        <Section title="Critical Alerts">
+        <Section title="Need to know" lede="Only the alerts that can change a bet.">
           <div className="space-y-2">
             {vm.alerts.map((alert) => (
               <AlertRow key={alert.id} alert={alert} />
             ))}
           </div>
         </Section>
-        <Section title="Top 5 Opportunities">
+        <Section title="Top five" lede="The same ranking as desktop, in cards.">
           <div className="space-y-2">
             {vm.top5.map((view) => (
               <PropCard key={view.id} view={view} compact />

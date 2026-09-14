@@ -12,7 +12,13 @@ const TIER: Record<EnvironmentTier, StatusTone> = {
   QB_DOWNGRADE: "red",
 };
 
-const LIVE: Record<LiveStatus, StatusTone> = {
+const LIVE: Record<LiveStatus, string> = {
+  UPCOMING: "Upcoming",
+  LIVE: "Live",
+  FINAL: "Final",
+};
+
+const LIVE_TONE: Record<LiveStatus, StatusTone> = {
   UPCOMING: "blue",
   LIVE: "green",
   FINAL: "purple",
@@ -44,21 +50,21 @@ export function GameCard({
   note?: string;
 }) {
   return (
-    <Link href={`/games/${id}`} className="block rounded-lg border border-line bg-card p-3 hover:border-gold/40">
-      <div className="flex items-start justify-between gap-2">
+    <Link href={`/games/${id}`} className="surface block p-4 transition-colors hover:bg-card-hover">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[10px] text-muted">{kickoff}</p>
-          <p className="font-semibold">{matchup}</p>
-          <p className="text-xs text-muted">{spread}</p>
+          <p className="text-[13px] text-muted">{kickoff}</p>
+          <p className="mt-0.5 text-[17px] font-semibold tracking-tight">{matchup}</p>
+          <p className="text-[13px] text-muted">{spread}</p>
         </div>
-        <p className="num text-2xl text-gold">{formatNumber(total)}</p>
+        <p className="num text-[26px] font-semibold tracking-tight text-gold">{formatNumber(total)}</p>
       </div>
-      <div className="mt-2 flex flex-wrap gap-1">
-        <ToneChip tone={LIVE[live]}>{live}</ToneChip>
-        <ToneChip tone={TIER[tier]}>{tier.replaceAll("_", " ")}</ToneChip>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <ToneChip tone={LIVE_TONE[live]}>{LIVE[live]}</ToneChip>
+        <ToneChip tone={TIER[tier]}>{tier.replaceAll("_", " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}</ToneChip>
         <WeatherBadge impact={weatherImpact} indoor={indoor} summary={weatherSummary} />
       </div>
-      {note ? <p className="mt-2 text-[11px] text-muted">{note}</p> : null}
+      {note ? <p className="mt-3 text-[13px] leading-relaxed text-muted">{note}</p> : null}
     </Link>
   );
 }

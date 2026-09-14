@@ -7,7 +7,7 @@ import { useShell } from "@/components/shell/ShellProvider";
 export function PropActions({ view }: { view: PropView }) {
   const { toggleStar, toggleWatch, isStarred, isWatched, addToCard } = useShell();
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-1.5">
       <button type="button" onClick={() => toggleStar(view.id)} className="action-btn">
         {isStarred(view.id) ? "Starred" : "Star"}
       </button>
@@ -18,10 +18,10 @@ export function PropActions({ view }: { view: PropView }) {
         {isWatched(view.id) ? "Watching" : "Watch"}
       </button>
       <Link href={`/players/${view.playerId}`} className="action-btn">
-        Open player
+        Player
       </Link>
       <Link href={`/games/${view.gameId}`} className="action-btn">
-        Open game
+        Game
       </Link>
       <Link href={`/compare?ids=${view.id}`} className="action-btn">
         Compare

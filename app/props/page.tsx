@@ -14,9 +14,9 @@ export default async function PropsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        layer="Layer 2 · Research Board"
+        layer="Research"
         title="Props"
-        lede="URL-driven filters. Sticky sortable table. Row expansion for floor/median/mean/ceiling. Live DK overlay when the snapshot is fresh."
+        lede="Every player market this week. Cards on a phone, a table when you need to scan. Live DraftKings prices when the tape is fresh."
       />
       <SeedBanner>{catalog.staleWarning ?? catalog.liveBanner}</SeedBanner>
       <Suspense fallback={<PageSkeleton />}>

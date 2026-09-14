@@ -9,8 +9,8 @@ export default async function DashboardPage() {
   const catalog = await getWeekCatalog();
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted">
-        Research Command Center.{" "}
+      <p className="text-[13px] text-muted">
+        Full research desk.{" "}
         <Link href="/" className="text-gold hover:underline">
           Back to best picks
         </Link>

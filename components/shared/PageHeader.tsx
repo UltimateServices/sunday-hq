@@ -13,15 +13,15 @@ export function PageHeader({
   readiness?: RouteReadiness;
 }) {
   return (
-    <header className="mb-6 space-y-2">
-      <p className="text-[10px] tracking-[0.2em] text-gold uppercase">{layer}</p>
+    <header className="mb-8 space-y-2">
+      <p className="text-[13px] text-muted">{layer.replace("Layer 1 · ", "").replace("Layer 2 · ", "").replace("Layer 3 · ", "")}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-[32px] font-semibold tracking-tight">{title}</h1>
         {readiness && readiness !== "LIVE" ? (
           <StatusBadge tone={readiness === "PENDING" ? "purple" : "yellow"}>{readiness}</StatusBadge>
         ) : null}
       </div>
-      <p className="max-w-3xl text-sm text-muted">{lede}</p>
+      <p className="max-w-2xl text-[15px] leading-relaxed text-muted">{lede}</p>
     </header>
   );
 }

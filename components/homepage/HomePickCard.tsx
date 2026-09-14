@@ -3,19 +3,9 @@ import type { PropView } from "@/lib/prop-view";
 import { MARKET_LABEL } from "@/lib/prop-view";
 import { isProbabilityMarket } from "@/lib/odds";
 import { formatMeasured, formatPct } from "@/lib/format";
-import {
-  ConfidenceBadge,
-  EdgeBadge,
-  EVBadge,
-  HealthBadge,
-  MarketMovementBadge,
-  ProjectionBadge,
-  StatusChip,
-  ToneChip,
-} from "@/components/ds/badges";
+import { ConfidenceBadge, EdgeBadge, HealthBadge, ToneChip } from "@/components/ds/badges";
 import { WhyDrawer } from "@/components/ds/WhyDrawer";
-import { PropActions } from "@/components/ds/PropActions";
-import { homeChipFor } from "@/lib/homepage";
+import { oneLineWhy } from "@/lib/copy";
 import type { HomeTape } from "@/lib/homepage";
 
 export function HomePickCard({
@@ -28,83 +18,49 @@ export function HomePickCard({
   tape: HomeTape;
 }) {
   const td = isProbabilityMarket(view.market);
-  const chip = homeChipFor(view);
-  const lineQuality = view.line.quality;
   const oddsMissing = view.oddsAmerican.value === null;
+  const what = td
+    ? `${MARKET_LABEL[view.market]}`
+    : `${MARKET_LABEL[view.market]} ${view.side === "OVER" ? "over" : "under"}`;
+  const line = td ? formatPct(view.model.value) : `${view.side === "OVER" ? "O" : "U"} ${formatMeasured(view.line)}`;
 
   return (
-    <article className="rounded-lg border border-line bg-card p-3">
-      <div className="mb-2 flex items-start justify-between gap-2">
+    <article className="surface p-5">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="mb-1 flex flex-wrap items-center gap-1">
-            <span className="num text-[11px] text-gold">#{rank}</span>
-            <ToneChip tone={chip === "TDS" ? "purple" : chip === "UNDERS" ? "blue" : "green"}>{chip}</ToneChip>
-            {tape === "STALE" ? <StatusChip id="STALE_DATA" /> : null}
-            {tape === "ESTIMATE" || lineQuality === "ESTIMATE" || view.model.quality === "ESTIMATE" ? (
-              <ToneChip tone="yellow">ESTIMATE</ToneChip>
-            ) : null}
-          </div>
-          <Link href={`/players/${view.playerId}`} className="text-sm font-semibold hover:text-gold">
+          <p className="text-[12px] text-muted">#{rank}</p>
+          <Link href={`/players/${view.playerId}`} className="mt-0.5 block text-[20px] font-semibold tracking-tight hover:text-gold">
             {view.playerName}
           </Link>
-          <p className="text-[11px] text-muted">
-            {view.teamAbbr} · {view.position} · {view.matchup}
+          <p className="mt-1 text-[14px] text-muted">
+            {what}
+            <span className="text-ink/40"> · </span>
+            {view.teamAbbr} {view.position}
+            <span className="text-ink/40"> · </span>
+            {view.matchup}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          <p className="text-[10px] text-muted uppercase">{MARKET_LABEL[view.market]}</p>
-          {td ? (
-            <>
-              <p className="num text-xl font-semibold text-gold">{formatPct(view.model.value)}</p>
-              <p className="text-[10px] text-muted">model · not a DK price</p>
-            </>
-          ) : (
-            <p className="num text-xl font-semibold text-gold">
-              {view.side === "OVER" ? "O" : "U"} {formatMeasured(view.line)}
-            </p>
-          )}
-          <WhyDrawer title={`${view.playerName} ${MARKET_LABEL[view.market]}`} lenses={view.lenses} sections={view.whySections} />
-        </div>
+        <p className="num shrink-0 text-[28px] font-semibold tracking-tight text-gold">{line}</p>
       </div>
-      <div className="mb-2 flex flex-wrap gap-1">
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <HealthBadge state={view.health} />
         <ConfidenceBadge grade={view.confidenceGrade} />
-        <MarketMovementBadge direction={view.movement.direction} />
+        <EdgeBadge value={view.pricing.edge.value} unit={td ? "prob" : "yards"} />
+        {tape === "STALE" ? <ToneChip tone="orange">Stale</ToneChip> : null}
+        {tape === "ESTIMATE" || view.model.quality === "ESTIMATE" ? <ToneChip tone="yellow">Estimate</ToneChip> : null}
       </div>
-      <div className="grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
-        <Cell label="Proj" extra={<ProjectionBadge value={view.model} />} />
-        <Cell
-          label="DK price"
-          value={oddsMissing ? "DATA UNAVAILABLE" : formatMeasured(view.oddsAmerican, 0, "american")}
-        />
-        <Cell
-          label="Edge"
-          extra={
-            <EdgeBadge
-              value={view.pricing.edge.value}
-              unit={td ? "prob" : "yards"}
-            />
-          }
-        />
-        <Cell label="EV" extra={<EVBadge value={view.pricing.ev.value} />} />
-      </div>
-      <p className="mt-2 text-[11px] text-muted">
+
+      <p className="mt-4 text-[14px] leading-relaxed text-ink/90">{oneLineWhy(view.whySections.modelCase, view.matchupNote)}</p>
+      <p className="mt-1 text-[13px] text-muted">
         {oddsMissing
-          ? "Assumed -110 EV is ESTIMATE for ranking only. Not a DraftKings ticket."
-          : view.pricing.ev.note ?? view.movement.note}
+          ? "No DraftKings price yet. Edge is an estimate for ranking only."
+          : `DraftKings ${formatMeasured(view.oddsAmerican, 0, "american")}.`}
       </p>
-      <div className="mt-3">
-        <PropActions view={view} />
+
+      <div className="mt-4">
+        <WhyDrawer title={`${view.playerName} ${what}`} lenses={view.lenses} sections={view.whySections} />
       </div>
     </article>
-  );
-}
-
-function Cell({ label, value, extra }: { label: string; value?: string; extra?: React.ReactNode }) {
-  return (
-    <div className="rounded-sm bg-bg-elev px-1.5 py-1">
-      <p className="text-[9px] tracking-wide text-muted uppercase">{label}</p>
-      {extra ?? <p className="num truncate text-[12px]">{value}</p>}
-    </div>
   );
 }

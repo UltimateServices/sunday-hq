@@ -20,23 +20,23 @@ export function PlayerCard({
   note?: string;
 }) {
   return (
-    <Link href={`/players/${id}`} className="block rounded-lg border border-line bg-card p-3 hover:border-gold/40">
-      <div className="flex items-start justify-between gap-2">
+    <Link href={`/players/${id}`} className="surface block p-4 transition-colors hover:bg-card-hover">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[10px] text-muted">
+          <p className="text-[13px] text-muted">
             {team} · {position}
           </p>
-          <p className="font-semibold">{name}</p>
+          <p className="mt-0.5 text-[17px] font-semibold tracking-tight">{name}</p>
         </div>
         <HealthBadge state={health} />
       </div>
       {projection ? (
-        <div className="mt-2">
-          <p className="text-[9px] tracking-wide text-muted uppercase">Projection</p>
+        <div className="mt-3">
+          <p className="text-[12px] text-muted">Projection</p>
           <ProjectionBadge value={projection} />
         </div>
       ) : null}
-      {note ? <p className="mt-2 text-[11px] text-muted">{note}</p> : null}
+      {note ? <p className="mt-3 text-[13px] leading-relaxed text-muted">{note}</p> : null}
     </Link>
   );
 }
