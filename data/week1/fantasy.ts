@@ -39,10 +39,10 @@ export const FANTASY: FantasyProjection[] = [
     ppr: placeholder(19.4, "Placeholder only. Not a hosted fantasy projection service."),
     halfPpr: placeholder(17.1, "Placeholder only."),
     standard: placeholder(14.8, "Placeholder only."),
-    deskPpr: desk(16.8, "Public desks sit lower on the Montgomery split."),
+    deskPpr: desk(16.8, "Public desks sit lower on a committee / workload haircut."),
     disagreement: true,
     flexEligible: true,
-    note: "HIGH DISAGREEMENT vs desk 16.8. Indoor favorite. Touch split with Montgomery not modeled.",
+    note: "HIGH DISAGREEMENT vs desk 16.8. Indoor favorite. No second DET RB is in the desk; committee touches are not modeled.",
   },
   {
     playerId: "henry",

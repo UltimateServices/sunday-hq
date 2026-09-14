@@ -83,14 +83,14 @@ export const MATCHUPS: MatchupGrade[] = [
     factors: [
       { id: "box", label: "Box count", score: null, quality: "UNAVAILABLE", note: "Box-count engine not wired." },
       { id: "pace", label: "Pace", score: 8, quality: "CONSENSUS", note: "49.5 indoor, DET -7." },
-      { id: "rz", label: "Red zone", score: 7, quality: "ESTIMATE", note: "Favorite script can raise RZ carries. Montgomery split unknown." },
+      { id: "rz", label: "Red zone", score: 7, quality: "ESTIMATE", note: "Favorite script can raise RZ carries. Committee split unknown — no second DET RB in the desk." },
       { id: "pass-down", label: "Pass-down role", score: 7, quality: "ESTIMATE", note: "Receiving work not fully split-modeled." },
     ],
     lenses: lenses("YES", "LEAN", "LEAN", "UNKNOWN"),
     why: {
       modelCase: ["Indoor favorite. Implied DET team total leads Sunday RB environments."],
       supporting: ["Kamara SOURCE CONFLICT may pull NO from a clean box."],
-      risks: ["Montgomery split.", "Blowout can cut closing rushes."],
+      risks: ["Committee / change-of-pace split not modeled.", "Blowout can cut closing rushes."],
       marketContext: ["Consensus 84.5 rush. DK odds DATA UNAVAILABLE."],
       dataQuality: ["LOW SAMPLE. Box count UNAVAILABLE."],
     },
