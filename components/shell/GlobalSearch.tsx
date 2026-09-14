@@ -31,10 +31,11 @@ export function GlobalSearch() {
     }));
     const extras: Command[] = [
       { id: "cmd-refresh", label: "Refresh view + ops", sub: "Command", run: () => { refreshView(); void ops.reload(); } },
-      { id: "cmd-alerts", label: "Open alerts", sub: "Command", run: () => setAlertsOpen(true) },
+      { id: "cmd-alerts", label: "Open notification center", sub: "Command", run: () => setAlertsOpen(true) },
       { id: "cmd-final", label: finalCard ? "Exit Final Card" : "Open Final Card", sub: "Command", run: () => setFinalCard(!finalCard) },
       { id: "cmd-td", label: "Touchdown center", sub: "Go to", href: "/touchdowns" },
       { id: "cmd-card", label: "My Card", sub: "Go to", href: "/my-card" },
+      { id: "cmd-compare-players", label: "Compare players", sub: "Go to", href: "/compare?mode=players" },
     ];
     const all = [...extras, ...nav];
     if (!query.trim()) return all.slice(0, 10);

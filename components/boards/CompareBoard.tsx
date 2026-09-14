@@ -21,7 +21,7 @@ export function CompareBoard({ props, selectedIds }: { props: PropMarket[]; sele
   function toggle(id: string) {
     const next = ids.includes(id) ? ids.filter((row) => row !== id) : ids.length >= 4 ? ids : [...ids, id];
     setIds(next);
-    router.replace(next.length ? `/compare?ids=${next.join(",")}` : "/compare");
+    router.replace(next.length ? `/compare?mode=props&ids=${next.join(",")}` : "/compare?mode=props");
   }
 
   return (
@@ -59,10 +59,22 @@ export function CompareBoard({ props, selectedIds }: { props: PropMarket[]; sele
               </tr>
             </thead>
             <tbody>
-              <Row label="DK line" cells={selected.map((v) => formatMeasured(v!.line))} />
-              <Row label="DK odds" cells={selected.map((v) => formatMeasured(v!.oddsAmerican, 0, "american"))} />
+              <Row label="Posted line" cells={selected.map((v) => formatMeasured(v!.line))} />
+              <Row
+                label="Line quality"
+                cells={selected.map((v) => `${v!.bookLabel} · ${v!.line.quality.replaceAll("_", " ")} · not assumed to be DK`)}
+              />
+              <Row label="DraftKings odds" cells={selected.map((v) => formatMeasured(v!.oddsAmerican, 0, "american"))} />
               <Row label="Model / mean" cells={selected.map((v) => formatMeasured(v!.distribution.mean))} />
-              <Row label="P(side) EST" cells={selected.map((v) => formatMeasured(v!.pricing.modelProb, 1, "pct"))} />
+              <Row label="P(side) ESTIMATE" cells={selected.map((v) => formatMeasured(v!.pricing.modelProb, 1, "pct"))} />
+              <Row
+                label="Implied P / EV"
+                cells={selected.map((v) =>
+                  v!.oddsAmerican.value === null
+                    ? "DATA UNAVAILABLE at DK · assumed −110 EV is ESTIMATE ranking only"
+                    : `${formatMeasured(v!.pricing.impliedProb, 1, "pct")} / ${formatMeasured(v!.pricing.ev, 1, "pct")}`,
+                )}
+              />
               <Row
                 label="Floor / med / ceil"
                 cells={selected.map(

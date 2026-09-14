@@ -33,6 +33,8 @@ export type HomeScanRow = {
   what: string;
   context: string;
   line: string;
+  lineCaption: string;
+  priced: boolean;
   edgeValue: number | null;
   edgeUnit: HomeEdgeUnit;
   grade: ConfidenceGrade;
@@ -74,7 +76,12 @@ function propRow(view: PropView): HomeScanRow {
   const what = td
     ? MARKET_LABEL[view.market]
     : `${MARKET_LABEL[view.market]} ${view.side === "OVER" ? "over" : "under"}`;
-  const line = td ? formatMeasured(view.model, 1, "pct") : `${view.side === "OVER" ? "O" : "U"} ${formatMeasured(view.line)}`;
+  const hasDkOdds = view.oddsAmerican.value !== null && view.oddsAmerican.quality === "VERIFIED";
+  const line = td
+    ? hasDkOdds
+      ? formatMeasured(view.oddsAmerican, 0, "american")
+      : "No DK price"
+    : `${view.side === "OVER" ? "O" : "U"} ${formatMeasured(view.line)}`;
   return {
     id: view.id,
     href: `/players/${view.playerId}`,
@@ -82,12 +89,18 @@ function propRow(view: PropView): HomeScanRow {
     what,
     context: `${view.teamAbbr} ${view.position} · ${view.matchup}`,
     line,
+    lineCaption: td
+      ? hasDkOdds
+        ? "DraftKings"
+        : "DK anytime odds DATA UNAVAILABLE"
+      : `${qualityLabel(view.line.quality)} seed line · not a live DK ticket`,
+    priced: hasDkOdds,
     edgeValue: view.pricing.edge.value,
     edgeUnit: td ? "prob" : "yards",
     grade: view.confidenceGrade,
     why: oneLineWhy(view.whySections.modelCase, view.matchupNote),
-    quality: view.line.quality,
-    qualityLabel: qualityLabel(view.line.quality),
+    quality: td ? view.oddsAmerican.quality : view.line.quality,
+    qualityLabel: td ? qualityLabel(view.oddsAmerican.quality) : qualityLabel(view.line.quality),
   };
 }
 
@@ -136,6 +149,8 @@ function spreadRow(game: Game): HomeScanRow | null {
     what: "Spread",
     context: `${fav.matchup} · ${game.kickoffLabel}`,
     line: fav.line,
+    lineCaption: `${qualityLabel(game.spreadHome.quality)} game line · no cover model`,
+    priced: game.spreadHome.value !== null,
     edgeValue: null,
     edgeUnit: "yards",
     grade,

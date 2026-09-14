@@ -17,3 +17,4 @@ export const DEFAULT_SETTINGS: AppSettings = {
 export const SETTINGS_KEY = "sunday-hq-settings";
 export const CARD_KEY = "sunday-hq-card";
 export const STARS_KEY = "sunday-hq-stars";
+export const READ_ALERTS_KEY = "sunday-hq-read-alerts";

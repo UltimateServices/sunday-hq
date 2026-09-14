@@ -10,10 +10,23 @@ const SEV: Record<AlertItem["severity"], StatusTone> = {
   CRITICAL: "red",
 };
 
-export function AlertRow({ alert }: { alert: AlertItem }) {
+export function AlertRow({
+  alert,
+  unread = false,
+  onOpen,
+}: {
+  alert: AlertItem;
+  unread?: boolean;
+  onOpen?: () => void;
+}) {
   return (
-    <Link href={alert.href} className="block rounded-md border border-line bg-card p-3 hover:border-gold/40">
+    <Link
+      href={alert.href}
+      onClick={onOpen}
+      className={`block rounded-md border bg-card p-3 hover:border-gold/40 ${unread ? "border-gold/50" : "border-line"}`}
+    >
       <div className="mb-1 flex flex-wrap gap-1">
+        {unread ? <ToneChip tone="orange">Unread</ToneChip> : null}
         <ToneChip tone={SEV[alert.severity]}>{alert.severity}</ToneChip>
         <ToneChip tone="purple">{alert.kind}</ToneChip>
       </div>

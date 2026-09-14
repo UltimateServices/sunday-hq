@@ -49,7 +49,7 @@ export function TopHeader() {
             Search
           </button>
           <button type="button" onClick={() => setAlertsOpen(true)} className="action-btn">
-            Alerts {ops.alerts.length}
+            Notifications {ops.alerts.length}
           </button>
           <Link href="/settings" className="action-btn">
             Settings

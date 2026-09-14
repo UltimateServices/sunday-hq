@@ -68,7 +68,12 @@ export function toPropView(prop: PropMarket, assumedJuice = true): PropView {
     matchup: `${away} @ ${home}`,
     health,
     healthLabel: healthLabel(health),
-    bookLabel: prop.book === "DRAFTKINGS" ? "DK" : prop.book === "CONSENSUS" ? "Consensus" : "Unknown",
+    bookLabel:
+      prop.book === "DRAFTKINGS" && prop.oddsAmerican.value !== null
+        ? "DraftKings"
+        : prop.book === "CONSENSUS"
+          ? "Consensus"
+          : "Unknown",
     pricing,
     confidenceGrade: confidenceGrade({
       hasModel: prop.model.value !== null,

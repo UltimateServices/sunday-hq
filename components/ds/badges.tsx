@@ -110,6 +110,7 @@ export function EdgeBadge({
   value: number | null;
   unit: EdgeUnit;
 }) {
+  const label = unit === "ev" ? "EV" : "Edge";
   const text =
     value === null
       ? "—"
@@ -119,7 +120,7 @@ export function EdgeBadge({
           ? `${formatSigned(value * 100, 1)}%`
           : `${formatSigned(value * 100, 1)}%`;
   const tone: StatusTone = value === null ? "purple" : value > 0 ? "green" : value < 0 ? "red" : "blue";
-  return <ToneChip tone={tone}>{text}</ToneChip>;
+  return <ToneChip tone={tone}>{`${label} ${text}`}</ToneChip>;
 }
 
 export function EVBadge({ value }: { value: number | null }) {

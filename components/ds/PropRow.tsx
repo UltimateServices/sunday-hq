@@ -38,13 +38,13 @@ export function PropRow({ view }: { view: PropView }) {
           {MARKET_LABEL[view.market]} {view.side === "OVER" ? "O" : "U"}
         </td>
         <td className="px-2 py-2">{view.bookLabel}</td>
-        <td className="num px-2 py-2 text-gold">{formatMeasured(view.line)}</td>
+        <td className="num px-2 py-2">{formatMeasured(view.line)}</td>
         <td className="num px-2 py-2">{formatMeasured(view.oddsAmerican, 0, "american")}</td>
         <td className="px-2 py-2">
           <ProjectionBadge value={view.model} />
         </td>
         <td className="px-2 py-2">
-          <EdgeBadge value={view.pricing.edge.value} unit="yards" />
+          <EdgeBadge value={view.pricing.edge.value} unit={view.market.includes("TD") ? "prob" : "yards"} />
         </td>
         <td className="num px-2 py-2">{formatMeasured(view.pricing.modelProb, 1, "pct")}</td>
         <td className="px-2 py-2">

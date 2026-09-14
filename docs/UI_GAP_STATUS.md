@@ -25,11 +25,11 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 1 | Global app shell | DONE | Sidebar + header + main + drawers |
 | 2 | Left sidebar | DONE | Labels + collapse; Home + Command Center (product override) |
 | 3 | Mobile nav | DONE | HOME / GAMES / PROPS / MY CARD / MORE |
-| 4 | Global top header | PARTIAL | This PR: next refresh + data health + window switcher. Mobile still compact |
+| 4 | Global top header | DONE | Next refresh + data health + window switcher + Notifications |
 | 5 | Global search | DONE | Players / teams / games / props / books |
 | 6 | Alert panel tabs | DONE | ALL / INJURIES / WEATHER / MARKETS / PROJECTIONS |
 | 7 | Alert severity | DONE | INFO / WATCH / IMPORTANT / CRITICAL |
-| 8 | Refresh + data health | PARTIAL | This PR surfaces Degraded/Healthy + next cron attempt |
+| 8 | Refresh + data health | DONE | Degraded/Healthy + next cron attempt |
 | 9 | Command Center page | DONE | `/dashboard` |
 | 10 | CC hero | PARTIAL | Stat tiles; not every bible count |
 | 11 | 8 primary cards | PARTIAL | Labels live; gated when not live |
@@ -71,7 +71,7 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 47 | TE table / cards | PARTIAL | Top cards + shared table |
 | 48 | TD hero | DONE | This PR: top candidate card |
 | 49 | TD table | PARTIAL | Tabs exist; RZ cols thin |
-| 50 | TD expansion | MISSING | Why drawer only |
+| 50 | TD expansion | DONE | This PR: Why drawer on hero + table |
 | 51 | Team totals heroes | PARTIAL | Best Over / Under |
 | 52 | Team total table | PARTIAL | |
 | 53 | Team total detail | PARTIAL | |
@@ -126,7 +126,7 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 102 | Mobile filter drawer | DONE | |
 | 103 | Standard badges | DONE | + RB role badges |
 | 104 | Confidence | DONE | Week 1 never awards A / A+ |
-| 105 | Edge display | PARTIAL | Labeled badges; not every surface prefixes Edge/EV |
+| 105 | Edge display | DONE | Edge/EV prefix on badges; assumed −110 labeled ESTIMATE |
 | 106 | Tooltips | DONE | This PR: InfoTip glossary |
 | 107 | Why standard | DONE | Five sections |
 | 108 | Data quality HIGH/MED/LOW | PARTIAL | Domain enum, not that three-tier UI |
@@ -143,11 +143,11 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 119 | Final Card mode | DONE | |
 | 120 | Live Sunday mode | PARTIAL | Per-game UPCOMING / LIVE / FINAL |
 | 121 | Locked bet snapshot | DONE | |
-| 122 | Player comparison | MISSING | `/compare` is props |
-| 123 | Prop comparison | DONE | |
+| 122 | Player comparison | DONE | `/compare?mode=players` 2–4; usage/DK odds UNAVAILABLE |
+| 123 | Prop comparison | DONE | Posted line labeled; DK odds row stays DATA UNAVAILABLE until tape |
 | 124 | Game comparison | PARKED | Optional later |
 | 125 | Command palette | DONE | This PR: ⌘/Ctrl+K |
-| 126 | Notification center | MISSING | Alerts drawer only |
+| 126 | Notification center | DONE | Unread/All inbox; kinds only; no invented fade alerts |
 | 127 | My Card negative alert | PARTIAL | Review chips |
 | 128 | My Card positive alert | PARTIAL | Review chips |
 | 129 | Sunday timeline | PARTIAL | Next refresh label; not a milestone strip |
@@ -162,8 +162,8 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 ## Still open (do not invent)
 
 - Live DK player-prop odds / alts / multi-book tape (Odds API tomorrow — do not wire as live)
-- Saved views, player comparison 2–4, notification inbox
+- Saved views (sibling PR #14)
 - Position-specific column sets + QB/WR drawers as dedicated tables
 - Performance charts, RUN NOW admin, swipe gestures
-- Fade Board (parked)
+- Fade Board (parked until after live accuracy)
 - Full MASTER BUILD SPEC body — **on main via PR #9**. Do not overwrite.
