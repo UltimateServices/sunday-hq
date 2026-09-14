@@ -13,7 +13,7 @@ export function MobileBottomNav() {
     <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg-elev/95 backdrop-blur lg:hidden">
       <ul className="grid grid-cols-5">
         {MOBILE_TABS.map((tab) => {
-          const active = tab.href === "/" ? pathname === "/" || pathname === "/dashboard" : pathname.startsWith(tab.href);
+          const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
           return (
             <li key={tab.href}>
               <Link

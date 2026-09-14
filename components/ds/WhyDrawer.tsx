@@ -38,13 +38,17 @@ export function WhyDrawer({
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.setTimeout(() => setOpen(true), 0);
+        }}
         className="rounded-sm border border-line bg-bg-elev px-2 py-1 text-[11px] font-semibold tracking-wide text-gold uppercase hover:border-gold/50"
       >
         Why
       </button>
       {open ? (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/60" role="dialog" aria-modal>
+        <div className="fixed inset-0 z-[80] flex justify-end bg-black/60" role="dialog" aria-modal>
           <button className="h-full flex-1 cursor-default" aria-label="Close" onClick={() => setOpen(false)} />
           <aside className="h-full w-full max-w-md overflow-y-auto border-l border-line bg-bg-elev p-5 shadow-2xl">
             <div className="mb-4 flex items-start justify-between gap-3">

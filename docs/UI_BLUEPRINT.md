@@ -12,7 +12,7 @@ Fixed left sidebar **240px** (collapses to icon rail) + top header + main + opti
 
 Sidebar groups, in this order (icons + labels):
 
-1. COMMAND CENTER
+1. HOME · COMMAND CENTER
 2. GAMES · PROPS · TOUCHDOWNS · TEAM TOTALS · GAME TOTALS
 3. QUARTERBACKS · RUNNING BACKS · WIDE RECEIVERS · TIGHT ENDS · FANTASY
 4. COMPARE · MATCHUPS · WEATHER · INJURIES · MARKET MOVEMENT
@@ -49,7 +49,20 @@ Severity: **INFO · WATCH · IMPORTANT · CRITICAL**
 
 `HEALTHY` as a chip is **system/data health only**. Player availability never renders “HEALTHY” or “100% healthy” — it uses the Master Spec enum (`NO KNOWN LIMITATION`, …).
 
-## 2. Command Center `/` (and `/dashboard`)
+## 2. Live Home `/`
+
+Mobile-first. Above the fold, in this order:
+
+1. Week / last refresh / data health chip (LIVE · STALE · ESTIMATE — never invent DK odds)
+2. Critical alerts strip (max 3–5, CRITICAL / IMPORTANT only)
+3. **BEST PICKS THIS WEEK** — one ranked list of top projected singles (overs + unders + TDs mixed by edge/confidence), prop-card format, Why button
+4. Quick chips: Overs · Unders · TDs · Team Totals (filter the list — do not duplicate giant tables)
+5. My Card summary (watching / ready counts)
+6. Link: Full Command Center → `/dashboard`
+
+Use the live snapshot when fresh; otherwise seed with STALE / ESTIMATE labels.
+
+## 2b. Command Center `/dashboard`
 
 Desktop order:
 
@@ -74,9 +87,9 @@ Critical Alerts → Top 5 Opportunities → My Card → TDs → Injuries → Wea
 
 ## 3. Routes (connected workspace)
 
-`/dashboard` `/games` `/games/[id]` `/props` `/quarterbacks` `/running-backs` `/wide-receivers` `/tight-ends` `/touchdowns` `/team-totals` `/game-totals` `/fantasy` `/compare` `/matchups` `/weather` `/injuries` `/markets` `/parlays` `/boosts` `/my-card` `/results` `/model-performance` `/players/[id]` `/teams/[id]` `/admin` `/settings`
+`/` `/dashboard` `/games` `/games/[id]` `/props` `/quarterbacks` `/running-backs` `/wide-receivers` `/tight-ends` `/touchdowns` `/team-totals` `/game-totals` `/fantasy` `/compare` `/matchups` `/weather` `/injuries` `/markets` `/parlays` `/boosts` `/my-card` `/results` `/model-performance` `/players/[id]` `/teams/[id]` `/admin` `/settings`
 
-`/lines` remains as a redirect to `/markets`. `/` and `/dashboard` share Command Center.
+`/lines` remains as a redirect to `/markets`. `/` is Live Home. `/dashboard` is Command Center.
 
 ## 4. Shared design system (reuse everywhere)
 
@@ -136,7 +149,7 @@ Compact `PropCard`s. Filter drawer. Prefer cards over giant tables.
 
 | Phase | UI |
 | --- | --- |
-| 1 | Shell, sidebar, header, Command Center, games list/detail, player profile, mobile layout |
+| 1 | Shell, sidebar, header, Live Home `/`, Command Center `/dashboard`, games list/detail, player profile, mobile layout |
 | 2 | Props / QB / RB / WR / TE / Injuries / Weather — tables matching column specs |
 | 3 | Touchdowns tabs + table, team totals Best Over/Under, game totals open/current/move |
 | 4 | Matchup BEST/WORST + factor breakdown, markets heat/timeline, My Card + alerts |

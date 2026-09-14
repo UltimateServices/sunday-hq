@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1 className="text-2xl font-semibold">Route not found</h1>
       <p className="text-sm text-muted">If this is a planned board, add the stub — do not hide the gap.</p>
       <Link href="/" className="text-sm text-info hover:underline">
-        Back to Command Center
+        Back to Home
       </Link>
     </div>
   );

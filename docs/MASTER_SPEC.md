@@ -10,11 +10,12 @@ Org: UltimateServices. App: Next.js on Vercel. Book: **DraftKings-primary**.
 
 ## 2. Three layers
 
-1. **Command Center** — Sunday home. Ordered sections are mandatory (see §12).
-2. **Research Boards** — position, market, injury, weather, lines.
-3. **Deep Dive** — `/games/[id]` and `/players/[id]` with **Why drawers**.
+1. **Live Home (`/`)** — best projected singles of the week. Not the research dump.
+2. **Command Center (`/dashboard`)** — full Sunday research terminal. Ordered sections are mandatory (see §12).
+3. **Research Boards** — position, market, injury, weather, lines.
+4. **Deep Dive** — `/games/[id]` and `/players/[id]` with **Why drawers**.
 
-Never collapse the product into a single “picks” list.
+Home is a ranked picks surface. Command Center stays the encyclopedia. Do not delete the research dump to make Home simpler.
 
 ## 3. Workflow (non-skippable)
 
@@ -74,7 +75,7 @@ Also: anytime TD, alternate yardage, team totals, game totals, SGPs, multi-game 
 
 ## 10. Navigation (routes always exist)
 
-COMMAND CENTER · GAMES · PROPS · QUARTERBACKS · RUNNING BACKS · WIDE RECEIVERS · TIGHT ENDS · TOUCHDOWNS · TEAM TOTALS · GAME TOTALS · FANTASY · COMPARE · MATCHUPS · WEATHER · INJURIES · LINES · PARLAYS · BOOSTS · MY CARD · RESULTS · MODEL PERFORMANCE · ADMIN/SETTINGS
+HOME · COMMAND CENTER · GAMES · PROPS · QUARTERBACKS · RUNNING BACKS · WIDE RECEIVERS · TIGHT ENDS · TOUCHDOWNS · TEAM TOTALS · GAME TOTALS · FANTASY · COMPARE · MATCHUPS · WEATHER · INJURIES · LINES · PARLAYS · BOOSTS · MY CARD · RESULTS · MODEL PERFORMANCE · ADMIN/SETTINGS
 
 If a capability cannot ship, **stub the route / empty board and mark PENDING**. Do not redesign the product around the hole.
 
@@ -82,7 +83,7 @@ If a capability cannot ship, **stub the route / empty board and mark PENDING**. 
 
 | Phase | Ships | Status in this PR |
 | --- | --- | --- |
-| 1 | App shell, nav, types, schema stubs, games/players, Command Center | LIVE |
+| 1 | App shell, nav, Live Home, Command Center, games/players | LIVE |
 | 2 | Injuries, weather, fantasy placeholders, position boards | LIVE · NWS hourly + roof OPEN/CLOSED/UNKNOWN |
 | 3 | Props / TD / team totals / game totals / fantasy boards (seed EV + Why) | LIVE · seed engine + live DK overlay |
 | 4 | Matchup boards + market movement heat/timeline | LIVE · factor engine + /compare |
@@ -92,9 +93,11 @@ If a capability cannot ship, **stub the route / empty board and mark PENDING**. 
 
 Do not optimize for the fastest MVP at the expense of this foundation.
 
-## 12. Command Center order
+## 12. Home vs Command Center
 
-Visual composition is defined in `docs/UI_BLUEPRINT.md` (desktop 4×2 primary cards, scoreboard strip, mobile reorder). Product content that must remain: hero strip, eight summary cards (BEST OVER / UNDER / TD / TEAM TOTAL / QB MATCHUP / RB MATCHUP / GAME ENVIRONMENT / BIGGEST WARNING), critical news, what changed, opportunities, volume, TDs, weather, injuries, environments, overs + unders, parlays, my card. Missing engines stay PENDING.
+`/` is the live picks homepage (week / refresh / health, 3–5 decision alerts, one ranked BEST PICKS list, Overs/Unders/TDs/Team Totals chips, My Card counts, link to Command Center). Do not paint every board on first load.
+
+`/dashboard` is Command Center. Visual composition is defined in `docs/UI_BLUEPRINT.md` (desktop 4×2 primary cards, scoreboard strip, mobile reorder). Product content that must remain there: hero strip, eight summary cards (BEST OVER / UNDER / TD / TEAM TOTAL / QB MATCHUP / RB MATCHUP / GAME ENVIRONMENT / BIGGEST WARNING), critical news, what changed, opportunities, volume, TDs, weather, injuries, environments, overs + unders, parlays, my card. Missing engines stay PENDING.
 
 ## 13. Prop card fields
 
@@ -118,9 +121,9 @@ When My Card ships: **no loss chasing** and **no unit inflation** after early ga
 ## 16. Architecture
 
 ```
-app/           App Router pages (3 layers) + api/ingest, api/settle, api/cron
-components/    Shell, Command Center, boards, shared
-lib/           types, nav, odds/EV, ingest, settle, Sunday refresh
+app/           App Router pages (Live Home, Command Center, boards) + api/ingest, api/settle, api/cron
+components/    Shell, homepage, Command Center, boards, shared
+lib/           types, nav, homepage rank, odds/EV, ingest, settle, Sunday refresh
 data/          Week 1 seed + snapshots overlay + SQL schema stub
 docs/          This contract
 ```
