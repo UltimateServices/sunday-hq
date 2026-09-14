@@ -38,7 +38,11 @@ export function WhyDrawer({
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.setTimeout(() => setOpen(true), 0);
+        }}
         className="rounded-sm border border-line bg-bg-elev px-2 py-1 text-[11px] font-semibold tracking-wide text-gold uppercase hover:border-gold/50"
       >
         Why
