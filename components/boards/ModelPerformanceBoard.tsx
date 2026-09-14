@@ -47,6 +47,37 @@ export function ModelPerformanceBoard({
         <h2 className="mb-2 text-xs tracking-wide text-muted uppercase">Calibration · EXAMPLE/SEED (illustrative)</h2>
         <BucketList buckets={exampleBuckets} empty="Illustrative only." />
       </section>
+      <section>
+        <h2 className="mb-2 text-xs tracking-wide text-muted uppercase">Reliability chart · EXAMPLE vs REAL</h2>
+        <p className="mb-3 text-[13px] text-muted">
+          Predicted vs observed hit rate. REAL stays empty until settle. EXAMPLE bars are illustrative — not a certified model.
+        </p>
+        <div className="grid gap-3 md:grid-cols-2">
+          <article className="rounded-md border border-line bg-card p-3">
+            <p className="text-sm font-semibold">REAL</p>
+            <p className="mt-2 text-[13px] text-muted">DATA UNAVAILABLE · n={realN}. No invented hit-rate curve.</p>
+          </article>
+          <article className="rounded-md border border-line bg-card p-3">
+            <p className="text-sm font-semibold">EXAMPLE/SEED</p>
+            <div className="mt-3 space-y-2">
+              {exampleBuckets.map((b) => (
+                <div key={`chart-${b.label}`} className="flex items-end gap-2">
+                  <span className="w-16 text-[10px] text-muted">{b.label}</span>
+                  <div className="h-8 flex-1 rounded-sm bg-bg-elev">
+                    <div
+                      className="h-full bg-gold/70"
+                      style={{ width: `${Math.min(100, Math.max(0, (b.observed ?? b.predicted) * 100))}%` }}
+                    />
+                  </div>
+                  <span className="num w-12 text-[11px] text-muted">
+                    {b.observed === null ? "—" : `${(b.observed * 100).toFixed(0)}%`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
       <p className="text-xs text-muted">
         EXAMPLE/SEED buckets exist so the learning surface is usable. They are not proof the placeholder CDF is
         calibrated. ROI {formatPct(RESULTS_SUMMARY.roi)} is EXAMPLE-only.

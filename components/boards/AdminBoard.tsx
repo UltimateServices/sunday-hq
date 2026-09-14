@@ -9,6 +9,7 @@ import {
   THRESHOLDS,
 } from "@/data/week1/admin";
 import { WeightsEditor } from "@/components/boards/WeightsEditor";
+import { SundayRunNow } from "@/components/boards/SundayRunNow";
 import { SCHEMA_STUBS } from "@/lib/types/schema";
 import { Section } from "@/components/shared/Section";
 import { ToneChip } from "@/components/ds/badges";
@@ -162,6 +163,7 @@ export function AdminBoard({ catalog }: { catalog?: WeekCatalog }) {
             </li>
           ))}
         </ol>
+        <SundayRunNow />
       </Section>
       <Section title="Schema stubs">
         <ul className="space-y-1 text-sm">

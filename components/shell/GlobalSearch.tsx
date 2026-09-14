@@ -1,65 +1,101 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { NAV_ITEMS } from "@/lib/nav";
 import { runSearch } from "@/lib/search";
+import { useLiveOps } from "./LiveOpsProvider";
 import { useShell } from "./ShellProvider";
+import { FocusTrap } from "@/components/ds/FocusTrap";
+
+type Command = {
+  id: string;
+  label: string;
+  sub: string;
+  href?: string;
+  run?: () => void;
+};
 
 export function GlobalSearch() {
-  const { searchOpen, setSearchOpen, setAlertsOpen, refreshView } = useShell();
+  const { searchOpen, setSearchOpen, setAlertsOpen, refreshView, setFinalCard, finalCard } = useShell();
+  const ops = useLiveOps();
   const [q, setQ] = useState("");
   const query = searchOpen ? q : "";
   const hits = useMemo(() => runSearch(query), [query]);
 
+  const commands = useMemo<Command[]>(() => {
+    const nav = NAV_ITEMS.map((item) => ({
+      id: `nav-${item.href}`,
+      label: item.label,
+      sub: "Go to",
+      href: item.href,
+    }));
+    const extras: Command[] = [
+      { id: "cmd-refresh", label: "Refresh view + ops", sub: "Command", run: () => { refreshView(); void ops.reload(); } },
+      { id: "cmd-alerts", label: "Open notification center", sub: "Command", run: () => setAlertsOpen(true) },
+      { id: "cmd-final", label: finalCard ? "Exit Final Card" : "Open Final Card", sub: "Command", run: () => setFinalCard(!finalCard) },
+      { id: "cmd-td", label: "Touchdown center", sub: "Go to", href: "/touchdowns" },
+      { id: "cmd-card", label: "My Card", sub: "Go to", href: "/my-card" },
+      { id: "cmd-compare-players", label: "Compare players", sub: "Go to", href: "/compare?mode=players" },
+    ];
+    const all = [...extras, ...nav];
+    if (!query.trim()) return all.slice(0, 10);
+    const needle = query.toLowerCase();
+    return all.filter((cmd) => `${cmd.label} ${cmd.sub}`.toLowerCase().includes(needle)).slice(0, 8);
+  }, [query, refreshView, ops, setAlertsOpen, setFinalCard, finalCard]);
+
+  useEffect(() => {
+    if (!searchOpen) setQ("");
+  }, [searchOpen]);
+
   if (!searchOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[12vh]" role="dialog" aria-modal>
-      <div className="w-full max-w-xl rounded-lg border border-line bg-bg-elev p-3 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[12vh]" role="dialog" aria-modal aria-label="Command palette">
+      <FocusTrap onEscape={() => setSearchOpen(false)} className="w-full max-w-xl">
+      <div className="w-full rounded-lg border border-line bg-bg-elev p-3 shadow-2xl">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-[10px] tracking-wide text-gold uppercase">Command palette · players · teams · games · props · books</p>
           <button type="button" onClick={() => setSearchOpen(false)} className="text-xs text-muted">
-            Close
+            Esc
           </button>
         </div>
         <input
           autoFocus
+          data-autofocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="⌘K · Burrow, CIN, TB@CIN, Chase rec, DraftKings…"
           className="w-full rounded-md border border-line bg-card px-3 py-2 text-sm outline-none focus:border-gold/50"
         />
         <ul className="mt-2 max-h-80 overflow-y-auto">
-          {!q ? (
-            <>
-              {[
-                { href: "/props", label: "Props", sub: "Board" },
-                { href: "/touchdowns", label: "TD center", sub: "Anytime / first / 2+" },
-                { href: "/my-card", label: "My Card", sub: "Watching / ready / placed" },
-                { href: "/dashboard", label: "Command Center", sub: "Full research desk" },
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} onClick={() => setSearchOpen(false)} className="block rounded-md px-2 py-2 hover:bg-card">
-                    <p className="text-sm font-semibold">{item.label}</p>
-                    <p className="text-[11px] text-muted">{item.sub}</p>
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <button type="button" onClick={() => { setSearchOpen(false); setAlertsOpen(true); }} className="block w-full rounded-md px-2 py-2 text-left hover:bg-card">
-                  <p className="text-sm font-semibold">Alerts</p>
-                  <p className="text-[11px] text-muted">Open the alert drawer</p>
+          {commands.map((cmd) => (
+            <li key={cmd.id}>
+              {cmd.href ? (
+                <Link
+                  href={cmd.href}
+                  onClick={() => setSearchOpen(false)}
+                  className="block rounded-md px-2 py-2 hover:bg-card"
+                >
+                  <p className="text-sm font-semibold">{cmd.label}</p>
+                  <p className="text-[11px] text-muted">{cmd.sub}</p>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    cmd.run?.();
+                    setSearchOpen(false);
+                  }}
+                  className="block w-full rounded-md px-2 py-2 text-left hover:bg-card"
+                >
+                  <p className="text-sm font-semibold">{cmd.label}</p>
+                  <p className="text-[11px] text-muted">{cmd.sub}</p>
                 </button>
-              </li>
-              <li>
-                <button type="button" onClick={() => { refreshView(); setSearchOpen(false); }} className="block w-full rounded-md px-2 py-2 text-left hover:bg-card">
-                  <p className="text-sm font-semibold">Refresh view clock</p>
-                  <p className="text-[11px] text-muted">Does not invent lines</p>
-                </button>
-              </li>
-            </>
-          ) : null}
-          {q && hits.length === 0 ? <li className="px-2 py-3 text-sm text-muted">NO PLAYS MEET FILTERS</li> : null}
+              )}
+            </li>
+          ))}
+          {q && hits.length === 0 && commands.length === 0 ? <li className="px-2 py-3 text-sm text-muted">NO PLAYS MEET FILTERS</li> : null}
           {hits.map((hit) => (
             <li key={hit.id}>
               <Link
@@ -76,6 +112,7 @@ export function GlobalSearch() {
           ))}
         </ul>
       </div>
+      </FocusTrap>
     </div>
   );
 }

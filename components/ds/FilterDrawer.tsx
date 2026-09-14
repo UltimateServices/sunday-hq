@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FocusTrap } from "./FocusTrap";
 
 export function FilterDrawer({
   title = "Filters",
@@ -22,7 +23,8 @@ export function FilterDrawer({
       {open ? (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 md:hidden" role="dialog" aria-modal>
           <button className="h-full flex-1" aria-label="Close filters" onClick={() => setOpen(false)} />
-          <aside className="h-full w-[min(100%,360px)] overflow-y-auto border-l border-line bg-bg-elev p-4">
+          <FocusTrap onEscape={() => setOpen(false)} className="h-full w-[min(100%,360px)]">
+          <aside className="h-full w-full overflow-y-auto border-l border-line bg-bg-elev p-4">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold">{title}</h3>
               <button type="button" onClick={() => setOpen(false)} className="text-xs text-muted">
@@ -31,6 +33,7 @@ export function FilterDrawer({
             </div>
             {children}
           </aside>
+          </FocusTrap>
         </div>
       ) : null}
     </>

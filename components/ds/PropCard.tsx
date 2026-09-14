@@ -26,9 +26,14 @@ export function PropCard({ view, compact = false }: { view: PropView; compact?: 
             {view.teamAbbr} · {view.matchup}
           </p>
         </div>
-        <p className="num shrink-0 text-[24px] font-semibold tracking-tight text-gold">
-          {view.side === "OVER" ? "O" : "U"} {formatMeasured(view.line)}
-        </p>
+        <div className="shrink-0 text-right">
+          <p className={`num text-[24px] font-semibold tracking-tight ${oddsMissing ? "text-ink" : "text-gold"}`}>
+            {view.side === "OVER" ? "O" : "U"} {formatMeasured(view.line)}
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted">
+            {view.bookLabel} · {view.line.quality.replaceAll("_", " ")}
+          </p>
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">

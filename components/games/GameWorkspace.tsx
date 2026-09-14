@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ConfidenceBadge, ToneChip } from "@/components/ds/badges";
 import { EmptyState } from "@/components/ds/EmptyState";
+import { ScriptBars } from "@/components/ds/ScriptBars";
 import { Section } from "@/components/shared/Section";
 import { WhyDrawer } from "@/components/ds/WhyDrawer";
 import type { GameWorkspaceVM } from "@/lib/game-workspace";
@@ -56,7 +57,14 @@ export function GameWorkspace({
 
       <Section id="script" title="Game script" lede={vm.script.note}>
         <article className="surface p-4">
-          <div className="grid gap-2 sm:grid-cols-3">
+          <ScriptBars
+            homeLabel={home.abbr}
+            awayLabel={away.abbr}
+            pHomeWin={vm.script.pHomeWin}
+            pAwayWin={vm.script.pAwayWin}
+            pClose={1 - vm.script.pBlowout}
+          />
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
             <Stat label={`${home.abbr} P(win)`} value={formatPct(vm.script.pHomeWin)} />
             <Stat label={`${away.abbr} P(win)`} value={formatPct(vm.script.pAwayWin)} />
             <Stat label="P(blowout)" value={formatPct(vm.script.pBlowout)} />

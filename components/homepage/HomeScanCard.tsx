@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ConfidenceBadge, EdgeBadge, ToneChip } from "@/components/ds/badges";
+import { ConfidenceBadge, EdgeBadge, QualityTierChip, ToneChip } from "@/components/ds/badges";
 import type { HomeScanRow } from "@/lib/homepage";
 
 export function HomeScanCard({
@@ -11,6 +11,7 @@ export function HomeScanCard({
   rank: number;
   live: boolean;
 }) {
+  const glow = live && row.priced;
   return (
     <article className="surface px-5 py-5">
       <div className="flex items-start justify-between gap-5">
@@ -25,15 +26,19 @@ export function HomeScanCard({
             {row.context}
           </p>
         </div>
-        <p className={`num shrink-0 text-[28px] font-semibold tracking-tight ${live ? "text-gold" : "text-ink"}`}>
-          {row.line}
-        </p>
+        <div className="shrink-0 text-right">
+          <p className={`num text-[28px] font-semibold tracking-tight ${glow ? "text-gold" : "text-ink"}`}>
+            {row.line}
+          </p>
+          <p className="mt-1 max-w-[140px] text-[11px] leading-snug text-muted">{row.lineCaption}</p>
+        </div>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         <ConfidenceBadge grade={row.grade} />
         <EdgeBadge value={row.edgeValue} unit={row.edgeUnit} />
-        <ToneChip tone={row.quality === "VERIFIED" ? "blue" : "yellow"}>{row.qualityLabel}</ToneChip>
+        <QualityTierChip quality={row.quality} />
+        <ToneChip tone={row.quality === "VERIFIED" && live ? "blue" : "yellow"}>{row.qualityLabel}</ToneChip>
         {live ? null : <ToneChip tone="orange">Not live</ToneChip>}
       </div>
 

@@ -4,9 +4,10 @@ import { seedRefresh } from "@/lib/refresh";
 import { useShell } from "./ShellProvider";
 import { useLiveOps } from "./LiveOpsProvider";
 import { ToneChip } from "@/components/ds/badges";
+import { WindowSwitcher } from "@/components/ds/WindowSwitcher";
 
 export function MobileHeader() {
-  const { setSearchOpen, setAlertsOpen, refreshView } = useShell();
+  const { setSearchOpen, setAlertsOpen, refreshView, gameWindow, setGameWindow } = useShell();
   const meta = seedRefresh();
   const ops = useLiveOps();
 
@@ -23,7 +24,14 @@ export function MobileHeader() {
           <ToneChip tone={ops.liveGate.actionable ? "green" : "red"}>
             {ops.liveGate.actionable ? "Live" : "Not live"}
           </ToneChip>
-          <button type="button" onClick={refreshView} className="action-btn px-2.5 py-1">
+          <button
+            type="button"
+            onClick={() => {
+              refreshView();
+              void ops.reload();
+            }}
+            className="action-btn px-2.5 py-1"
+          >
             Refresh
           </button>
           <button type="button" onClick={() => setAlertsOpen(true)} className="action-btn px-2.5 py-1">
@@ -33,6 +41,9 @@ export function MobileHeader() {
             Search
           </button>
         </div>
+      </div>
+      <div className="border-t border-line/70 px-4 py-2">
+        <WindowSwitcher value={gameWindow} onChange={setGameWindow} />
       </div>
     </header>
   );

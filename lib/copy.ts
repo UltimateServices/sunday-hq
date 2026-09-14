@@ -29,6 +29,13 @@ export function qualityLabel(quality: string): string {
   }
 }
 
+/** Bible item 108 three-tier overlay. Domain quality stays the source of truth. */
+export function qualityTier(quality: string): "HIGH" | "MEDIUM" | "LOW" {
+  if (quality === "VERIFIED") return "HIGH";
+  if (quality === "CONSENSUS") return "MEDIUM";
+  return "LOW";
+}
+
 export const LENS_LABEL: Record<QualifierLens, string> = {
   GOOD_PLAYER: "Good player",
   GOOD_MATCHUP: "Good matchup",

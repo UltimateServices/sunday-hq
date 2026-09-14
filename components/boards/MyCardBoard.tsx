@@ -41,10 +41,23 @@ export function MyCardBoard() {
       </div>
 
       {cardAlerts.length > 0 ? (
-        <div className="grid gap-2 md:grid-cols-2">
-          {cardAlerts.map((alert) => (
-            <AlertRow key={alert.id} alert={alert} />
-          ))}
+        <div className="grid gap-4 md:grid-cols-2">
+          <section className="space-y-2">
+            <h2 className="text-xs tracking-wide text-muted uppercase">Negative · edge lost / line moved</h2>
+            {cardAlerts
+              .filter((a) => /lost|review|moved|weaker/i.test(`${a.title} ${a.body}`))
+              .map((alert) => (
+                <AlertRow key={alert.id} alert={alert} />
+              ))}
+          </section>
+          <section className="space-y-2">
+            <h2 className="text-xs tracking-wide text-muted uppercase">Positive · edge improved</h2>
+            {cardAlerts
+              .filter((a) => /improved|residual/i.test(`${a.title} ${a.body}`))
+              .map((alert) => (
+                <AlertRow key={alert.id} alert={alert} />
+              ))}
+          </section>
         </div>
       ) : null}
 

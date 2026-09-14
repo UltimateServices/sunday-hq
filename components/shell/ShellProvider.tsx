@@ -1,12 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { SEED_CARD } from "@/data/week1/card";
 import { PROP_BY_ID } from "@/data/week1/props";
 import { applyLockToBet, buildLockSnapshot, livePropFromSnapshot } from "@/lib/card/lock";
-import { CARD_KEY } from "@/lib/settings";
+import { CARD_KEY, DEFAULT_SETTINGS, SETTINGS_KEY, STARS_KEY, type AppSettings } from "@/lib/settings";
 import type { OddsSnapshot } from "@/lib/ingest/types";
-import type { CardBet, CardStatus } from "@/lib/types/domain";
+import type { CardBet, CardStatus, GameWindowFilter } from "@/lib/types/domain";
 
 function persistCard(next: CardBet[]) {
   if (typeof window === "undefined") return;
@@ -24,6 +24,8 @@ type ShellState = {
   setMoreOpen: (v: boolean) => void;
   viewRefreshedAt: string | null;
   refreshView: () => void;
+  gameWindow: GameWindowFilter;
+  setGameWindow: (v: GameWindowFilter) => void;
   finalCard: boolean;
   setFinalCard: (v: boolean) => void;
   stars: string[];
@@ -45,15 +47,90 @@ function toggleId(list: string[], id: string): string[] {
   return list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
 }
 
+const STARS_EVENT = "sunday-hq-stars";
+const WINDOW_EVENT = "sunday-hq-window";
+const EMPTY_STARS: string[] = [];
+const SERVER_WINDOW: GameWindowFilter = DEFAULT_SETTINGS.defaultWindow;
+
+let starsRaw = "__init__";
+let starsCache: string[] = EMPTY_STARS;
+let windowRaw = "__init__";
+let windowCache: GameWindowFilter = SERVER_WINDOW;
+
+function getStarsSnapshot(): string[] {
+  const raw = localStorage.getItem(STARS_KEY) ?? "";
+  if (raw === starsRaw) return starsCache;
+  starsRaw = raw;
+  try {
+    const parsed = raw ? (JSON.parse(raw) as string[]) : EMPTY_STARS;
+    starsCache = parsed;
+  } catch {
+    starsCache = EMPTY_STARS;
+  }
+  return starsCache;
+}
+
+function getWindowSnapshot(): GameWindowFilter {
+  const raw = localStorage.getItem(SETTINGS_KEY) ?? "";
+  if (raw === windowRaw) return windowCache;
+  windowRaw = raw;
+  try {
+    const parsed = raw ? (JSON.parse(raw) as Partial<AppSettings>) : null;
+    windowCache = parsed?.defaultWindow ?? SERVER_WINDOW;
+  } catch {
+    windowCache = SERVER_WINDOW;
+  }
+  return windowCache;
+}
+
+function getStarsServer(): string[] {
+  return EMPTY_STARS;
+}
+
+function getWindowServer(): GameWindowFilter {
+  return SERVER_WINDOW;
+}
+
+function subscribeStars(onStoreChange: () => void) {
+  window.addEventListener(STARS_EVENT, onStoreChange);
+  window.addEventListener("storage", onStoreChange);
+  return () => {
+    window.removeEventListener(STARS_EVENT, onStoreChange);
+    window.removeEventListener("storage", onStoreChange);
+  };
+}
+
+function subscribeWindow(onStoreChange: () => void) {
+  window.addEventListener(WINDOW_EVENT, onStoreChange);
+  window.addEventListener("storage", onStoreChange);
+  return () => {
+    window.removeEventListener(WINDOW_EVENT, onStoreChange);
+    window.removeEventListener("storage", onStoreChange);
+  };
+}
+
 export function ShellProvider({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [viewRefreshedAt, setViewRefreshedAt] = useState<string | null>(null);
+  const gameWindow = useSyncExternalStore(subscribeWindow, getWindowSnapshot, getWindowServer);
   const [finalCard, setFinalCard] = useState(false);
-  const [stars, setStars] = useState<string[]>([]);
+  const stars = useSyncExternalStore(subscribeStars, getStarsSnapshot, getStarsServer);
   const [bets, setBets] = useState<CardBet[]>(SEED_CARD);
+
+  const setGameWindow = useCallback((next: GameWindowFilter) => {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      const current = raw ? (JSON.parse(raw) as AppSettings) : DEFAULT_SETTINGS;
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...current, defaultWindow: next }));
+      window.dispatchEvent(new Event(WINDOW_EVENT));
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const watch = useMemo(() => bets.filter((b) => b.status === "WATCHING").map((b) => b.propId), [bets]);
   const card = useMemo(
     () => bets.filter((b) => b.status === "READY" || b.status === "PLACED").map((b) => b.propId),
@@ -157,13 +234,23 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
       setMoreOpen,
       viewRefreshedAt,
       refreshView,
+      gameWindow,
+      setGameWindow,
       finalCard,
       setFinalCard,
       stars,
       watch,
       card,
       bets,
-      toggleStar: (id) => setStars((s) => toggleId(s, id)),
+      toggleStar: (id) => {
+        try {
+          const next = toggleId(getStarsSnapshot(), id);
+          localStorage.setItem(STARS_KEY, JSON.stringify(next));
+          window.dispatchEvent(new Event(STARS_EVENT));
+        } catch {
+          // ignore
+        }
+      },
       toggleWatch: (id) => {
         commitBets((current) => {
           const exists = current.find((b) => b.propId === id && b.status === "WATCHING");
@@ -194,7 +281,7 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
       isStarred: (id) => stars.includes(id),
       isWatched: (id) => watch.includes(id),
     }),
-    [collapsed, searchOpen, alertsOpen, moreOpen, viewRefreshedAt, refreshView, finalCard, stars, watch, card, bets, addToCard, placeBet, setBetStatus, commitBets],
+    [collapsed, searchOpen, alertsOpen, moreOpen, viewRefreshedAt, refreshView, gameWindow, setGameWindow, finalCard, stars, watch, card, bets, addToCard, placeBet, setBetStatus, commitBets],
   );
 
   return <ShellContext.Provider value={value}>{children}</ShellContext.Provider>;

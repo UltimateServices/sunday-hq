@@ -10,7 +10,7 @@ import type {
   WeatherImpact,
 } from "@/lib/types/domain";
 import { formatMeasured, formatNumber, formatPct, formatSigned } from "@/lib/format";
-import { qualityLabel } from "@/lib/copy";
+import { qualityLabel, qualityTier } from "@/lib/copy";
 
 const TONE: Record<StatusTone, string> = {
   green: "border-good/40 bg-good/10 text-good",
@@ -36,6 +36,12 @@ export function ToneChip({
       {children}
     </span>
   );
+}
+
+export function QualityTierChip({ quality }: { quality: string }) {
+  const tier = qualityTier(quality);
+  const tone: StatusTone = tier === "HIGH" ? "green" : tier === "MEDIUM" ? "blue" : "yellow";
+  return <ToneChip tone={tone}>Data {tier}</ToneChip>;
 }
 
 export function StatusChip({ id }: { id: StatusChipId }) {
@@ -110,6 +116,7 @@ export function EdgeBadge({
   value: number | null;
   unit: EdgeUnit;
 }) {
+  const label = unit === "ev" ? "EV" : "Edge";
   const text =
     value === null
       ? "—"
@@ -119,7 +126,7 @@ export function EdgeBadge({
           ? `${formatSigned(value * 100, 1)}%`
           : `${formatSigned(value * 100, 1)}%`;
   const tone: StatusTone = value === null ? "purple" : value > 0 ? "green" : value < 0 ? "red" : "blue";
-  return <ToneChip tone={tone}>{text}</ToneChip>;
+  return <ToneChip tone={tone}>{`${label} ${text}`}</ToneChip>;
 }
 
 export function EVBadge({ value }: { value: number | null }) {
@@ -148,6 +155,12 @@ export function formatEdgeProb(value: number | null): string {
 export function formatEdgeEv(value: number | null): string {
   if (value === null) return "DATA UNAVAILABLE";
   return `${formatSigned(value * 100, 1)}% EV`;
+}
+
+export function RoleBadge({ role }: { role: string }) {
+  const tone: StatusTone =
+    role === "ROLE_UNCERTAIN" ? "orange" : role === "WORKHORSE" || role === "LEAD_BACK" ? "green" : "blue";
+  return <ToneChip tone={tone}>{role.replaceAll("_", " ")}</ToneChip>;
 }
 
 export { formatNumber, formatPct };

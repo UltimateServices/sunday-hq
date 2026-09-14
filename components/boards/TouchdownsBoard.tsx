@@ -56,6 +56,22 @@ export function TouchdownsBoard({ views }: { views: PropView[] }) {
       </div>
       <div className="hidden md:block">{filters}</div>
       <FilterDrawer title="TD filters">{filters}</FilterDrawer>
+      {rows[0] ? (
+        <article className="surface p-4">
+          <p className="text-[12px] text-muted">Top {TABS.find((t) => t.id === tab)?.label} candidate</p>
+          <p className="mt-1 text-[22px] font-semibold tracking-tight">{rows[0].playerName}</p>
+          <p className="mt-1 text-[14px] text-muted">
+            {rows[0].matchup} · {rows[0].tdRole ?? "Role UNKNOWN"} · model {formatMeasured(rows[0].pricing.modelProb, 1, "pct")}
+          </p>
+          <p className="mt-2 text-[13px] text-muted">Book anytime price DATA UNAVAILABLE. Research name only. Model P is ESTIMATE.</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <WhyDrawer title={`${rows[0].playerName} ${MARKET_LABEL[rows[0].market]}`} lenses={rows[0].lenses} sections={rows[0].whySections} />
+          </div>
+          <div className="mt-3">
+            <TDCard view={rows[0]} />
+          </div>
+        </article>
+      ) : null}
       {rows.length === 0 ? (
         <EmptyState />
       ) : (
@@ -94,7 +110,7 @@ export function TouchdownsBoard({ views }: { views: PropView[] }) {
                           {view.matchup}
                         </Link>
                       </td>
-                      <td className="num px-2 py-2 text-gold">{formatMeasured(view.pricing.modelProb, 1, "pct")}</td>
+                      <td className="num px-2 py-2">{formatMeasured(view.pricing.modelProb, 1, "pct")}</td>
                       <td className="num px-2 py-2">{formatMeasured(view.oddsAmerican, 0, "american")}</td>
                       <td className="num px-2 py-2">{formatMeasured(view.pricing.impliedProb, 1, "pct")}</td>
                       <td className="num px-2 py-2">{formatMeasured(view.pricing.ev, 1, "pct")}</td>

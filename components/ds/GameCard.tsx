@@ -36,6 +36,10 @@ export function GameCard({
   weatherSummary,
   live,
   note,
+  injuryCount,
+  bestProp,
+  primaryRisk,
+  envScore,
 }: {
   id: string;
   matchup: string;
@@ -48,6 +52,10 @@ export function GameCard({
   weatherSummary?: string;
   live: LiveStatus;
   note?: string;
+  injuryCount?: number;
+  bestProp?: string | null;
+  primaryRisk?: string | null;
+  envScore?: number | null;
 }) {
   return (
     <Link href={`/games/${id}`} className="surface block p-4 transition-colors hover:bg-card-hover">
@@ -57,13 +65,20 @@ export function GameCard({
           <p className="mt-0.5 text-[17px] font-semibold tracking-tight">{matchup}</p>
           <p className="text-[13px] text-muted">{spread}</p>
         </div>
-        <p className="num text-[26px] font-semibold tracking-tight text-gold">{formatNumber(total)}</p>
+        <div className="text-right">
+          <p className="num text-[26px] font-semibold tracking-tight text-ink">{formatNumber(total)}</p>
+          <p className="text-[11px] text-muted">Posted total</p>
+        </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5">
         <ToneChip tone={LIVE_TONE[live]}>{LIVE[live]}</ToneChip>
         <ToneChip tone={TIER[tier]}>{tier.replaceAll("_", " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}</ToneChip>
+        {envScore != null ? <ToneChip tone="yellow">Env {envScore} EST</ToneChip> : null}
         <WeatherBadge impact={weatherImpact} indoor={indoor} summary={weatherSummary} />
+        {injuryCount !== undefined ? <ToneChip tone={injuryCount > 0 ? "orange" : "blue"}>{injuryCount} inj</ToneChip> : null}
       </div>
+      {bestProp ? <p className="mt-3 text-[13px] leading-relaxed text-ink/90">Lean · {bestProp}</p> : null}
+      {primaryRisk ? <p className="mt-1 text-[13px] leading-relaxed text-muted">Risk · {primaryRisk}</p> : null}
       {note ? <p className="mt-3 text-[13px] leading-relaxed text-muted">{note}</p> : null}
     </Link>
   );
