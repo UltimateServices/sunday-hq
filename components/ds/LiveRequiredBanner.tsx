@@ -10,9 +10,9 @@ export function LiveRequiredBanner({ gate }: { gate: LiveGate }) {
     );
   }
   return (
-    <div role="alert" className="rounded-xl border border-alert/50 bg-alert/15 px-4 py-5">
-      <p className="text-[20px] font-semibold tracking-tight text-ink">{gate.headline}</p>
-      <p className="mt-2 text-[15px] leading-relaxed text-muted">{gate.body}</p>
+    <div role="alert" className="surface border-alert/40 bg-alert/10 px-5 py-4">
+      <p className="text-[17px] font-semibold tracking-tight text-ink">{gate.headline}</p>
+      <p className="mt-1.5 text-[14px] leading-relaxed text-muted">{gate.body}</p>
     </div>
   );
 }
