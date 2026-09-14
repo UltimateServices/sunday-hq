@@ -107,3 +107,169 @@ The app should behave like a combination of:
 - fantasy analytics platform
 - NFL data dashboard
 - private betting intelligence assistant
+8. GAME PAGE REQUIREMENTS
+Each game must include:
+- teams
+- kickoff
+- stadium
+- weather
+- spread
+- game total
+- implied team totals
+- model spread
+- model total
+- summary
+- injuries
+- weather
+- offensive matchups
+- defensive matchups
+- expected game script
+- pace
+- pass rate
+- rush rate
+- red-zone expectations
+- top player projections
+- best props
+- best unders
+- TD candidates
+- team total opportunity
+- parlay correlations
+- risks
+- line movement
+
+9. GAME SCRIPT ENGINE
+Model probable game scripts.
+
+Examples:
+- favorite leads most of game
+- close game
+- underdog leads
+
+Translate into:
+- QB pass attempts
+- RB carries
+- RB target share
+- WR/TE volume
+- late-game passing
+- rushing suppression
+- blowout risk
+
+10. QB PROJECTION BOARD
+Rank at least top 25 QBs by:
+- passing attempts
+- completions
+- passing yards
+- passing TDs
+- interception probability
+- rushing yards
+- rushing TD probability
+- 300+ yard probability
+- fantasy projection
+- matchup score
+- confidence
+
+11. QB MATCHUP MODEL
+Evaluate opponent:
+- passing yards allowed
+- yards per attempt
+- completion rate
+- explosive pass rate
+- pressure rate
+- sack rate
+- blitz rate
+- man/zone tendencies
+- red-zone pass defense
+- passing TD rate
+- interception rate
+- EPA allowed
+
+Adjust for opponent quality faced.
+
+12. QB PROTECTION MODEL
+Compare:
+- OL pass protection
+- opponent pass rush
+- missing tackles/guards/center
+- pressure mismatch
+- scramble/sack risk
+
+13. RB PROJECTION BOARD
+Rank by:
+- projected carries
+- rushing yards
+- YPC
+- targets
+- receptions
+- receiving yards
+- scrimmage yards
+- red-zone carries
+- goal-line carries
+- anytime TD probability
+- 2+ TD probability
+- fantasy projection
+- matchup
+- confidence
+
+14. RB WORKLOAD MODEL
+Track:
+- snap share
+- carry share
+- route participation
+- target share
+- red-zone carries
+- inside-10 carries
+- inside-5 carries
+- two-minute usage
+- third-down usage
+- goal-line role
+- recent role changes
+- committee competition
+
+Lower confidence when workload is unstable.
+
+15. RB MATCHUP MODEL
+Evaluate:
+- rush EPA
+- rush success rate
+- YPC allowed
+- yards before contact
+- yards after contact
+- explosive rushing plays
+- RB receptions allowed
+- RB receiving yards allowed
+- goal-line defense
+- defensive-line injuries
+- linebacker injuries
+- expected game script
+
+16. WR PROJECTION BOARD
+Rank by:
+- targets
+- receptions
+- receiving yards
+- air yards
+- target share
+- first-read share
+- red-zone targets
+- end-zone targets
+- TD probability
+- 100+ yard probability
+- fantasy projection
+- coverage grade
+- confidence
+
+17. WR ROLE MODEL
+Track:
+- route participation
+- target share
+- targets per route
+- air-yard share
+- average depth of target
+- first-read share
+- slot %
+- outside %
+- red-zone target share
+- end-zone target share
+- YAC
+- explosive reception rate
+- recent role changes
