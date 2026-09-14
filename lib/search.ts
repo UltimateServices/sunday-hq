@@ -13,6 +13,16 @@ export type SearchHit = {
   href: string;
 };
 
+const BOARDS: SearchHit[] = [
+  {
+    id: "board-volume",
+    kind: "prop",
+    label: "Volume board",
+    sub: "Safe / ceiling / floor · ELITE stability ESTIMATE",
+    href: "/volume",
+  },
+];
+
 const BOOKS: SearchHit[] = [
   {
     id: "book-dk",
@@ -63,7 +73,7 @@ export function searchIndex(): SearchHit[] {
       href: `/props?focus=${p.id}`,
     };
   });
-  return [...players, ...teams, ...games, ...props, ...BOOKS];
+  return [...players, ...teams, ...games, ...props, ...BOARDS, ...BOOKS];
 }
 
 export function runSearch(query: string): SearchHit[] {

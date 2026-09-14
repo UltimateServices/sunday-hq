@@ -24,6 +24,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Command Center", short: "CC", icon: "⌘", readiness: "LIVE", phase: 1, group: "command" },
   { href: "/games", label: "Games", short: "GAMES", icon: "▦", readiness: "LIVE", phase: 1, group: "slate" },
   { href: "/props", label: "Props", short: "PROPS", icon: "☰", readiness: "LIVE", phase: 3, group: "slate" },
+  { href: "/volume", label: "Volume", short: "VOL", icon: "≡", readiness: "LIVE", phase: 3, group: "slate" },
   { href: "/touchdowns", label: "Touchdowns", short: "TD", icon: "†", readiness: "LIVE", phase: 3, group: "slate" },
   { href: "/team-totals", label: "Team Totals", short: "TT", icon: "Σ", readiness: "LIVE", phase: 3, group: "slate" },
   { href: "/game-totals", label: "Game Totals", short: "GT", icon: "Σ", readiness: "LIVE", phase: 3, group: "slate" },

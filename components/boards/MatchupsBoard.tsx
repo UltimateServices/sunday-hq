@@ -12,11 +12,11 @@ import { DataStatus } from "@/components/shared/DataStatus";
 import { ToneChip } from "@/components/ds/badges";
 import { formatNumber } from "@/lib/format";
 
-const POS: Position[] = ["QB", "RB", "WR", "TE"];
+const POS: Array<Position | "OL"> = ["QB", "RB", "WR", "TE", "OL"];
 
 export function MatchupsBoard({ grades }: { grades: MatchupGrade[] }) {
-  const [pos, setPos] = useState<Position>("QB");
-  const rows = useMemo(() => grades.filter((g) => g.position === pos), [grades, pos]);
+  const [pos, setPos] = useState<Position | "OL">("QB");
+  const rows = useMemo(() => (pos === "OL" ? [] : grades.filter((g) => g.position === pos)), [grades, pos]);
   const best = rows.filter((r) => r.panel === "BEST");
   const worst = rows.filter((r) => r.panel === "WORST");
   const rest = rows.filter((r) => r.panel === "MID");
@@ -30,7 +30,11 @@ export function MatchupsBoard({ grades }: { grades: MatchupGrade[] }) {
           </button>
         ))}
       </div>
-      {rows.length === 0 ? (
+      {pos === "OL" ? (
+        <p className="surface p-4 text-[14px] text-muted">
+          OL-DL grades are PENDING. Week 1 seed has no line play-by-play and no invented trench scores.
+        </p>
+      ) : rows.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">

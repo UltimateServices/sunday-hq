@@ -1,3 +1,4 @@
+import { SUNDAY_ROUTINE } from "@/data/week1/admin";
 import { AVOIDS, CHANGES, NEWS } from "@/data/week1/news";
 import { ALERTS } from "@/data/week1/alerts";
 import { GAMES } from "@/data/week1/games";
@@ -13,6 +14,7 @@ import { weightRankBoost, type ModelWeights } from "@/lib/weights";
 import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
 import { MARKET_LABEL, toPropView, type PropView } from "@/lib/prop-view";
 import { liveStatus } from "@/lib/game-window";
+import { topVolumeRows } from "@/lib/volume-board";
 import type { EnvironmentTier, Position } from "@/lib/types/domain";
 
 export type SummaryCard = {
@@ -83,6 +85,7 @@ export function buildCommandCenter(
     | "liveBanner"
     | "staleWarning"
     | "oddsFresh"
+    | "routine"
   >,
 ) {
   const liveGate: LiveGate | undefined = catalog?.liveGate;
@@ -90,6 +93,7 @@ export function buildCommandCenter(
   const slate = catalog?.games ?? GAMES;
   const props = showTickets ? (catalog?.props ?? PROPS) : [];
   const views = props.map((p) => toPropView(p));
+  const researchViews = (catalog?.props && catalog.props.length > 0 ? catalog.props : PROPS).map((p) => toPropView(p));
   const rank = (a: PropView, b: PropView) => byEdgeDesc(a, b, catalog?.modelWeights, catalog?.thresholds.minEdgeYards);
   const overs = views.filter((v) => v.side === "OVER" && v.market !== "ANYTIME_TD");
   const unders = views.filter((v) => v.side === "UNDER");
@@ -259,9 +263,7 @@ export function buildCommandCenter(
       .filter((v) => PLAYER_BY_ID[v.playerId]?.position === position && v.side === "OVER")
       .sort((a, b) => (b.model.value ?? b.line.value ?? 0) - (a.model.value ?? a.line.value ?? 0));
 
-  const volume = views
-    .filter((v) => v.volumeTag === "HIGH" && v.market !== "ANYTIME_TD" && v.side === "OVER")
-    .sort((a, b) => (b.line.value ?? 0) - (a.line.value ?? 0));
+  const volume = topVolumeRows(researchViews);
 
   const criticalNews = NEWS.filter((n) => n.severity === "CRITICAL" || n.severity === "WATCH");
   const materialWeather = (catalog?.weather ?? WEATHER).filter((w) => w.impact === "SIGNIFICANT" || w.impact === "MODERATE");
@@ -313,6 +315,7 @@ export function buildCommandCenter(
     liveBanner: catalog?.liveBanner,
     staleWarning: catalog?.staleWarning ?? null,
     tape: catalog?.oddsFresh ? ("LIVE" as const) : ("ESTIMATE" as const),
+    routine: catalog?.routine ?? SUNDAY_ROUTINE,
   };
 }
 
