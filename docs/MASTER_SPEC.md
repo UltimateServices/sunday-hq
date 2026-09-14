@@ -87,8 +87,8 @@ If a capability cannot ship, **stub the route / empty board and mark PENDING**. 
 | 3 | Props / TD / team totals / game totals / fantasy boards (seed EV + Why) | LIVE · seed engine |
 | 4 | Matchup boards + market movement heat/timeline | LIVE · LOW SAMPLE scores |
 | 5 | Parlays, boosts, My Card, Final Card | LIVE · seed constructs |
-| 6 | Results, CLV, calibration (EXAMPLE/SEED until settle) | LIVE · illustrative |
-| 7 | Alerts wired + admin weights / settings | LIVE · no secrets |
+| 6 | Results, CLV, calibration (EXAMPLE/SEED until settle) | LIVE · REAL vs EXAMPLE/SEED separated |
+| 7 | Alerts wired + admin weights / settings | LIVE · ingest + Sunday crons; no secrets in repo |
 
 Do not optimize for the fastest MVP at the expense of this foundation.
 
@@ -110,15 +110,17 @@ When My Card ships: **no loss chasing** and **no unit inflation** after early ga
 - `.env*` is gitignored. Document names only in `.env.example`.
 - Game spreads/totals in the Week 1 seed are **DK via ESPN schedule widget (2026-09-13)**.
 - Player props in the seed are **CONSENSUS / ESTIMATE** unless a later ingest marks them verified.
+- Live DK tape comes from **The Odds API** (`ODDS_API_KEY`) with `bookmakers=draftkings`. Without the key: Degraded + DATA UNAVAILABLE + timestamps. Never invent a verified DK price.
+- Settlement uses the **ESPN public site API** (no key): scoreboard + summary box scores. Closing line is the last **pre-kick** odds snapshot. CLV is REAL only when both exist.
 - NYJ@TEN: owner seed 38.5 floor; ESPN DK widget 39.5 at capture — both stored, movement labeled.
 
 ## 16. Architecture
 
 ```
-app/           App Router pages (3 layers)
+app/           App Router pages (3 layers) + api/ingest, api/settle, api/cron
 components/    Shell, Command Center, boards, shared
-lib/           types, nav, odds/EV, command-center VM
-data/          Week 1 seed + SQL schema stub
+lib/           types, nav, odds/EV, ingest, settle, Sunday refresh
+data/          Week 1 seed + snapshots overlay + SQL schema stub
 docs/          This contract
 ```
 

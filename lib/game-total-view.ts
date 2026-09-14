@@ -3,7 +3,7 @@ import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { movesForGame } from "@/data/week1/market-moves";
 import { environmentFor } from "@/lib/team-totals";
-import type { EnvironmentTier, QualifierGrade, QualifierLens, WhySections } from "@/lib/types/domain";
+import type { EnvironmentTier, Game, QualifierGrade, QualifierLens, WhySections } from "@/lib/types/domain";
 
 export type GameTotalRow = {
   gameId: string;
@@ -20,8 +20,8 @@ export type GameTotalRow = {
   lenses: Record<QualifierLens, QualifierGrade>;
 };
 
-export function gameTotalRows(): GameTotalRow[] {
-  return [...GAMES]
+export function gameTotalRows(games: Game[] = GAMES): GameTotalRow[] {
+  return [...games]
     .sort((a, b) => (b.total.value ?? 0) - (a.total.value ?? 0))
     .map((game) => {
       const open = game.openingTotal?.value ?? game.total.value;

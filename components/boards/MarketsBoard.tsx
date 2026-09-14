@@ -8,7 +8,7 @@ import { MARKET_MOVES, movesForGame } from "@/data/week1/market-moves";
 import { EmptyState } from "@/components/ds/EmptyState";
 import { MarketMovementBadge, StatusChip, ToneChip } from "@/components/ds/badges";
 import { formatNumber, spreadLabel } from "@/lib/format";
-import type { MarketMoveEvent } from "@/lib/types/domain";
+import type { Game, MarketMoveEvent } from "@/lib/types/domain";
 
 const HEAT_TONE = {
   QUIET: "blue",
@@ -16,19 +16,30 @@ const HEAT_TONE = {
   STEAM: "orange",
 } as const;
 
-export function MarketsBoard() {
+export function MarketsBoard({
+  games: incomingGames = GAMES,
+  moves = MARKET_MOVES,
+}: {
+  games?: Game[];
+  moves?: MarketMoveEvent[];
+}) {
   const [heat, setHeat] = useState<"ALL" | MarketMoveEvent["heat"]>("ALL");
   const [drawer, setDrawer] = useState<string | null>(null);
 
-  const games = useMemo(() => {
-    return GAMES.filter((game) => {
-      if (heat === "ALL") return true;
-      return movesForGame(game.id).some((m) => m.heat === heat);
-    });
-  }, [heat]);
+  const eventsFor = (gameId: string) => {
+    const live = moves.filter((m) => m.gameId === gameId);
+    return live.length ? live : movesForGame(gameId);
+  };
 
-  const active = drawer ? movesForGame(drawer) : [];
-  const activeGame = drawer ? GAMES.find((g) => g.id === drawer) : null;
+  const games = useMemo(() => {
+    return incomingGames.filter((game) => {
+      if (heat === "ALL") return true;
+      return eventsFor(game.id).some((m) => m.heat === heat);
+    });
+  }, [heat, incomingGames, moves]);
+
+  const active = drawer ? eventsFor(drawer) : [];
+  const activeGame = drawer ? incomingGames.find((g) => g.id === drawer) : null;
 
   return (
     <div className="space-y-4">
@@ -44,7 +55,7 @@ export function MarketsBoard() {
       ) : (
         <div className="space-y-2">
           {games.map((game) => {
-            const events = movesForGame(game.id);
+            const events = eventsFor(game.id);
             const latest = events[events.length - 1];
             const open = game.openingTotal?.value ?? game.total.value;
             const current = game.total.value;
@@ -122,7 +133,7 @@ export function MarketsBoard() {
                 ))}
               </ol>
             )}
-            {MARKET_MOVES.every((m) => m.heat !== "STEAM") ? (
+            {moves.every((m) => m.heat !== "STEAM") ? (
               <p className="mt-4 text-xs text-muted">STEAM filter is empty on this seed — no captured steam print. Heat is WARM/QUIET only.</p>
             ) : null}
           </aside>

@@ -1,20 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ALERTS } from "@/data/week1/alerts";
 import { AlertRow } from "@/components/ds/AlertRow";
 import { EmptyState } from "@/components/ds/EmptyState";
 import type { AlertKind } from "@/lib/types/domain";
+import { useLiveAlerts } from "./LiveOpsProvider";
 import { useShell } from "./ShellProvider";
 
 const TABS: Array<"ALL" | AlertKind> = ["ALL", "INJURIES", "WEATHER", "MARKETS", "PROJECTIONS"];
 
 export function AlertsDrawer() {
   const { alertsOpen, setAlertsOpen } = useShell();
+  const alerts = useLiveAlerts();
   const [tab, setTab] = useState<(typeof TABS)[number]>("ALL");
   const rows = useMemo(
-    () => (tab === "ALL" ? ALERTS : ALERTS.filter((a) => a.kind === tab)),
-    [tab],
+    () => (tab === "ALL" ? alerts : alerts.filter((a) => a.kind === tab)),
+    [tab, alerts],
   );
   if (!alertsOpen) return null;
 

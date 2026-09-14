@@ -3,7 +3,9 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { SEED_CARD } from "@/data/week1/card";
 import { PROP_BY_ID } from "@/data/week1/props";
+import { applyLockToBet, buildLockSnapshot, livePropFromSnapshot } from "@/lib/card/lock";
 import { CARD_KEY } from "@/lib/settings";
+import type { OddsSnapshot } from "@/lib/ingest/types";
 import type { CardBet, CardStatus } from "@/lib/types/domain";
 
 function persistCard(next: CardBet[]) {
@@ -31,7 +33,7 @@ type ShellState = {
   toggleStar: (id: string) => void;
   toggleWatch: (id: string) => void;
   addToCard: (id: string) => void;
-  placeBet: (betId: string, units: number) => void;
+  placeBet: (betId: string, units: number) => Promise<void>;
   setBetStatus: (betId: string, status: CardStatus) => void;
   isStarred: (id: string) => boolean;
   isWatched: (id: string) => boolean;
@@ -92,20 +94,40 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
     });
   }, [commitBets]);
 
-  const placeBet = useCallback((betId: string, units: number) => {
+  const placeBet = useCallback(async (betId: string, units: number) => {
+    let snapshot: OddsSnapshot | null = null;
+    try {
+      const response = await fetch("/api/markets/live", { cache: "no-store" });
+      if (response.ok) {
+        const json = (await response.json()) as { snapshot?: OddsSnapshot | null };
+        snapshot = json.snapshot ?? null;
+      }
+    } catch {
+      snapshot = null;
+    }
+
+    let locked: CardBet | null = null;
     commitBets((current) =>
-      current.map((b) =>
-        b.id === betId
-          ? {
-              ...b,
-              status: "PLACED" as const,
-              units,
-              placedAt: new Date().toISOString(),
-              note: `${b.note} Placed ${units}u. No dollars. No unit inflation.`,
-            }
-          : b,
-      ),
+      current.map((b) => {
+        if (b.id !== betId) return b;
+        const live = livePropFromSnapshot(snapshot, b.propId);
+        const next = applyLockToBet(b, units, buildLockSnapshot(b.propId, live));
+        locked = next;
+        return next;
+      }),
     );
+
+    if (locked) {
+      try {
+        await fetch("/api/card/lock", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ bet: locked, units }),
+        });
+      } catch {
+        // local lock still holds
+      }
+    }
   }, [commitBets]);
 
   const setBetStatus = useCallback((betId: string, status: CardStatus) => {

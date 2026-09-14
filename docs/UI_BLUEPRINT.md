@@ -31,7 +31,7 @@ Sidebar groups, in this order (icons + labels):
 Page title + week | Last refresh + Next refresh + Refresh + Search + Alerts + settings.
 
 - Last refresh is a real timestamp (seed or client view-refresh)
-- Next refresh is `LIVE POLL PENDING` until ingest exists — do not fake a countdown that implies new data
+- Next refresh is the next Sunday cron **attempt** (ET label + stage). It is not a guarantee of new DK tape — Degraded / DATA UNAVAILABLE still apply when the key is missing or the pull fails
 - Refresh updates the *view clock* only; it does not fabricate lines
 
 ### Global search

@@ -11,12 +11,14 @@ import { GAMES } from "@/data/week1/games";
 import { INJURIES } from "@/data/week1/injuries";
 import { NEWS } from "@/data/week1/news";
 import { SUNDAY_PLAYERS } from "@/data/week1/players";
-import { PROPS } from "@/data/week1/props";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
+import { getWeekCatalog } from "@/lib/catalog";
 import { formatNumber, spreadLabel } from "@/lib/format";
 import { toPropView } from "@/lib/prop-view";
 import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return GAMES.map((game) => ({ gameId: game.id }));
@@ -24,15 +26,16 @@ export function generateStaticParams() {
 
 export default async function GameDeepDive({ params }: PageProps<"/games/[gameId]">) {
   const { gameId } = await params;
-  const game = GAMES.find((g) => g.id === gameId);
+  const catalog = await getWeekCatalog();
+  const game = catalog.games.find((g) => g.id === gameId) ?? GAMES.find((g) => g.id === gameId);
   if (!game) notFound();
 
   const away = TEAM_BY_ID[game.awayTeamId];
   const home = TEAM_BY_ID[game.homeTeamId];
   const wx = WEATHER_BY_GAME[game.id];
   const implied = impliedTeamTotals(game);
-  const totals = derivedTeamTotals().filter((row) => row.gameId === game.id);
-  const props = PROPS.filter((p) => p.gameId === game.id).map((p) => toPropView(p));
+  const totals = derivedTeamTotals(catalog.games).filter((row) => row.gameId === game.id);
+  const props = catalog.props.filter((p) => p.gameId === game.id).map((p) => toPropView(p));
   const injuries = INJURIES.filter((i) => i.gameId === game.id);
   const news = NEWS.filter((n) => n.gameId === game.id);
   const players = SUNDAY_PLAYERS.filter((p) => p.teamId === game.awayTeamId || p.teamId === game.homeTeamId);

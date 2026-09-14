@@ -11,10 +11,12 @@ import { FANTASY_BY_PLAYER } from "@/data/week1/fantasy";
 import { GAMES } from "@/data/week1/games";
 import { injuryForPlayer } from "@/data/week1/injuries";
 import { SUNDAY_PLAYERS } from "@/data/week1/players";
-import { PROPS } from "@/data/week1/props";
 import { TEAM_BY_ID } from "@/data/week1/teams";
+import { getWeekCatalog } from "@/lib/catalog";
 import { formatMeasured } from "@/lib/format";
 import { toPropView } from "@/lib/prop-view";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return SUNDAY_PLAYERS.map((player) => ({ playerId: player.id }));
@@ -25,11 +27,12 @@ export default async function PlayerDeepDive({ params }: PageProps<"/players/[pl
   const player = SUNDAY_PLAYERS.find((p) => p.id === playerId);
   if (!player) notFound();
 
+  const catalog = await getWeekCatalog();
   const team = TEAM_BY_ID[player.teamId];
-  const game = GAMES.find((g) => g.awayTeamId === player.teamId || g.homeTeamId === player.teamId);
+  const game = catalog.games.find((g) => g.awayTeamId === player.teamId || g.homeTeamId === player.teamId) ?? GAMES.find((g) => g.awayTeamId === player.teamId || g.homeTeamId === player.teamId);
   const inj = injuryForPlayer(player.id);
   const fan = FANTASY_BY_PLAYER[player.id];
-  const props = PROPS.filter((p) => p.playerId === player.id).map((p) => toPropView(p));
+  const props = catalog.props.filter((p) => p.playerId === player.id).map((p) => toPropView(p));
   const primary = props[0];
 
   return (

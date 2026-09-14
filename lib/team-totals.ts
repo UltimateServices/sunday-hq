@@ -23,8 +23,8 @@ export function environmentFor(game: Game, extra?: { qbDowngrade?: boolean; weat
   return "NEUTRAL";
 }
 
-export function derivedTeamTotals(): DerivedTeamTotal[] {
-  return GAMES.flatMap((game) => {
+export function derivedTeamTotals(games: Game[] = GAMES): DerivedTeamTotal[] {
+  return games.flatMap((game) => {
     const { home, away } = impliedTeamTotals(game);
     const qbDowngrade = game.id === "atl-pit";
     const weatherRisk = game.id === "cle-jax";

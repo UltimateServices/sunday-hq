@@ -1,18 +1,22 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SeedBanner } from "@/components/shared/SeedBanner";
 import { GameTotalsBoard } from "@/components/boards/GameTotalsBoard";
+import { getWeekCatalog } from "@/lib/catalog";
 import { gameTotalRows } from "@/lib/game-total-view";
 
-export default function GameTotalsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function GameTotalsPage() {
+  const catalog = await getWeekCatalog();
   return (
     <div className="space-y-6">
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Game Totals"
-        lede="Sunday totals from DraftKings via ESPN widget. Open / current / move / environment / weather. TB@CIN 50.5 ceiling. NYJ@TEN 39.5 floor."
+        lede="Sunday totals. Live DraftKings overlay when the snapshot is fresh; otherwise seed DK-via-ESPN with a stale warning."
       />
-      <SeedBanner>NYJ@TEN opener 38.5 is owner/consensus; 39.5 is the captured DK print. Highest total is not an automatic over.</SeedBanner>
-      <GameTotalsBoard rows={gameTotalRows()} />
+      <SeedBanner>{catalog.staleWarning ?? catalog.liveBanner}</SeedBanner>
+      <GameTotalsBoard rows={gameTotalRows(catalog.games)} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { PLAYER_BY_ID } from "@/data/week1/players";
 import { PROPS } from "@/data/week1/props";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER } from "@/data/week1/weather";
+import type { WeekCatalog } from "@/lib/catalog";
 import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
 import { MARKET_LABEL, toPropView, type PropView } from "@/lib/prop-view";
 import { liveStatus } from "@/lib/game-window";
@@ -44,17 +45,19 @@ function byEdgeDesc(a: PropView, b: PropView): number {
   return (b.pricing.edge.value ?? -999) - (a.pricing.edge.value ?? -999);
 }
 
-export function buildCommandCenter() {
-  const views = PROPS.map((p) => toPropView(p));
+export function buildCommandCenter(catalog?: Pick<WeekCatalog, "games" | "props" | "changes" | "alerts">) {
+  const slate = catalog?.games ?? GAMES;
+  const props = catalog?.props ?? PROPS;
+  const views = props.map((p) => toPropView(p));
   const overs = views.filter((v) => v.side === "OVER" && v.market !== "ANYTIME_TD");
   const unders = views.filter((v) => v.side === "UNDER");
   const yardage = views.filter((v) => ["PASS_YDS", "RUSH_YDS", "REC_YDS"].includes(v.market));
 
   const bestOver = [...overs].filter(rankable).sort(byEdgeDesc)[0];
   const bestUnder = [...unders].filter(rankable).sort(byEdgeDesc)[0];
-  const teamTotals = derivedTeamTotals().sort((a, b) => (b.line.value ?? 0) - (a.line.value ?? 0));
+  const teamTotals = derivedTeamTotals(slate).sort((a, b) => (b.line.value ?? 0) - (a.line.value ?? 0));
   const bestTeamTotal = teamTotals[0];
-  const shootout = GAMES.find((g) => g.id === "tb-cin")!;
+  const shootout = slate.find((g) => g.id === "tb-cin") ?? GAMES.find((g) => g.id === "tb-cin")!;
   const gibbs = views.find((v) => v.playerId === "gibbs" && v.market === "RUSH_YDS");
   const burrow = views.find((v) => v.playerId === "burrow" && v.side === "OVER");
 
@@ -129,7 +132,7 @@ export function buildCommandCenter() {
     },
   ];
 
-  const environments: EnvironmentRow[] = GAMES.map((game) => {
+  const environments: EnvironmentRow[] = slate.map((game) => {
     const away = TEAM_BY_ID[game.awayTeamId].abbr;
     const home = TEAM_BY_ID[game.homeTeamId].abbr;
     const spread = game.spreadHome.value;
@@ -188,16 +191,16 @@ export function buildCommandCenter() {
       season: WEEK1_META.season,
       date: WEEK1_META.slateLabel,
       lastUpdated: WEEK1_META.lastUpdatedLabel,
-      games: GAMES.length,
-      indoor: GAMES.filter((g) => g.indoor).length,
-      outdoor: GAMES.filter((g) => !g.indoor).length,
-      highestTotal: Math.max(...GAMES.map((g) => g.total.value ?? 0)),
-      lowestTotal: Math.min(...GAMES.map((g) => g.total.value ?? 99)),
+      games: slate.length,
+      indoor: slate.filter((g) => g.indoor).length,
+      outdoor: slate.filter((g) => !g.indoor).length,
+      highestTotal: Math.max(...slate.map((g) => g.total.value ?? 0)),
+      lowestTotal: Math.min(...slate.map((g) => g.total.value ?? 99)),
     },
     summaryCards,
     news: criticalNews,
-    changes: CHANGES,
-    alerts: ALERTS.filter((a) => a.severity === "CRITICAL" || a.severity === "IMPORTANT"),
+    changes: catalog?.changes ?? CHANGES,
+    alerts: (catalog?.alerts ?? ALERTS).filter((a) => a.severity === "CRITICAL" || a.severity === "IMPORTANT"),
     opportunities: [...views].filter(rankable).sort(byEdgeDesc).slice(0, 8),
     top5: [...views].filter(rankable).sort(byEdgeDesc).slice(0, 5),
     volume,
@@ -216,8 +219,8 @@ export function buildCommandCenter() {
     overs: overs.filter((v) => v.line.value !== null),
     unders: unders.filter((v) => v.line.value !== null),
     avoids: AVOIDS,
-    games: GAMES,
-    implied: Object.fromEntries(GAMES.map((g) => [g.id, impliedTeamTotals(g)])),
+    games: slate,
+    implied: Object.fromEntries(slate.map((g) => [g.id, impliedTeamTotals(g)])),
     views,
   };
 }

@@ -1,11 +1,14 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SeedBanner } from "@/components/shared/SeedBanner";
 import { TouchdownsBoard } from "@/components/boards/TouchdownsBoard";
-import { PROPS } from "@/data/week1/props";
+import { getWeekCatalog } from "@/lib/catalog";
 import { toPropView } from "@/lib/prop-view";
 
-export default function TouchdownsPage() {
-  const views = PROPS.filter((p) =>
+export const dynamic = "force-dynamic";
+
+export default async function TouchdownsPage() {
+  const catalog = await getWeekCatalog();
+  const views = catalog.props.filter((p) =>
     ["ANYTIME_TD", "FIRST_TD", "TWO_PLUS_TD", "RUSH_TD"].includes(p.market),
   ).map((p) => toPropView(p));
 

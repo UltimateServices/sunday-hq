@@ -85,6 +85,16 @@ export function MyCardBoard() {
                 <p className="mt-1 text-[11px] text-muted">
                   Line at add {formatNumber(bet.lineAtAdd)} → current {formatNumber(bet.currentLine)} · units {bet.units ?? "unset"} (no dollars)
                 </p>
+                {bet.lockSnapshot ? (
+                  <p className="mt-1 text-[11px] text-gold">
+                    PLACED SNAPSHOT · line {formatNumber(bet.lockSnapshot.line)} ({bet.lockSnapshot.lineQuality}) · odds{" "}
+                    {bet.lockSnapshot.odds ?? "DATA UNAVAILABLE"} ({bet.lockSnapshot.oddsQuality}) · proj{" "}
+                    {formatNumber(bet.lockSnapshot.projection)} · {bet.lockSnapshot.confidence} · {bet.lockSnapshot.health.replaceAll("_", " ")} ·{" "}
+                    {bet.lockSnapshot.weather}
+                  </p>
+                ) : bet.status === "PLACED" ? (
+                  <p className="mt-1 text-[11px] text-muted">No lock snapshot on this seed ticket until you re-place or settle writes one.</p>
+                ) : null}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <WhyDrawer title={`${view.playerName} card`} lenses={view.lenses} sections={view.whySections} />
                   {bet.status === "WATCHING" ? (

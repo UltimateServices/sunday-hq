@@ -219,6 +219,8 @@ export type ChangeItem = {
   category: ChangeCategory;
   severity: AlertSeverity;
   edgeImpact?: "LOST" | "IMPROVED" | "NONE";
+  asOf?: string;
+  fingerprint?: string;
 };
 
 export type LiveStatus = "UPCOMING" | "LIVE" | "FINAL";
@@ -283,6 +285,19 @@ export type CardStatus = "WATCHING" | "READY" | "PLACED" | "SETTLED";
 
 export type CardReview = "LINE_MOVED" | "EDGE_LOST" | "EDGE_IMPROVED" | null;
 
+export type PlaceLockSnapshot = {
+  line: number | null;
+  lineQuality: DataQuality;
+  odds: number | null;
+  oddsQuality: DataQuality;
+  projection: number | null;
+  confidence: ConfidenceGrade;
+  health: HealthState;
+  weather: string;
+  book: BookId;
+  asOf: string;
+};
+
 export type CardBet = {
   id: string;
   propId: string;
@@ -295,7 +310,8 @@ export type CardBet = {
   currentLine: number | null;
   review: CardReview;
   note: string;
-  seedLabel: "EXAMPLE" | "SEED" | "SESSION";
+  seedLabel: "EXAMPLE" | "SEED" | "SESSION" | "REAL";
+  lockSnapshot?: PlaceLockSnapshot | null;
 };
 
 export type MatchupFactor = {
@@ -375,9 +391,11 @@ export type ResultRow = {
   clv: MeasuredNumber;
   closingLine: MeasuredNumber;
   lineTaken: MeasuredNumber;
-  seedLabel: "EXAMPLE" | "SEED";
+  seedLabel: "EXAMPLE" | "SEED" | "REAL";
   note: string;
   week: number;
+  actual?: MeasuredNumber;
+  source?: string;
 };
 
 export type CalibrationBucket = {
