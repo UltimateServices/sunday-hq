@@ -8,9 +8,9 @@ export function StatTile({
   hint?: string;
 }) {
   return (
-    <div className="rounded-md border border-line bg-card px-2 py-2" title={hint}>
-      <p className="text-[9px] tracking-[0.14em] text-muted uppercase">{label}</p>
-      <p className="num text-sm font-semibold text-ink">{value}</p>
+    <div className="surface px-3 py-3" title={hint}>
+      <p className="text-[12px] text-muted">{label}</p>
+      <p className="num mt-1 text-[15px] font-semibold text-ink">{value}</p>
     </div>
   );
 }

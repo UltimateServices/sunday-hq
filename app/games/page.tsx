@@ -2,7 +2,6 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { SeedBanner } from "@/components/shared/SeedBanner";
 import { GameCard } from "@/components/ds/GameCard";
 import { TEAM_BY_ID } from "@/data/week1/teams";
-import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { getWeekCatalog } from "@/lib/catalog";
 import { environmentFor } from "@/lib/team-totals";
 import { liveStatus } from "@/lib/game-window";
@@ -15,16 +14,16 @@ export default async function GamesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        layer="Layer 2 · Research Board"
+        layer="This Sunday"
         title="Games"
-        lede="13 Sunday Week 1 games. Tiles reuse GameCard (ENV + weather + live state). Deep dive on click."
+        lede="Thirteen Week 1 games. Tap a card for script, weather, and props."
       />
       <SeedBanner>{catalog.staleWarning ?? catalog.liveBanner}</SeedBanner>
-      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {catalog.games.map((game) => {
           const away = TEAM_BY_ID[game.awayTeamId];
           const home = TEAM_BY_ID[game.homeTeamId];
-          const wx = WEATHER_BY_GAME[game.id];
+          const wx = catalog.weather.find((row) => row.gameId === game.id);
           return (
             <GameCard
               key={game.id}
@@ -36,7 +35,7 @@ export default async function GamesPage() {
               indoor={game.indoor}
               tier={environmentFor(game, {
                 qbDowngrade: game.id === "atl-pit",
-                weatherRisk: game.id === "cle-jax",
+                weatherRisk: wx?.impact === "SIGNIFICANT",
               })}
               weatherImpact={wx?.impact ?? "UNKNOWN"}
               weatherSummary={wx?.summary}

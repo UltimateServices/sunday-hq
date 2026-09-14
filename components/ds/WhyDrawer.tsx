@@ -13,6 +13,13 @@ const LENS_TONE: Record<QualifierGrade, StatusTone> = {
   UNKNOWN: "purple",
 };
 
+function lensPlain(grade: QualifierGrade): string {
+  if (grade === "UNKNOWN") return "Unknown";
+  if (grade === "LEAN") return "Lean";
+  if (grade === "YES") return "Yes";
+  return "No";
+}
+
 export function WhyDrawer({
   title,
   lenses,
@@ -44,37 +51,39 @@ export function WhyDrawer({
           event.stopPropagation();
           window.setTimeout(() => setOpen(true), 0);
         }}
-        className="rounded-sm border border-line bg-bg-elev px-2 py-1 text-[11px] font-semibold tracking-wide text-gold uppercase hover:border-gold/50"
+        className="action-btn text-ink"
       >
-        Why
+        Why this bet
       </button>
       {open ? (
-        <div className="fixed inset-0 z-[80] flex justify-end bg-black/60" role="dialog" aria-modal>
+        <div className="fixed inset-0 z-[80] flex justify-end bg-black/55" role="dialog" aria-modal>
           <button className="h-full flex-1 cursor-default" aria-label="Close" onClick={() => setOpen(false)} />
-          <aside className="h-full w-full max-w-md overflow-y-auto border-l border-line bg-bg-elev p-5 shadow-2xl">
-            <div className="mb-4 flex items-start justify-between gap-3">
+          <aside className="h-full w-full max-w-md overflow-y-auto border-l border-line bg-bg-elev p-6 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] tracking-[0.16em] text-gold uppercase">Explanation</p>
-                <h3 className="text-lg font-semibold text-ink">{title}</h3>
+                <p className="text-[13px] text-muted">Why this bet</p>
+                <h3 className="mt-1 text-[22px] font-semibold tracking-tight text-ink">{title}</h3>
               </div>
-              <button type="button" onClick={() => setOpen(false)} className="rounded-sm border border-line px-2 py-1 text-xs text-muted hover:text-ink">
+              <button type="button" onClick={() => setOpen(false)} className="action-btn">
                 Close
               </button>
             </div>
-            <p className="mb-3 text-xs text-muted">Why this bet: availability, then projection, then price — never a lock.</p>
-            <div className="mb-5 grid grid-cols-2 gap-2">
+            <p className="mb-5 text-[13px] leading-relaxed text-muted">
+              Availability first, then projection, then price. A good player is not automatically a good bet.
+            </p>
+            <div className="mb-6 grid grid-cols-2 gap-2">
               {(Object.keys(lenses) as QualifierLens[]).map((lens) => (
-                <div key={lens} className="rounded-md border border-line bg-card p-2">
-                  <p className="mb-1 text-[10px] text-muted">{LENS_LABEL[lens]}</p>
-                  <ToneChip tone={LENS_TONE[lenses[lens]]}>{lenses[lens]}</ToneChip>
+                <div key={lens} className="surface p-3">
+                  <p className="mb-2 text-[12px] text-muted">{LENS_LABEL[lens]}</p>
+                  <ToneChip tone={LENS_TONE[lenses[lens]]}>{lensPlain(lenses[lens])}</ToneChip>
                 </div>
               ))}
             </div>
-            <Block title="1 · Why it fits" items={resolved.modelCase} />
-            <Block title="2 · What else supports it" items={resolved.supporting} />
-            <Block title="3 · How it loses" items={resolved.risks} danger />
-            <Block title="4 · Market" items={resolved.marketContext} />
-            <Block title="5 · Data quality" items={resolved.dataQuality} />
+            <Block title="The case" items={resolved.modelCase} />
+            <Block title="What supports it" items={resolved.supporting} />
+            <Block title="How it loses" items={resolved.risks} danger />
+            <Block title="The market" items={resolved.marketContext} />
+            <Block title="How sure we are" items={resolved.dataQuality} />
           </aside>
         </div>
       ) : null}
@@ -84,12 +93,12 @@ export function WhyDrawer({
 
 function Block({ title, items, danger }: { title: string; items: string[]; danger?: boolean }) {
   return (
-    <div className="mb-4">
-      <h4 className={`mb-2 text-[11px] tracking-wide uppercase ${danger ? "text-bad" : "text-ink"}`}>{title}</h4>
+    <div className="mb-5">
+      <h4 className={`mb-2 text-[15px] font-semibold ${danger ? "text-bad" : "text-ink"}`}>{title}</h4>
       {items.length === 0 ? (
-        <p className="text-sm text-muted">DATA UNAVAILABLE</p>
+        <p className="text-[14px] text-muted">Nothing stored here yet.</p>
       ) : (
-        <ul className="list-disc space-y-1 pl-5 text-sm text-ink/90">
+        <ul className="space-y-2 text-[14px] leading-relaxed text-ink/90">
           {items.map((item) => (
             <li key={item}>{item}</li>
           ))}

@@ -11,17 +11,19 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-line bg-bg-elev lg:flex ${
-        collapsed ? "w-16" : "w-[240px]"
+      className={`sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-line bg-bg lg:flex ${
+        collapsed ? "w-[72px]" : "w-[248px]"
       }`}
     >
-      <div className="flex items-center justify-between border-b border-line px-3 py-3">
+      <div className="flex items-center justify-between px-4 py-5">
         {collapsed ? (
-          <span className="text-gold">⌘</span>
+          <Link href="/" className="text-[17px] font-semibold text-gold" aria-label="Sunday HQ home">
+            S
+          </Link>
         ) : (
           <div>
-            <p className="text-[10px] tracking-[0.18em] text-gold uppercase">Ultimate</p>
-            <Link href="/" className="text-sm font-semibold">
+            <p className="text-[12px] text-muted">Sunday research</p>
+            <Link href="/" className="text-[17px] font-semibold tracking-tight">
               Sunday HQ
             </Link>
           </div>
@@ -29,19 +31,19 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => setCollapsed(!collapsed)}
-          className="rounded-sm border border-line px-1.5 py-0.5 text-[10px] text-muted"
+          className="action-btn px-2 py-1 text-[12px]"
           aria-label="Collapse sidebar"
         >
-          {collapsed ? "»" : "«"}
+          {collapsed ? "›" : "‹"}
         </button>
       </div>
-      <nav className="flex-1 overflow-y-auto px-1.5 py-2">
+      <nav className="flex-1 overflow-y-auto px-2 pb-6">
         {NAV_GROUPS.map((group) => {
           const items = NAV_ITEMS.filter((item) => item.group === group.id);
           return (
-            <div key={group.id} className="mb-2">
+            <div key={group.id} className="mb-4">
               {!collapsed && group.label ? (
-                <p className="px-2 pb-1 text-[9px] tracking-[0.16em] text-muted uppercase">{group.label}</p>
+                <p className="px-3 pb-1 text-[11px] font-medium text-muted">{group.label}</p>
               ) : null}
               <ul className="space-y-0.5">
                 {items.map((item) => {
@@ -54,21 +56,14 @@ export function Sidebar() {
                       <Link
                         href={item.href}
                         title={item.label}
-                        className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-[12px] ${
-                          active ? "bg-card text-gold" : "text-ink/85 hover:bg-card"
+                        className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[14px] ${
+                          active ? "bg-card text-ink" : "text-muted hover:bg-card hover:text-ink"
                         }`}
                       >
-                        <span className="w-4 text-center" aria-hidden>
+                        <span className="w-4 text-center text-[13px] opacity-70" aria-hidden>
                           {item.icon}
                         </span>
-                        {collapsed ? null : (
-                          <>
-                            <span className="flex-1 truncate">{item.label}</span>
-                            {item.readiness !== "LIVE" ? (
-                              <span className="text-[8px] text-rare">{item.readiness[0]}</span>
-                            ) : null}
-                          </>
-                        )}
+                        {collapsed ? null : <span className="flex-1 truncate">{item.label}</span>}
                       </Link>
                     </li>
                   );

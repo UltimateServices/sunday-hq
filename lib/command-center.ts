@@ -68,7 +68,22 @@ function byEdgeDesc(a: PropView, b: PropView, weights?: ModelWeights, minEdge = 
 }
 
 export function buildCommandCenter(
-  catalog?: Pick<WeekCatalog, "games" | "props" | "changes" | "alerts" | "weather" | "matchups" | "modelWeights" | "thresholds" | "liveGate">,
+  catalog?: Pick<
+    WeekCatalog,
+    | "games"
+    | "props"
+    | "changes"
+    | "alerts"
+    | "weather"
+    | "matchups"
+    | "modelWeights"
+    | "thresholds"
+    | "liveGate"
+    | "health"
+    | "liveBanner"
+    | "staleWarning"
+    | "oddsFresh"
+  >,
 ) {
   const liveGate: LiveGate | undefined = catalog?.liveGate;
   const showTickets = liveGate?.actionable ?? false;
@@ -293,6 +308,11 @@ export function buildCommandCenter(
     implied: Object.fromEntries(slate.map((g) => [g.id, impliedTeamTotals(g)])),
     views,
     liveGate,
+    healthState: catalog?.health.state ?? "DEGRADED",
+    healthIssues: catalog?.health.issues ?? [],
+    liveBanner: catalog?.liveBanner,
+    staleWarning: catalog?.staleWarning ?? null,
+    tape: catalog?.oddsFresh ? ("LIVE" as const) : ("ESTIMATE" as const),
   };
 }
 

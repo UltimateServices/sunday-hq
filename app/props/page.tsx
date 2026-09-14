@@ -14,11 +14,11 @@ export default async function PropsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        layer="Layer 2 · Research Board"
+        layer="Research"
         title="Props"
         lede={
           catalog.liveGate.actionable
-            ? "URL-driven filters. Sticky sortable table. Row expansion for floor/median/mean/ceiling. Live DK overlay."
+            ? "Every player market this week. Cards on a phone, a table when you need to scan. Live DraftKings prices when the tape is fresh."
             : "Prop tickets stay hidden until live DraftKings tape is fresh. Seed lines are not bets."
         }
       />

@@ -6,7 +6,7 @@ export function EmptyState({
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-line px-6 py-12 text-center">
+    <div className="surface px-6 py-12 text-center">
       <p className="text-[15px] font-medium text-ink">{message}</p>
       {hint ? <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-muted">{hint}</p> : null}
     </div>

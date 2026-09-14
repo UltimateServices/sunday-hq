@@ -10,7 +10,7 @@ export function MobileBottomNav() {
   const { setMoreOpen } = useShell();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg-elev/95 backdrop-blur lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
       <ul className="grid grid-cols-5">
         {MOBILE_TABS.map((tab) => {
           const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
@@ -18,9 +18,11 @@ export function MobileBottomNav() {
             <li key={tab.href}>
               <Link
                 href={tab.href}
-                className={`flex flex-col items-center py-2 text-[10px] tracking-wide uppercase ${active ? "text-gold" : "text-muted"}`}
+                className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${active ? "text-ink" : "text-muted"}`}
               >
-                <span>{tab.icon}</span>
+                <span className="text-[15px] opacity-80" aria-hidden>
+                  {tab.icon}
+                </span>
                 {tab.label}
               </Link>
             </li>
@@ -30,9 +32,11 @@ export function MobileBottomNav() {
           <button
             type="button"
             onClick={() => setMoreOpen(true)}
-            className="flex w-full flex-col items-center py-2 text-[10px] tracking-wide text-muted uppercase"
+            className="flex w-full flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-muted"
           >
-            <span>☰</span>
+            <span className="text-[15px] opacity-80" aria-hidden>
+              ☰
+            </span>
             More
           </button>
         </li>

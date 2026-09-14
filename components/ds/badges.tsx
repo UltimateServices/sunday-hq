@@ -10,6 +10,7 @@ import type {
   WeatherImpact,
 } from "@/lib/types/domain";
 import { formatMeasured, formatNumber, formatPct, formatSigned } from "@/lib/format";
+import { qualityLabel } from "@/lib/copy";
 
 const TONE: Record<StatusTone, string> = {
   green: "border-good/40 bg-good/10 text-good",
@@ -30,7 +31,7 @@ export function ToneChip({
   children: React.ReactNode;
 }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${TONE[tone]}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] font-medium ${TONE[tone]}`}>
       {icon ? <span aria-hidden>{icon}</span> : null}
       {children}
     </span>
@@ -54,7 +55,7 @@ export function ProjectionBadge({ value }: { value: MeasuredNumber }) {
   return (
     <span className="inline-flex items-center gap-1">
       <span className="num text-sm font-semibold text-gold">{formatMeasured(value)}</span>
-      <ToneChip tone={value.quality === "UNAVAILABLE" ? "purple" : "blue"}>{value.quality.replaceAll("_", " ")}</ToneChip>
+      <ToneChip tone={value.quality === "UNAVAILABLE" ? "purple" : "blue"}>{qualityLabel(value.quality)}</ToneChip>
     </span>
   );
 }
@@ -71,7 +72,7 @@ const CONF_TONE: Record<ConfidenceGrade, StatusTone> = {
 };
 
 export function ConfidenceBadge({ grade }: { grade: ConfidenceGrade }) {
-  return <ToneChip tone={CONF_TONE[grade]} icon="◆">{grade}</ToneChip>;
+  return <ToneChip tone={CONF_TONE[grade]}>Confidence {grade}</ToneChip>;
 }
 
 export function WeatherBadge({
@@ -84,11 +85,11 @@ export function WeatherBadge({
   summary?: string;
 }) {
   if (indoor) return <StatusChip id="DOME" />;
-  if (impact === "SIGNIFICANT") return <ToneChip tone="orange" icon="☁">{summary ?? "SIGNIFICANT"}</ToneChip>;
-  if (impact === "MODERATE") return <ToneChip tone="yellow" icon="☁">MODERATE</ToneChip>;
-  if (impact === "MINOR") return <ToneChip tone="blue" icon="☁">MINOR</ToneChip>;
-  if (impact === "NONE") return <ToneChip tone="green" icon="○">NONE</ToneChip>;
-  return <ToneChip tone="purple" icon="?">WX UNKNOWN</ToneChip>;
+  if (impact === "SIGNIFICANT") return <ToneChip tone="orange">{summary ?? "Significant weather"}</ToneChip>;
+  if (impact === "MODERATE") return <ToneChip tone="yellow">Moderate weather</ToneChip>;
+  if (impact === "MINOR") return <ToneChip tone="blue">Light weather</ToneChip>;
+  if (impact === "NONE") return <ToneChip tone="green">Clear</ToneChip>;
+  return <ToneChip tone="purple">Weather unknown</ToneChip>;
 }
 
 export function MarketMovementBadge({ direction, note }: { direction: MovementDirection; note?: string }) {
@@ -96,7 +97,7 @@ export function MarketMovementBadge({ direction, note }: { direction: MovementDi
     direction === "UP" ? "yellow" : direction === "DOWN" ? "orange" : direction === "FLAT" ? "blue" : "purple";
   return (
     <ToneChip tone={tone} icon={direction === "UP" ? "↑" : direction === "DOWN" ? "↓" : "·"}>
-      {direction === "UNKNOWN" ? "MOVE UNKNOWN" : direction}
+      {direction === "UNKNOWN" ? "Move unknown" : direction === "UP" ? "Line up" : direction === "DOWN" ? "Line down" : "Steady"}
       {note ? <span className="sr-only">{note}</span> : null}
     </ToneChip>
   );
@@ -109,7 +110,6 @@ export function EdgeBadge({
   value: number | null;
   unit: EdgeUnit;
 }) {
-  const label = unit === "yards" ? "yd" : unit === "prob" ? "prob" : "EV";
   const text =
     value === null
       ? "—"
@@ -119,7 +119,7 @@ export function EdgeBadge({
           ? `${formatSigned(value * 100, 1)}%`
           : `${formatSigned(value * 100, 1)}%`;
   const tone: StatusTone = value === null ? "purple" : value > 0 ? "green" : value < 0 ? "red" : "blue";
-  return <ToneChip tone={tone} icon="Δ">{text} {label !== "yd" && unit === "yards" ? "" : ""}</ToneChip>;
+  return <ToneChip tone={tone}>{text}</ToneChip>;
 }
 
 export function EVBadge({ value }: { value: number | null }) {

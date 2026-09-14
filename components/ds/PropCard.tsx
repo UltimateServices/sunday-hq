@@ -2,92 +2,73 @@ import Link from "next/link";
 import type { PropView } from "@/lib/prop-view";
 import { MARKET_LABEL } from "@/lib/prop-view";
 import { formatMeasured } from "@/lib/format";
-import {
-  ConfidenceBadge,
-  EdgeBadge,
-  EVBadge,
-  HealthBadge,
-  MarketMovementBadge,
-  ProjectionBadge,
-  WeatherBadge,
-} from "./badges";
+import { ConfidenceBadge, EdgeBadge, HealthBadge, ToneChip } from "./badges";
 import { WhyDrawer } from "./WhyDrawer";
-import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { BOOK_LABEL, bestBookQuote } from "@/lib/books";
 import { PropActions } from "./PropActions";
+import { oneLineWhy } from "@/lib/copy";
 
 export function PropCard({ view, compact = false }: { view: PropView; compact?: boolean }) {
-  const wx = WEATHER_BY_GAME[view.gameId];
   const bestOther = bestBookQuote(view.books ?? [], view.side);
+  const what = `${MARKET_LABEL[view.market]} ${view.side === "OVER" ? "over" : "under"}`;
+  const oddsMissing = view.oddsAmerican.value === null;
+
   return (
-    <article className="rounded-lg border border-line bg-card p-3">
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div>
-          <Link href={`/players/${view.playerId}`} className="text-sm font-semibold hover:text-gold">
+    <article className="surface p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <Link href={`/players/${view.playerId}`} className="text-[17px] font-semibold tracking-tight hover:text-gold">
             {view.playerName}
           </Link>
-          <p className="text-[11px] text-muted">
-            {view.teamAbbr} · {view.position} · {view.matchup}
+          <p className="mt-0.5 text-[13px] text-muted">
+            {what}
+            <span className="text-ink/40"> · </span>
+            {view.teamAbbr} · {view.matchup}
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-[10px] text-muted uppercase">{MARKET_LABEL[view.market]}</p>
-          <p className="num text-xl font-semibold text-gold">
-            {view.side === "OVER" ? "O" : "U"} {formatMeasured(view.line)}
-          </p>
-        </div>
+        <p className="num shrink-0 text-[24px] font-semibold tracking-tight text-gold">
+          {view.side === "OVER" ? "O" : "U"} {formatMeasured(view.line)}
+        </p>
       </div>
-      <div className="mb-2 flex flex-wrap gap-1">
+
+      <div className="mt-3 flex flex-wrap gap-1.5">
         <HealthBadge state={view.health} />
         <ConfidenceBadge grade={view.confidenceGrade} />
-        <MarketMovementBadge direction={view.movement.direction} />
-        {wx ? <WeatherBadge impact={wx.impact} indoor={wx.indoor} /> : null}
+        <EdgeBadge value={view.pricing.edge.value} unit={view.market.includes("TD") ? "prob" : "yards"} />
       </div>
-      <div className={`grid gap-2 text-[11px] ${compact ? "grid-cols-2" : "grid-cols-3 sm:grid-cols-4"}`}>
-        <Cell label="1 Avail" value={view.healthLabel} />
-        <Cell label="2 Proj" value="" extra={<ProjectionBadge value={view.model} />} />
-        <Cell label="3 Price" value={formatMeasured(view.oddsAmerican, 0, "american")} />
-        <Cell label="4 Prob" value={formatMeasured(view.pricing.modelProb, 1, "pct")} />
-        <Cell label="5 Edge" value="" extra={<EdgeBadge value={view.pricing.edge.value} unit="yards" />} />
-        <Cell label="6 Conf" value="" extra={<ConfidenceBadge grade={view.confidenceGrade} />} />
-        <Cell label="7 Matchup" value={view.matchup} />
-        <Cell label="EV" value="" extra={<EVBadge value={view.pricing.ev.value} />} />
-      </div>
-      {!compact ? (
-        <p className="mt-2 text-[11px] text-muted">
-          Dist P10 {formatMeasured(view.distribution.floor)} · P50 {formatMeasured(view.distribution.median)} · P90{" "}
-          {formatMeasured(view.distribution.ceiling)} · 8 WX · {view.weatherNote}
-        </p>
-      ) : null}
-      {view.books && view.books.length > 1 ? (
-        <p className="mt-1 text-[11px] text-muted">
+
+      <p className="mt-3 text-[14px] leading-relaxed text-ink/90">{oneLineWhy(view.whySections.modelCase, view.matchupNote)}</p>
+      <p className="mt-1 text-[13px] text-muted">
+        {oddsMissing ? "DraftKings price not available." : `DraftKings ${formatMeasured(view.oddsAmerican, 0, "american")}.`}
+      </p>
+
+      {!compact && view.books && view.books.length > 1 ? (
+        <p className="mt-2 text-[12px] text-muted">
           {view.books.map((quote, index) => {
             const isDk = quote.book === "DRAFTKINGS";
             const isBest = bestOther?.book === quote.book;
             return (
               <span key={`${quote.book}-${index}`} className={isBest ? "text-gold" : undefined}>
                 {index ? " · " : ""}
-                {isDk ? "DK (decision)" : BOOK_LABEL[quote.book]} {formatMeasured(quote.line)}/
+                {isDk ? "DraftKings" : BOOK_LABEL[quote.book]} {formatMeasured(quote.line)} /{" "}
                 {formatMeasured(quote.oddsAmerican, 0, "american")}
-                {isBest ? " BEST" : ""}
+                {isBest ? " · best other" : ""}
               </span>
             );
           })}
         </p>
       ) : null}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <PropActions view={view} />
-        <WhyDrawer title={`${view.playerName} ${MARKET_LABEL[view.market]}`} lenses={view.lenses} sections={view.whySections} />
-      </div>
-    </article>
-  );
-}
 
-function Cell({ label, value, extra }: { label: string; value: string; extra?: React.ReactNode }) {
-  return (
-    <div className="rounded-sm bg-bg-elev px-1.5 py-1">
-      <p className="text-[9px] tracking-wide text-muted uppercase">{label}</p>
-      {extra ?? <p className="num truncate text-[12px]">{value}</p>}
-    </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <PropActions view={view} />
+        <WhyDrawer title={`${view.playerName} ${what}`} lenses={view.lenses} sections={view.whySections} />
+      </div>
+      {oddsMissing && !compact ? (
+        <p className="mt-2 text-[12px] text-muted">
+          <ToneChip tone="yellow">Estimate</ToneChip>
+          <span className="ml-2">EV at assumed −110 is for ranking only.</span>
+        </p>
+      ) : null}
+    </article>
   );
 }

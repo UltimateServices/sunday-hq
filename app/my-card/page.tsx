@@ -6,11 +6,11 @@ export default function MyCardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        layer="Layer 3 · Ticket"
+        layer="Your ticket"
         title="My Card"
-        lede="WATCHING / READY / PLACED / SETTLED. Place in units only. Line-change REVIEW warnings. No loss chasing, no unit inflation."
+        lede="Watching, ready, placed, settled. Units only — no chasing after an early red."
       />
-      <SeedBanner>PLACED locks line, odds, projection, confidence, health, and weather. EXAMPLE settled row stays labeled. No LOCK language on the ticket itself.</SeedBanner>
+      <SeedBanner>Placing a bet locks the line, odds, projection, confidence, health, and weather. Example results stay labeled. Nothing here is a lock.</SeedBanner>
       <MyCardBoard />
     </div>
   );
