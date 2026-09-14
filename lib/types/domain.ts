@@ -30,7 +30,9 @@ export type DataQuality = (typeof DATA_QUALITIES)[number];
 
 export type Side = "OVER" | "UNDER";
 
-export type BookId = "DRAFTKINGS" | "CONSENSUS" | "UNKNOWN";
+export type BookId = "DRAFTKINGS" | "FANDUEL" | "BETMGM" | "CAESARS" | "CONSENSUS" | "UNKNOWN";
+
+export type RoofState = "OPEN" | "CLOSED" | "UNKNOWN" | "FIXED";
 
 export type Position =
   | "QB"
@@ -90,6 +92,12 @@ export type MeasuredNumber = {
   source: string;
   asOf: string | null;
   note?: string;
+};
+
+export type BookQuote = {
+  book: BookId;
+  line: MeasuredNumber;
+  oddsAmerican: MeasuredNumber;
 };
 
 export type Team = {
@@ -155,6 +163,9 @@ export type WeatherRecord = {
   impactNote: string;
   quality: DataQuality;
   source: string;
+  roof?: RoofState;
+  hourlyAsOf?: string | null;
+  shortForecast?: string | null;
 };
 
 export type PropMarket = {
@@ -180,6 +191,7 @@ export type PropMarket = {
   lenses: Record<QualifierLens, QualifierGrade>;
   volumeTag?: "HIGH" | "MED" | "LOW";
   tdRole?: "PRIMARY" | "SECONDARY" | "DEVICE" | "UNKNOWN";
+  books?: BookQuote[];
 };
 
 export type DerivedTeamTotal = {

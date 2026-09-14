@@ -1,4 +1,5 @@
 import type { DataQuality, MeasuredNumber, Side } from "@/lib/types/domain";
+import { projectionSigma } from "@/lib/distribution";
 
 export function americanToImplied(odds: number): number {
   if (odds < 0) return Math.abs(odds) / (Math.abs(odds) + 100);
@@ -106,6 +107,7 @@ export function computePricing(input: {
   line: MeasuredNumber;
   odds: MeasuredNumber;
   side: Side;
+  market?: string;
   sigma?: number;
   allowAssumedJuice?: boolean;
 }): EvComputation {
@@ -135,7 +137,7 @@ export function computePricing(input: {
     };
   }
 
-  const sigma = input.sigma ?? Math.max(8, Math.abs(input.line.value) * 0.18);
+  const sigma = input.sigma ?? projectionSigma(input.line.value, input.market ?? "YDS");
   const z =
     input.side === "OVER"
       ? (input.model.value - input.line.value) / sigma
@@ -145,9 +147,9 @@ export function computePricing(input: {
   const modelProb: MeasuredNumber = {
     value: modelProbValue,
     quality: worseQuality(input.model.quality, "ESTIMATE"),
-    source: "placeholder-normal-cdf",
+    source: "normal-cdf-estimate",
     asOf: input.model.asOf,
-    note: `Normal CDF placeholder (σ=${sigma.toFixed(1)}). Phase 3 replaces this.`,
+    note: `P(${input.side === "OVER" ? "over" : "under"}) from a normal with σ=${sigma.toFixed(1)} (market ${input.market ?? "generic"}). ESTIMATE — not a trained residual.`,
   };
 
   if (input.odds.value !== null) {

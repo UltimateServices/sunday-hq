@@ -13,10 +13,12 @@ import {
 } from "./badges";
 import { WhyDrawer } from "./WhyDrawer";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
+import { BOOK_LABEL, bestBookQuote } from "@/lib/books";
 import { PropActions } from "./PropActions";
 
 export function PropCard({ view, compact = false }: { view: PropView; compact?: boolean }) {
   const wx = WEATHER_BY_GAME[view.gameId];
+  const bestOther = bestBookQuote(view.books ?? [], view.side);
   return (
     <article className="rounded-lg border border-line bg-card p-3">
       <div className="mb-2 flex items-start justify-between gap-2">
@@ -53,7 +55,24 @@ export function PropCard({ view, compact = false }: { view: PropView; compact?: 
       </div>
       {!compact ? (
         <p className="mt-2 text-[11px] text-muted">
-          8 WX · {view.weatherNote} · 9 Move · {view.movement.note}
+          Dist P10 {formatMeasured(view.distribution.floor)} · P50 {formatMeasured(view.distribution.median)} · P90{" "}
+          {formatMeasured(view.distribution.ceiling)} · 8 WX · {view.weatherNote}
+        </p>
+      ) : null}
+      {view.books && view.books.length > 1 ? (
+        <p className="mt-1 text-[11px] text-muted">
+          {view.books.map((quote, index) => {
+            const isDk = quote.book === "DRAFTKINGS";
+            const isBest = bestOther?.book === quote.book;
+            return (
+              <span key={`${quote.book}-${index}`} className={isBest ? "text-gold" : undefined}>
+                {index ? " · " : ""}
+                {isDk ? "DK (decision)" : BOOK_LABEL[quote.book]} {formatMeasured(quote.line)}/
+                {formatMeasured(quote.oddsAmerican, 0, "american")}
+                {isBest ? " BEST" : ""}
+              </span>
+            );
+          })}
         </p>
       ) : null}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">

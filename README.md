@@ -34,21 +34,23 @@ npm run build
 
 Never commit values. Set them in `.env.local` and in the Vercel project (Production / Preview).
 
-| Name | Required | Used by |
-| --- | --- | --- |
-| `ODDS_API_KEY` | for live DK tape | `POST /api/ingest/odds`, Sunday `odds` stage |
-| `CRON_SECRET` | production mutating routes | Vercel Cron `Authorization: Bearer` |
-| `INGEST_SECRET` | optional alias | same routes; Grok Bot can send either |
-| `BLOB_READ_WRITE_TOKEN` | optional | persist snapshots on Vercel Blob |
-| `NWS_USER_AGENT` | optional | Sunday `weather` stage (NWS requires UA) |
+Set these in the Vercel project → Settings → Environment Variables (Production **and** Preview). Locally: copy `.env.example` to `.env.local`. Never commit values.
 
-Without `ODDS_API_KEY`: ingest still runs, writes a **Degraded** snapshot, and every missing DK price stays **DATA UNAVAILABLE** with timestamps. No verified DraftKings number is invented.
+| Name | Required on Vercel? | Used by | If missing |
+| --- | --- | --- | --- |
+| `ODDS_API_KEY` | for live tape | `POST /api/ingest/odds`, Sunday `odds` stage | Degraded snapshot. DK prices stay **DATA UNAVAILABLE**. Seed CONSENSUS/ESTIMATE only. |
+| `CRON_SECRET` | **yes in production** | Vercel Cron `Authorization: Bearer`, ingest / settle / admin weight writes | Production mutating routes return 503. |
+| `INGEST_SECRET` | optional alias | same mutating routes; Grok Bot can send either | Falls back to `CRON_SECRET`. |
+| `BLOB_READ_WRITE_TOKEN` | recommended | persist odds / weather / weights / changelog / results on Vercel Blob | Serverless memory overlay (lost on cold start). Local `next dev` writes `data/snapshots/`. |
+| `NWS_USER_AGENT` | recommended | Sunday `weather` stage (NWS requires a UA) | Uses documented default `SundayHQ/1.0 (+https://github.com/UltimateServices/sunday-hq)`. Set a real contact string in production. |
 
-Without Blob: serverless uses an in-memory overlay (warm instance only) plus `GET /api/markets/live`. Local `next dev` also writes gitignored files under `data/snapshots/`.
+Vercel Cron (already in `vercel.json`) hits `/api/cron/sunday-refresh?stage=…`. Production must have `CRON_SECRET`. Enable Cron Jobs on the project.
+
+Without `ODDS_API_KEY`: ingest still runs and timestamps the miss. No verified DraftKings number is invented.
 
 ## Ingest + live markets
 
-- `POST /api/ingest/odds` — secret required in production. Pulls NFL game lines + player props from [The Odds API](https://the-odds-api.com) with `bookmakers=draftkings`.
+- `POST /api/ingest/odds` — secret required in production. Pulls NFL game lines + player props from [The Odds API](https://the-odds-api.com) with `bookmakers=draftkings,fanduel,betmgm,caesars`. DraftKings is the decision book; others are compare-only.
 - `GET /api/markets/live` — public overlay. Markets / Props / game totals prefer a **fresh** snapshot (3 hours). Else seed + stale warning.
 
 ```bash
@@ -124,10 +126,10 @@ Suggested Grok routines: `slate` → `injuries` → `weather` → `odds` → `pr
 | 1 | Shell, Live Home (`/`), Command Center (`/dashboard`), games, player/team deep dives | LIVE |
 | 2 | Injuries, weather, position boards | LIVE |
 | 3 | Props, touchdowns, team totals, game totals, fantasy | LIVE · seed engine + live DK overlay when fresh |
-| 4 | Matchups, market movement, alerts / What Changed | LIVE · changelog from refresh |
+| 4 | Matchups, compare, market movement, alerts / What Changed | LIVE · factor engine + changelog |
 | 5 | Parlays, boosts, My Card, Final Card | LIVE · PLACED lock snapshot |
 | 6 | Results, model performance | LIVE · REAL vs EXAMPLE/SEED |
-| 7 | Admin + settings | LIVE · ingest last success/failure |
+| 7 | Admin + settings | LIVE · weights persist to Blob / snapshots |
 
 ## Data honesty
 

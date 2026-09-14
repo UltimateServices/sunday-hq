@@ -75,7 +75,7 @@ Also: anytime TD, alternate yardage, team totals, game totals, SGPs, multi-game 
 
 ## 10. Navigation (routes always exist)
 
-HOME · COMMAND CENTER · GAMES · PROPS · QUARTERBACKS · RUNNING BACKS · WIDE RECEIVERS · TIGHT ENDS · TOUCHDOWNS · TEAM TOTALS · GAME TOTALS · FANTASY · MATCHUPS · WEATHER · INJURIES · LINES · PARLAYS · BOOSTS · MY CARD · RESULTS · MODEL PERFORMANCE · ADMIN/SETTINGS
+HOME · COMMAND CENTER · GAMES · PROPS · QUARTERBACKS · RUNNING BACKS · WIDE RECEIVERS · TIGHT ENDS · TOUCHDOWNS · TEAM TOTALS · GAME TOTALS · FANTASY · COMPARE · MATCHUPS · WEATHER · INJURIES · LINES · PARLAYS · BOOSTS · MY CARD · RESULTS · MODEL PERFORMANCE · ADMIN/SETTINGS
 
 If a capability cannot ship, **stub the route / empty board and mark PENDING**. Do not redesign the product around the hole.
 
@@ -84,12 +84,12 @@ If a capability cannot ship, **stub the route / empty board and mark PENDING**. 
 | Phase | Ships | Status in this PR |
 | --- | --- | --- |
 | 1 | App shell, nav, Live Home, Command Center, games/players | LIVE |
-| 2 | Injuries, weather, fantasy placeholders, position boards | LIVE |
-| 3 | Props / TD / team totals / game totals / fantasy boards (seed EV + Why) | LIVE · seed engine |
-| 4 | Matchup boards + market movement heat/timeline | LIVE · LOW SAMPLE scores |
+| 2 | Injuries, weather, fantasy placeholders, position boards | LIVE · NWS hourly + roof OPEN/CLOSED/UNKNOWN |
+| 3 | Props / TD / team totals / game totals / fantasy boards (seed EV + Why) | LIVE · seed engine + live DK overlay |
+| 4 | Matchup boards + market movement heat/timeline | LIVE · factor engine + /compare |
 | 5 | Parlays, boosts, My Card, Final Card | LIVE · seed constructs |
 | 6 | Results, CLV, calibration (EXAMPLE/SEED until settle) | LIVE · REAL vs EXAMPLE/SEED separated |
-| 7 | Alerts wired + admin weights / settings | LIVE · ingest + Sunday crons; no secrets in repo |
+| 7 | Alerts wired + admin weights / settings | LIVE · weights persist and change ranking |
 
 Do not optimize for the fastest MVP at the expense of this foundation.
 
@@ -113,7 +113,8 @@ When My Card ships: **no loss chasing** and **no unit inflation** after early ga
 - `.env*` is gitignored. Document names only in `.env.example`.
 - Game spreads/totals in the Week 1 seed are **DK via ESPN schedule widget (2026-09-13)**.
 - Player props in the seed are **CONSENSUS / ESTIMATE** unless a later ingest marks them verified.
-- Live DK tape comes from **The Odds API** (`ODDS_API_KEY`) with `bookmakers=draftkings`. Without the key: Degraded + DATA UNAVAILABLE + timestamps. Never invent a verified DK price.
+- Live DK tape comes from **The Odds API** (`ODDS_API_KEY`) with `bookmakers=draftkings,fanduel,betmgm,caesars`. DraftKings is the decision book; other books are compare-only. Without the key: Degraded + DATA UNAVAILABLE + timestamps. Never invent a verified DK price.
+- Outdoor weather comes from **NWS hourly** (`NWS_USER_AGENT` required by NWS; a documented default is used if unset). Retractable roofs stay `UNKNOWN` unless a lid source exists.
 - Settlement uses the **ESPN public site API** (no key): scoreboard + summary box scores. Closing line is the last **pre-kick** odds snapshot. CLV is REAL only when both exist.
 - NYJ@TEN: owner seed 38.5 floor; ESPN DK widget 39.5 at capture — both stored, movement labeled.
 

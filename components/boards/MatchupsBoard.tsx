@@ -19,6 +19,7 @@ export function MatchupsBoard({ grades }: { grades: MatchupGrade[] }) {
   const rows = useMemo(() => grades.filter((g) => g.position === pos), [grades, pos]);
   const best = rows.filter((r) => r.panel === "BEST");
   const worst = rows.filter((r) => r.panel === "WORST");
+  const rest = rows.filter((r) => r.panel === "MID");
 
   return (
     <div className="space-y-6">
@@ -37,6 +38,11 @@ export function MatchupsBoard({ grades }: { grades: MatchupGrade[] }) {
           <Panel title={`Worst ${pos}`} rows={worst} />
         </div>
       )}
+      {rest.length > 0 ? (
+        <div>
+          <Panel title={`Rest of ${pos} slate`} rows={rest} />
+        </div>
+      ) : null}
     </div>
   );
 }

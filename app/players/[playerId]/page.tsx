@@ -64,6 +64,32 @@ export default async function PlayerDeepDive({ params }: PageProps<"/players/[pl
       </div>
       {player.notes ? <p className="text-sm text-muted">{player.notes}</p> : null}
 
+      {catalog.matchups.find((row) => row.playerId === player.id) ? (
+        <Section title="Matchup engine">
+          {(() => {
+            const grade = catalog.matchups.find((row) => row.playerId === player.id)!;
+            return (
+              <article className="rounded-lg border border-line bg-card p-3">
+                <p className="num text-xl text-gold">{grade.overall.value}</p>
+                <p className="text-sm text-muted">{grade.note}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {grade.factors.map((factor) => (
+                    <div key={factor.id} className="rounded-md border border-line bg-bg-elev p-2">
+                      <p className="text-[10px] text-muted uppercase">{factor.label}</p>
+                      <p className="num text-sm">{factor.score ?? "—"}</p>
+                      <p className="text-[11px] text-muted">{factor.note}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3">
+                  <WhyDrawer title={`${player.name} matchup`} lenses={grade.lenses} sections={grade.why} />
+                </div>
+              </article>
+            );
+          })()}
+        </Section>
+      ) : null}
+
       {inj ? (
         <Section title="Health">
           <p className="text-sm">{inj.detail}</p>

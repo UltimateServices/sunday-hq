@@ -1,6 +1,7 @@
 import type {
   AlertItem,
   BookId,
+  BookQuote,
   CalibrationBucket,
   CardBet,
   ChangeItem,
@@ -21,6 +22,8 @@ export const STORE_KEYS = {
   results: "sunday-hq/results.json",
   card: "sunday-hq/card.json",
   learn: "sunday-hq/learn.json",
+  weather: "sunday-hq/weather-latest.json",
+  weights: "sunday-hq/weights.json",
 } as const;
 
 export const FRESH_MS = 3 * 60 * 60 * 1000;
@@ -53,6 +56,7 @@ export type OverlayPropLine = {
   side: Side;
   line: MeasuredNumber;
   oddsAmerican: MeasuredNumber;
+  books?: BookQuote[];
 };
 
 export type OddsSnapshot = {

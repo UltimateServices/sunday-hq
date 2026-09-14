@@ -2,22 +2,25 @@ import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DataStatus } from "@/components/shared/DataStatus";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { GAMES } from "@/data/week1/games";
 import { TEAM_BY_ID } from "@/data/week1/teams";
-import { WEATHER } from "@/data/week1/weather";
+import { getWeekCatalog } from "@/lib/catalog";
 import { formatMeasured } from "@/lib/format";
 
-export default function WeatherPage() {
+export const dynamic = "force-dynamic";
+
+export default async function WeatherPage() {
+  const catalog = await getWeekCatalog();
   return (
     <div className="space-y-6">
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Weather"
-        lede="Indoor games are NONE. CLE@JAX is the only SIGNIFICANT flag in the seed (estimate, not a live NWS pull). Hourly ingest remains PENDING."
+        lede="Outdoor games use NWS hourly at kickoff when the weather stage has run. Retractable roofs stay OPEN/CLOSED/UNKNOWN — NWS cannot confirm the lid. Indoor / fixed roofs are NONE."
       />
       <div className="grid gap-2 md:grid-cols-2">
-        {WEATHER.map((wx) => {
-          const game = GAMES.find((g) => g.id === wx.gameId)!;
+        {catalog.weather.map((wx) => {
+          const game = catalog.gameById[wx.gameId];
+          if (!game) return null;
           return (
             <Link key={wx.gameId} href={`/games/${wx.gameId}`} className="rounded-lg border border-line bg-card p-3">
               <p className="text-[11px] text-muted">
@@ -29,6 +32,7 @@ export default function WeatherPage() {
                   {wx.impact}
                 </StatusBadge>
                 <DataStatus quality={wx.quality} />
+                <StatusBadge tone={wx.roof === "UNKNOWN" ? "yellow" : "blue"}>Roof {wx.roof ?? "UNKNOWN"}</StatusBadge>
               </div>
               <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
                 <div>

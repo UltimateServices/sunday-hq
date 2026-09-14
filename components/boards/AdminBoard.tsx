@@ -8,6 +8,7 @@ import {
   SUNDAY_ROUTINE,
   THRESHOLDS,
 } from "@/data/week1/admin";
+import { WeightsEditor } from "@/components/boards/WeightsEditor";
 import { SCHEMA_STUBS } from "@/lib/types/schema";
 import { Section } from "@/components/shared/Section";
 import { ToneChip } from "@/components/ds/badges";
@@ -41,40 +42,31 @@ export function AdminBoard({ catalog }: { catalog?: WeekCatalog }) {
         </div>
       </Section>
       <Section title="Model Weights">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-xs">
-            <thead className="text-[10px] tracking-wide text-muted uppercase">
-              <tr className="border-b border-line">
-                <th className="px-2 py-2">Name</th>
-                <th className="px-2 py-2">Weight</th>
-                <th className="px-2 py-2">Updated</th>
-                <th className="px-2 py-2">Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MODEL_WEIGHTS.map((w) => (
-                <tr key={w.id} className="border-b border-line/70">
-                  <td className="px-2 py-2 font-semibold">{w.name}</td>
-                  <td className="num px-2 py-2 text-gold">{w.weight.toFixed(2)}</td>
-                  <td className="px-2 py-2 text-muted">
-                    {w.updatedBy} · {stamp(w.updatedAt)}
-                  </td>
-                  <td className="px-2 py-2">{w.note}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <p className="mb-2 text-[11px] text-muted">
+          These weights change matchup overall scores and research ranking. Persist to Blob / local snapshots. Last saved{" "}
+          {catalog?.adminWeights.updatedBy ?? "seed"} · {stamp(catalog?.adminWeights.asOf ?? null)}.
+        </p>
+        <WeightsEditor weights={catalog?.adminWeights.weights ?? MODEL_WEIGHTS} thresholds={catalog?.thresholds ?? { minEdgeYards: 4, maxUnits: 1.5, maxCard: 6 }} />
       </Section>
       <Section title="Thresholds">
         <div className="grid gap-2 md:grid-cols-2">
-          {THRESHOLDS.map((t) => (
-            <article key={t.id} className="rounded-lg border border-line bg-card p-3">
-              <p className="text-[10px] text-muted uppercase">{t.label}</p>
-              <p className="num text-xl text-gold">{t.value}</p>
-              <p className="text-sm text-muted">{t.note}</p>
-            </article>
-          ))}
+          {THRESHOLDS.map((t) => {
+            const live =
+              t.id === "min-edge"
+                ? catalog?.thresholds.minEdgeYards
+                : t.id === "max-units"
+                  ? catalog?.thresholds.maxUnits
+                  : t.id === "max-card"
+                    ? catalog?.thresholds.maxCard
+                    : undefined;
+            return (
+              <article key={t.id} className="rounded-lg border border-line bg-card p-3">
+                <p className="text-[10px] text-muted uppercase">{t.label}</p>
+                <p className="num text-xl text-gold">{live ?? t.value}</p>
+                <p className="text-sm text-muted">{t.note}</p>
+              </article>
+            );
+          })}
         </div>
       </Section>
       <Section title="Sportsbooks">
