@@ -38,7 +38,7 @@ Set these in the Vercel project → Settings → Environment Variables (Producti
 
 | Name | Required on Vercel? | Used by | If missing |
 | --- | --- | --- | --- |
-| `ODDS_API_KEY` | for live tape | `POST /api/ingest/odds`, Sunday `odds` stage | Degraded snapshot. DK prices stay **DATA UNAVAILABLE**. Seed CONSENSUS/ESTIMATE only. |
+| `ODDS_API_KEY` | for live tape | `POST /api/ingest/odds`, Sunday `odds` stage | Degraded snapshot. DK prices stay **DATA UNAVAILABLE**. Seed picks are **hidden**. |
 | `CRON_SECRET` | **yes in production** | Vercel Cron `Authorization: Bearer`, ingest / settle / admin weight writes | Production mutating routes return 503. |
 | `INGEST_SECRET` | optional alias | same mutating routes; Grok Bot can send either | Falls back to `CRON_SECRET`. |
 | `BLOB_READ_WRITE_TOKEN` | recommended | persist odds / weather / weights / changelog / results on Vercel Blob | Serverless memory overlay (lost on cold start). Local `next dev` writes `data/snapshots/`. |
@@ -46,7 +46,9 @@ Set these in the Vercel project → Settings → Environment Variables (Producti
 
 Vercel Cron (already in `vercel.json`) hits `/api/cron/sunday-refresh?stage=…`. Production must have `CRON_SECRET`. Enable Cron Jobs on the project.
 
-Without `ODDS_API_KEY`: ingest still runs and timestamps the miss. No verified DraftKings number is invented.
+Without `ODDS_API_KEY`: ingest still runs and timestamps the miss. No verified DraftKings number is invented. Homepage + parlays + pick boards show **Not live — do not bet from this page.**
+
+Tomorrow morning (keys only): [`docs/TOMORROW_GO_LIVE.md`](docs/TOMORROW_GO_LIVE.md).
 
 ## Ingest + live markets
 

@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { CompareBoard } from "@/components/boards/CompareBoard";
+import { TicketQuarantine } from "@/components/ds/TicketQuarantine";
 import { getWeekCatalog } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
@@ -21,9 +22,15 @@ export default async function ComparePage({
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Compare"
-        lede="2–4 props side by side. Same player across markets, or different players on one market. DraftKings stays the decision book."
+        lede={
+          catalog.liveGate.actionable
+            ? "2–4 props side by side. Same player across markets, or different players on one market. DraftKings stays the decision book."
+            : "Compare stays empty until live DraftKings tape is fresh. Seed props are not tickets."
+        }
       />
-      <CompareBoard props={catalog.props} selectedIds={ids} />
+      <TicketQuarantine gate={catalog.liveGate} noun="comparisons">
+        <CompareBoard props={catalog.props} selectedIds={ids} />
+      </TicketQuarantine>
     </div>
   );
 }

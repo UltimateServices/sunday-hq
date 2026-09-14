@@ -18,8 +18,8 @@ export function MobileHeader() {
           <p className="text-[10px] text-muted">Week {meta.week} · {ops.lastRefreshLabel || meta.lastRefreshLabel}</p>
         </div>
         <div className="flex items-center gap-1">
-          <ToneChip tone={ops.health.state === "DEGRADED" ? "orange" : "green"}>
-            {ops.health.state === "DEGRADED" ? "Degraded" : "Healthy"}
+          <ToneChip tone={ops.liveGate.actionable ? "green" : "red"}>
+            {ops.liveGate.actionable ? "Live" : "Not live"}
           </ToneChip>
           <button type="button" onClick={() => setFinalCard(!finalCard)} className="action-btn">
             {finalCard ? "Card ON" : "Card"}

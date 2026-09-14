@@ -1,17 +1,34 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SeedBanner } from "@/components/shared/SeedBanner";
 import { ParlaysBoard } from "@/components/boards/ParlaysBoard";
+import { LiveRequiredBanner } from "@/components/ds/LiveRequiredBanner";
+import { EmptyState } from "@/components/ds/EmptyState";
+import { getWeekCatalog } from "@/lib/catalog";
 
-export default function ParlaysPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ParlaysPage() {
+  const catalog = await getWeekCatalog();
+  const gate = catalog.liveGate;
   return (
     <div className="space-y-6">
+      <LiveRequiredBanner gate={gate} />
       <PageHeader
-        layer="Layer 3 · Ticket"
+        layer="Ticket"
         title="Parlays"
-        lede="SGP / cross / TD / Conservative / Balanced / Aggressive. Combined P is an independent product. Correlation chips stay honest."
+        lede={
+          gate.actionable
+            ? "Same-game and cross-game constructs against live tape. Combined probability is still an estimate — not a DraftKings parlay price."
+            : "Parlay tickets stay hidden until live DraftKings tape is fresh. Seed SGPs are not bets."
+        }
       />
-      <SeedBanner>No DK parlay price. Stacked same-game products are optimistic. Not a recommendation to fire.</SeedBanner>
-      <ParlaysBoard />
+      {gate.actionable ? (
+        <ParlaysBoard />
+      ) : (
+        <EmptyState
+          message="No live parlays."
+          hint="Seed constructs (including the old DET SGP) are quarantined. They will not appear as tickets without a fresh snapshot."
+        />
+      )}
     </div>
   );
 }

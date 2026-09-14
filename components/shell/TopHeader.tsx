@@ -43,13 +43,13 @@ export function TopHeader() {
           <button type="button" onClick={() => setFinalCard(!finalCard)} className="action-btn">
             {finalCard ? "Final Card ON" : "Final Card"}
           </button>
-          {ops.health.state === "DEGRADED" ? (
-            <StatusChip id="STALE_DATA" />
-          ) : (
+          {ops.liveGate.actionable ? (
             <StatusChip id="HEALTHY" />
+          ) : (
+            <StatusChip id="STALE_DATA" />
           )}
-          <ToneChip tone={ops.health.state === "DEGRADED" ? "orange" : "green"}>
-            {ops.health.state === "DEGRADED" ? "Degraded" : "Healthy"}
+          <ToneChip tone={ops.liveGate.actionable ? "green" : "red"}>
+            {ops.liveGate.actionable ? "Live tape" : "Not live"}
           </ToneChip>
         </div>
       </div>

@@ -47,7 +47,11 @@ export function PositionBoard({
         </div>
       </Section>
       <Section title="Projection / prop board">
-        <RankingTable views={views} />
+        {views.length === 0 ? (
+          <p className="text-sm text-muted">No live props for this position. Seed lines stay hidden until DraftKings tape is fresh.</p>
+        ) : (
+          <RankingTable views={views} />
+        )}
       </Section>
     </div>
   );

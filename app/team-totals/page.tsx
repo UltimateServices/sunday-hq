@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SeedBanner } from "@/components/shared/SeedBanner";
+import { TicketQuarantine } from "@/components/ds/TicketQuarantine";
 import { TeamTotalsBoard } from "@/components/boards/TeamTotalsBoard";
 import { getWeekCatalog } from "@/lib/catalog";
 import { teamTotalRows } from "@/lib/team-total-view";
@@ -13,10 +13,15 @@ export default async function TeamTotalsPage() {
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Team Totals"
-        lede="Implied from DK spread + total (live overlay when fresh). Best Over / Under are placeholder tilts, not listed DK team-total tickets."
+        lede={
+          catalog.liveGate.actionable
+            ? "Implied from DK spread + total (live overlay). Best Over / Under are placeholder tilts, not listed DK team-total tickets."
+            : "Team-total tickets stay hidden until live DraftKings tape is fresh."
+        }
       />
-      <SeedBanner>{catalog.staleWarning ?? catalog.liveBanner}</SeedBanner>
-      <TeamTotalsBoard rows={teamTotalRows(catalog.games)} />
+      <TicketQuarantine gate={catalog.liveGate} noun="team totals">
+        <TeamTotalsBoard rows={teamTotalRows(catalog.games)} />
+      </TicketQuarantine>
     </div>
   );
 }

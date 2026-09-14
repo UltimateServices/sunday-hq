@@ -2,11 +2,14 @@ import { DATA_HEALTH } from "@/lib/refresh";
 import type { SundayRoutineStep } from "@/lib/types/domain";
 import { nextRefreshLabel, STAGE_WINDOWS } from "@/lib/refresh/windows";
 import { readJson, storeBackend, writeJson } from "./store";
-import { STORE_KEYS, type DataHealthView, type OpsSnapshot, type PublicOps, type StageRun, type SundayStage } from "./types";
+import { FRESH_MS, STORE_KEYS, type DataHealthView, type OpsSnapshot, type PublicOps, type StageRun, type SundayStage } from "./types";
 import { readOddsSnapshot } from "./store";
 import { readChangelog } from "./changelog";
 import { WEEK1_META } from "@/data/week1/meta";
 import type { WeatherSnapshot } from "@/lib/weather/nws";
+import { hasOddsApiKey } from "./env";
+import { buildLiveGate } from "@/lib/live-gate";
+import { envChecklist } from "@/lib/env-status";
 
 const STAGES: SundayStage[] = ["slate", "injuries", "weather", "odds", "projections", "settle", "monday-learn"];
 
@@ -152,7 +155,8 @@ export async function buildHealth(): Promise<DataHealthView> {
   ) {
     issues.push(`Last ingest failure: ${failureNote}`);
   }
-  if (snapshot?.freshness === "STALE") issues.push("Live odds snapshot is STALE — seed shown with warning.");
+  if (snapshot?.freshness === "STALE") issues.push("Live odds snapshot is STALE — seed picks are hidden.");
+  if (!hasOddsApiKey()) issues.push("ODDS_API_KEY is not set. Live tape cannot land.");
   const unique = [...new Set(issues)];
   return {
     state: unique.length === 0 ? "HEALTHY" : "DEGRADED",
@@ -171,6 +175,9 @@ export async function buildPublicOps(): Promise<PublicOps> {
     buildHealth(),
   ]);
   const lastIso = snapshot?.lastSuccessAt ?? ops.ingest.lastAttemptAt ?? WEEK1_META.lastUpdatedIso;
+  const oddsFresh = Boolean(
+    snapshot && snapshot.status === "LIVE" && Date.now() - Date.parse(snapshot.asOf) <= FRESH_MS,
+  );
   return {
     health,
     routine: routineFromOps(ops),
@@ -181,6 +188,12 @@ export async function buildPublicOps(): Promise<PublicOps> {
     lastRefreshLabel: new Date(lastIso).toLocaleString("en-US", { timeZone: "America/New_York" }),
     lastRefreshIso: lastIso,
     storage: storeBackend(),
+    liveGate: buildLiveGate({
+      oddsFresh,
+      snapshotStatus: snapshot?.status ?? null,
+      keyConfigured: hasOddsApiKey(),
+    }),
+    envChecks: envChecklist(),
   };
 }
 

@@ -8,8 +8,11 @@ import { LiveOpsProvider } from "@/components/shell/LiveOpsProvider";
 import { ShellProvider } from "@/components/shell/ShellProvider";
 import { TopHeader } from "@/components/shell/TopHeader";
 import { MainStage } from "@/components/shell/MainStage";
+import { LiveRequiredBanner } from "@/components/ds/LiveRequiredBanner";
+import { getWeekCatalog } from "@/lib/catalog";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export async function AppShell({ children }: { children: React.ReactNode }) {
+  const catalog = await getWeekCatalog();
   return (
     <ShellProvider>
       <LiveOpsProvider>
@@ -18,7 +21,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col">
           <TopHeader />
           <MobileHeader />
-          <MainStage>{children}</MainStage>
+          <MainStage banner={<LiveRequiredBanner gate={catalog.liveGate} />}>
+            {children}
+          </MainStage>
         </div>
       </div>
       <MobileBottomNav />

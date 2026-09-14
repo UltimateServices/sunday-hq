@@ -27,7 +27,12 @@ import type {
   SundayRoutineStep,
   WeatherRecord,
 } from "@/lib/types/domain";
+import { cache } from "react";
 import { nextRefreshLabel } from "@/lib/refresh/windows";
+import { hasOddsApiKey } from "@/lib/ingest/env";
+import { buildLiveGate, type LiveGate } from "@/lib/live-gate";
+import { envChecklist, type EnvCheck } from "@/lib/env-status";
+import { assertRosterNarratives } from "@/lib/narrative-roster";
 
 export type ResultsSummaryView = {
   record: string;
@@ -82,6 +87,8 @@ export type WeekCatalog = {
   modelWeights: ModelWeights;
   adminWeights: WeightsSnapshot;
   thresholds: ModelThresholds;
+  liveGate: LiveGate;
+  envChecks: EnvCheck[];
 };
 
 function snapshotFresh(snapshot: OddsSnapshot | null): boolean {
@@ -190,7 +197,8 @@ export function liveMarketMoves(games: Game[], snapshot: OddsSnapshot | null): M
   return moves;
 }
 
-export async function getWeekCatalog(): Promise<WeekCatalog> {
+async function loadWeekCatalog(): Promise<WeekCatalog> {
+  assertRosterNarratives();
   const [snapshot, changelog, results, ops, health, learn, weatherSnap, weightsSnap] = await Promise.all([
     readOddsSnapshot(),
     readChangelog(),
@@ -205,8 +213,13 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
   if (snapshot) {
     snapshot.freshness = fresh ? "FRESH" : snapshot.status === "LIVE" ? "STALE" : "UNAVAILABLE";
   }
+  const liveGate = buildLiveGate({
+    oddsFresh: fresh,
+    snapshotStatus: snapshot?.status ?? null,
+    keyConfigured: hasOddsApiKey(),
+  });
   const games = overlayGames(snapshot, fresh);
-  const props = overlayProps(snapshot, fresh);
+  const props = liveGate.actionable ? overlayProps(snapshot, fresh) : [];
   const realResults = results.rows.filter((row) => row.seedLabel === "REAL");
   const exampleResults = RESULTS;
   const changes = changelog.items.length ? changelog.items : CHANGES;
@@ -305,12 +318,12 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
     featureFlags: flags,
     staleWarning: !fresh
       ? snapshot?.status === "LIVE"
-        ? `Live DK snapshot from ${snapshot.asOf} is STALE. Boards show seed + this warning.`
-        : snapshot?.note ?? "No live DraftKings snapshot. Seed CONSENSUS/ESTIMATE only."
+        ? `Live DK snapshot from ${snapshot.asOf} is STALE. Seed picks are hidden — do not bet from this page.`
+        : snapshot?.note ?? "No live DraftKings snapshot. Seed picks are hidden. No invented prices."
       : null,
     liveBanner: fresh
       ? `Live DraftKings snapshot ${snapshot?.asOf} (${snapshot?.props.length ?? 0} prop sides).`
-      : "Live DK tape not fresh. Seed remains labeled. No invented prices.",
+      : "Not live — do not bet from this page. Seed constructs are hidden.",
     oddsFresh: fresh,
     snapshot,
     nextRefreshLabel: nextRefreshLabel(),
@@ -323,8 +336,12 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
     modelWeights,
     adminWeights: weightsSnap,
     thresholds: weightsSnap.thresholds,
+    liveGate,
+    envChecks: envChecklist(),
   };
 }
+
+export const getWeekCatalog = cache(loadWeekCatalog);
 
 export async function getPublicOps() {
   return buildPublicOps();

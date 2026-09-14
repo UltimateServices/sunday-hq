@@ -8,6 +8,7 @@ import { PROPS } from "@/data/week1/props";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER } from "@/data/week1/weather";
 import type { WeekCatalog } from "@/lib/catalog";
+import type { LiveGate } from "@/lib/live-gate";
 import { weightRankBoost, type ModelWeights } from "@/lib/weights";
 import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
 import { MARKET_LABEL, toPropView, type PropView } from "@/lib/prop-view";
@@ -67,10 +68,12 @@ function byEdgeDesc(a: PropView, b: PropView, weights?: ModelWeights, minEdge = 
 }
 
 export function buildCommandCenter(
-  catalog?: Pick<WeekCatalog, "games" | "props" | "changes" | "alerts" | "weather" | "matchups" | "modelWeights" | "thresholds">,
+  catalog?: Pick<WeekCatalog, "games" | "props" | "changes" | "alerts" | "weather" | "matchups" | "modelWeights" | "thresholds" | "liveGate">,
 ) {
+  const liveGate: LiveGate | undefined = catalog?.liveGate;
+  const showTickets = liveGate?.actionable ?? false;
   const slate = catalog?.games ?? GAMES;
-  const props = catalog?.props ?? PROPS;
+  const props = showTickets ? (catalog?.props ?? PROPS) : [];
   const views = props.map((p) => toPropView(p));
   const rank = (a: PropView, b: PropView) => byEdgeDesc(a, b, catalog?.modelWeights, catalog?.thresholds.minEdgeYards);
   const overs = views.filter((v) => v.side === "OVER" && v.market !== "ANYTIME_TD");
@@ -88,7 +91,41 @@ export function buildCommandCenter(
   const qbPlayer = bestQbMatch ? PLAYER_BY_ID[bestQbMatch.playerId] : null;
   const rbPlayer = bestRbMatch ? PLAYER_BY_ID[bestRbMatch.playerId] : null;
 
-  const summaryCards: SummaryCard[] = [
+  const offAir = (label: string, href: string, tone: SummaryCard["tone"]): SummaryCard => ({
+    id: label.toLowerCase().replaceAll(" ", "-"),
+    label,
+    value: "Not live",
+    sub: "Hidden until fresh DraftKings tape. Do not bet from this page.",
+    href,
+    tone,
+  });
+
+  const summaryCards: SummaryCard[] = !showTickets
+    ? [
+        offAir("Best Over", "/props", "green"),
+        offAir("Best Under", "/props", "blue"),
+        offAir("Best TD", "/touchdowns", "purple"),
+        offAir("Best Team Total", "/team-totals", "yellow"),
+        offAir("Best QB Matchup", "/matchups", "blue"),
+        offAir("Best RB Matchup", "/matchups", "green"),
+        {
+          id: "best-env",
+          label: "Best Game Environment",
+          value: `TB @ CIN ${shootout.total.value}`,
+          sub: "Scoreboard research only — not a ticket.",
+          href: "/games/tb-cin",
+          tone: "green",
+        },
+        {
+          id: "warning",
+          label: "Biggest Warning",
+          value: "ATL QB room is OUT / OUT",
+          sub: "Rush starts. Do not chase ATL pass. Kamara is SOURCE CONFLICT.",
+          href: "/games/atl-pit",
+          tone: "red",
+        },
+      ]
+    : [
     {
       id: "best-over",
       label: "Best Over",
@@ -255,6 +292,7 @@ export function buildCommandCenter(
     games: slate,
     implied: Object.fromEntries(slate.map((g) => [g.id, impliedTeamTotals(g)])),
     views,
+    liveGate,
   };
 }
 

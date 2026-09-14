@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { QualifierGrade, QualifierLens, WhySections } from "@/lib/types/domain";
+import { LENS_LABEL } from "@/lib/copy";
 import { ToneChip } from "./badges";
 import type { StatusTone } from "@/lib/health";
 
@@ -60,20 +61,20 @@ export function WhyDrawer({
                 Close
               </button>
             </div>
-            <p className="mb-3 text-xs text-muted">Priority: availability → projection → price → probability → edge → confidence.</p>
+            <p className="mb-3 text-xs text-muted">Why this bet: availability, then projection, then price — never a lock.</p>
             <div className="mb-5 grid grid-cols-2 gap-2">
               {(Object.keys(lenses) as QualifierLens[]).map((lens) => (
                 <div key={lens} className="rounded-md border border-line bg-card p-2">
-                  <p className="mb-1 text-[10px] text-muted">{lens.replaceAll("_", " ")}</p>
+                  <p className="mb-1 text-[10px] text-muted">{LENS_LABEL[lens]}</p>
                   <ToneChip tone={LENS_TONE[lenses[lens]]}>{lenses[lens]}</ToneChip>
                 </div>
               ))}
             </div>
-            <Block title="1 · Model Case" items={resolved.modelCase} />
-            <Block title="2 · Supporting Factors" items={resolved.supporting} />
-            <Block title="3 · Risk Factors" items={resolved.risks} danger />
-            <Block title="4 · Market Context" items={resolved.marketContext} />
-            <Block title="5 · Data Quality" items={resolved.dataQuality} />
+            <Block title="1 · Why it fits" items={resolved.modelCase} />
+            <Block title="2 · What else supports it" items={resolved.supporting} />
+            <Block title="3 · How it loses" items={resolved.risks} danger />
+            <Block title="4 · Market" items={resolved.marketContext} />
+            <Block title="5 · Data quality" items={resolved.dataQuality} />
           </aside>
         </div>
       ) : null}

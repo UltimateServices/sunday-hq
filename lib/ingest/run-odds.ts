@@ -32,7 +32,7 @@ function unavailableSnapshot(note: string, failure = false): OddsSnapshot {
 export async function ingestOdds(): Promise<OddsSnapshot> {
   if (!hasOddsApiKey()) {
     const snapshot = unavailableSnapshot(
-      "ODDS_API_KEY is not set. DraftKings prices stay DATA UNAVAILABLE. Seed lines remain labeled CONSENSUS/ESTIMATE — no verified DK prop tape was invented.",
+      "ODDS_API_KEY is not set. DraftKings prices stay DATA UNAVAILABLE. Seed parlays and props are hidden — no verified DK tape was invented.",
     );
     snapshot.status = "DEGRADED";
     await writeOddsSnapshot(snapshot);

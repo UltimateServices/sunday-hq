@@ -79,6 +79,8 @@ export function buildHomepage(catalog: WeekCatalog) {
     .slice(0, HOME_ALERT_LIMIT);
 
   const tape: HomeTape = catalog.oddsFresh ? "LIVE" : catalog.snapshot?.status === "LIVE" ? "STALE" : "ESTIMATE";
+  const liveGate = catalog.liveGate;
+  const showPicks = liveGate.actionable;
 
   return {
     week: WEEK1_META.week,
@@ -93,13 +95,16 @@ export function buildHomepage(catalog: WeekCatalog) {
     liveBanner: catalog.liveBanner,
     staleWarning: catalog.staleWarning,
     alerts,
-    picks: {
-      ALL: mixed.slice(0, HOME_PICK_LIMIT),
-      OVERS: overs.slice(0, HOME_PICK_LIMIT),
-      UNDERS: unders.slice(0, HOME_PICK_LIMIT),
-      TDS: tds.slice(0, HOME_PICK_LIMIT),
-    },
-    teamTotals: teamTotals.slice(0, HOME_PICK_LIMIT),
+    liveGate,
+    picks: showPicks
+      ? {
+          ALL: mixed.slice(0, HOME_PICK_LIMIT),
+          OVERS: overs.slice(0, HOME_PICK_LIMIT),
+          UNDERS: unders.slice(0, HOME_PICK_LIMIT),
+          TDS: tds.slice(0, HOME_PICK_LIMIT),
+        }
+      : { ALL: [], OVERS: [], UNDERS: [], TDS: [] },
+    teamTotals: showPicks ? teamTotals.slice(0, HOME_PICK_LIMIT) : [],
   };
 }
 

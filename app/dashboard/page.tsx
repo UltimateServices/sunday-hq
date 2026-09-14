@@ -14,6 +14,9 @@ export default async function DashboardPage() {
         <Link href="/" className="text-gold hover:underline">
           Back to best picks
         </Link>
+        {!catalog.liveGate.actionable
+          ? " Pick cards stay hidden until live tape is fresh."
+          : ""}
       </p>
       <CommandCenter vm={buildCommandCenter(catalog)} />
     </div>

@@ -23,6 +23,14 @@ const fallback: PublicOps = {
   lastRefreshLabel: seedRefresh().lastRefreshLabel,
   lastRefreshIso: seedRefresh().lastRefreshIso,
   storage: "memory",
+  liveGate: {
+    actionable: false,
+    reason: "NO_KEY",
+    headline: "Not live — do not bet from this page.",
+    body: "Waiting on live tape status. Seed picks stay hidden.",
+    keyConfigured: false,
+  },
+  envChecks: [],
 };
 
 const LiveOpsContext = createContext<PublicOps>(fallback);

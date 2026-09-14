@@ -52,6 +52,8 @@ Forbidden: **LOCK**, **GUARANTEED**, **100% BET**, “can’t miss”, “print�
 
 Allowed: lean, research, placeholder, estimate, unavailable.
 
+**Live gate:** seed / ESTIMATE / STALE / missing `ODDS_API_KEY` must not look bettable. Narratives (`whyFit` / `howLoses`) must not name teammates or opponents who are not in `data/week1/players.ts` (or a later live player DB). Prefer roster-derived or generic copy (“committee RB vultures TDs”). Montgomery is Houston, not Detroit.
+
 ## 7. Pricing rules
 
 - Rank with **model probability, implied probability, EV**.
@@ -95,7 +97,7 @@ Do not optimize for the fastest MVP at the expense of this foundation.
 
 ## 12. Home vs Command Center
 
-`/` is the live picks homepage (week / refresh / health, 3–5 decision alerts, one ranked BEST PICKS list, Overs/Unders/TDs/Team Totals chips, My Card counts, link to Command Center). Do not paint every board on first load.
+`/` is the live picks homepage (week / refresh / health, 3–5 decision alerts, one ranked BEST PICKS list, Overs/Unders/TDs/Team Totals chips, My Card counts, link to Command Center). If tape is not fresh LIVE DraftKings, Home shows the live-required state and **no seed tickets**. Do not paint every board on first load.
 
 `/dashboard` is Command Center. Visual composition is defined in `docs/UI_BLUEPRINT.md` (desktop 4×2 primary cards, scoreboard strip, mobile reorder). Product content that must remain there: hero strip, eight summary cards (BEST OVER / UNDER / TD / TEAM TOTAL / QB MATCHUP / RB MATCHUP / GAME ENVIRONMENT / BIGGEST WARNING), critical news, what changed, opportunities, volume, TDs, weather, injuries, environments, overs + unders, parlays, my card. Missing engines stay PENDING.
 
@@ -113,7 +115,7 @@ When My Card ships: **no loss chasing** and **no unit inflation** after early ga
 - `.env*` is gitignored. Document names only in `.env.example`.
 - Game spreads/totals in the Week 1 seed are **DK via ESPN schedule widget (2026-09-13)**.
 - Player props in the seed are **CONSENSUS / ESTIMATE** unless a later ingest marks them verified.
-- Live DK tape comes from **The Odds API** (`ODDS_API_KEY`) with `bookmakers=draftkings,fanduel,betmgm,caesars`. DraftKings is the decision book; other books are compare-only. Without the key: Degraded + DATA UNAVAILABLE + timestamps. Never invent a verified DK price.
+- Live DK tape comes from **The Odds API** (`ODDS_API_KEY`) with `bookmakers=draftkings,fanduel,betmgm,caesars`. DraftKings is the decision book; other books are compare-only. Without the key **or** when tape is seed / ESTIMATE / STALE / DEGRADED: homepage, parlays, and pick boards **hide seed constructs** and lead with **Not live — do not bet from this page.** Never invent a verified DK price. Desk steps: `docs/TOMORROW_GO_LIVE.md`.
 - Outdoor weather comes from **NWS hourly** (`NWS_USER_AGENT` required by NWS; a documented default is used if unset). Retractable roofs stay `UNKNOWN` unless a lid source exists.
 - Settlement uses the **ESPN public site API** (no key): scoreboard + summary box scores. Closing line is the last **pre-kick** odds snapshot. CLV is REAL only when both exist.
 - NYJ@TEN: owner seed 38.5 floor; ESPN DK widget 39.5 at capture — both stored, movement labeled.

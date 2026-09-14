@@ -12,6 +12,7 @@ import { WeightsEditor } from "@/components/boards/WeightsEditor";
 import { SCHEMA_STUBS } from "@/lib/types/schema";
 import { Section } from "@/components/shared/Section";
 import { ToneChip } from "@/components/ds/badges";
+import { EnvChecklist } from "@/components/ds/EnvChecklist";
 import type { WeekCatalog } from "@/lib/catalog";
 
 function stamp(iso: string | null) {
@@ -27,6 +28,14 @@ export function AdminBoard({ catalog }: { catalog?: WeekCatalog }) {
 
   return (
     <div className="space-y-8">
+      <Section title="Go-live keys (names only)">
+        <EnvChecklist checks={catalog?.envChecks ?? []} />
+        <p className="mt-3 text-[13px] leading-relaxed text-muted">
+          Desk steps: <span className="font-mono text-ink">docs/TOMORROW_GO_LIVE.md</span>. Generate{" "}
+          <span className="font-mono text-ink">CRON_SECRET</span> with{" "}
+          <span className="font-mono text-ink">openssl rand -hex 32</span>. Do not commit the value.
+        </p>
+      </Section>
       <Section title="Data Sources">
         <div className="grid gap-2 md:grid-cols-2">
           {sources.map((s) => (

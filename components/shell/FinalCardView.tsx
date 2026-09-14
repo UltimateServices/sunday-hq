@@ -76,14 +76,23 @@ export function FinalCardView() {
       </Section>
 
       <Section title="Top recs">
-        <div className="space-y-2">
-          {vm.top5.map((view) => (
-            <PropCard key={view.id} view={view} compact />
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-muted">
-          Conservative construct: {PARLAYS.find((p) => p.profile === "Conservative")?.title}. Not a priced ticket.
-        </p>
+        {vm.top5.length === 0 ? (
+          <EmptyState
+            message="No live recs."
+            hint="Seed picks and seed parlays stay hidden until DraftKings tape is fresh."
+          />
+        ) : (
+          <>
+            <div className="space-y-2">
+              {vm.top5.map((view) => (
+                <PropCard key={view.id} view={view} compact />
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">
+              Conservative construct: {PARLAYS.find((p) => p.profile === "Conservative")?.title}. Not a priced ticket.
+            </p>
+          </>
+        )}
       </Section>
     </div>
   );

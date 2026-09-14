@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SeedBanner } from "@/components/shared/SeedBanner";
+import { TicketQuarantine } from "@/components/ds/TicketQuarantine";
 import { GameTotalsBoard } from "@/components/boards/GameTotalsBoard";
 import { getWeekCatalog } from "@/lib/catalog";
 import { gameTotalRows } from "@/lib/game-total-view";
@@ -13,10 +13,15 @@ export default async function GameTotalsPage() {
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Game Totals"
-        lede="Sunday totals. Live DraftKings overlay when the snapshot is fresh; otherwise seed DK-via-ESPN with a stale warning."
+        lede={
+          catalog.liveGate.actionable
+            ? "Sunday totals. Live DraftKings overlay when the snapshot is fresh."
+            : "Game-total tickets stay hidden until live DraftKings tape is fresh. Seed ESPN widget lines are not bets."
+        }
       />
-      <SeedBanner>{catalog.staleWarning ?? catalog.liveBanner}</SeedBanner>
-      <GameTotalsBoard rows={gameTotalRows(catalog.games, catalog.weather)} />
+      <TicketQuarantine gate={catalog.liveGate} noun="game totals">
+        <GameTotalsBoard rows={gameTotalRows(catalog.games, catalog.weather)} />
+      </TicketQuarantine>
     </div>
   );
 }

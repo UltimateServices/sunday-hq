@@ -1,17 +1,26 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SeedBanner } from "@/components/shared/SeedBanner";
+import { TicketQuarantine } from "@/components/ds/TicketQuarantine";
 import { BoostsBoard } from "@/components/boards/BoostsBoard";
+import { getWeekCatalog } from "@/lib/catalog";
 
-export default function BoostsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function BoostsPage() {
+  const catalog = await getWeekCatalog();
   return (
     <div className="space-y-6">
       <PageHeader
         layer="Layer 3 · Ticket"
         title="Boosts"
-        lede="Boost % / min odds / legs / markets. Best / 2nd / 3rd use with Normal EV vs Boosted EV. Boosts do not create guaranteed plus-EV."
+        lede={
+          catalog.liveGate.actionable
+            ? "Boost % / min odds / legs / markets. Best / 2nd / 3rd use with Normal EV vs Boosted EV. Boosts do not create guaranteed plus-EV."
+            : "Boost inventory stays hidden until live tape is fresh. Seed boosts are not tickets."
+        }
       />
-      <SeedBanner>Seed inventory, not a live DK boost feed. EV stays ESTIMATE at assumed juice.</SeedBanner>
-      <BoostsBoard />
+      <TicketQuarantine gate={catalog.liveGate} noun="boosts">
+        <BoostsBoard />
+      </TicketQuarantine>
     </div>
   );
 }

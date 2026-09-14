@@ -147,4 +147,20 @@ export type PublicOps = {
   lastRefreshLabel: string;
   lastRefreshIso: string;
   storage: "blob" | "memory" | "file";
+  liveGate: {
+    actionable: boolean;
+    reason: "LIVE" | "STALE" | "NO_KEY" | "DEGRADED";
+    headline: string;
+    body: string;
+    keyConfigured: boolean;
+  };
+  envChecks: Array<{
+    id: string;
+    name: string;
+    requiredForLive: boolean;
+    present: boolean;
+    purpose: string;
+    ifMissing: string;
+    where: string;
+  }>;
 };

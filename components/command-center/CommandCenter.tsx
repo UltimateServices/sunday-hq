@@ -20,9 +20,10 @@ import { WhatChanged } from "./WhatChanged";
 import { MyCardPreview } from "./MyCardPreview";
 
 export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
-  const conservative = PARLAYS.find((p) => p.profile === "Conservative");
-  const balanced = PARLAYS.find((p) => p.profile === "Balanced");
-  const aggressive = PARLAYS.find((p) => p.profile === "Aggressive");
+  const live = vm.liveGate?.actionable ?? false;
+  const conservative = live ? PARLAYS.find((p) => p.profile === "Conservative") : undefined;
+  const balanced = live ? PARLAYS.find((p) => p.profile === "Balanced") : undefined;
+  const aggressive = live ? PARLAYS.find((p) => p.profile === "Aggressive") : undefined;
 
   return (
     <div className="space-y-8">
@@ -62,17 +63,21 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
         </Section>
         <Section id="top-opportunities" title="Top Opportunities">
           <p className="text-xs text-muted">Ranked by placeholder yard edge. Assumed -110 EV is labeled ESTIMATE, never a DK price.</p>
-          <RankingTable views={vm.opportunities} />
+          {live ? <RankingTable views={vm.opportunities} /> : <EmptyState message="No live opportunities." hint="Seed props stay hidden until DraftKings tape is fresh." />}
         </Section>
         <Section id="top-volume" title="Top Volume">
-          <RankingTable views={vm.volume} />
+          {live ? <RankingTable views={vm.volume} /> : <EmptyState message="No live volume rows." />}
         </Section>
         <Section id="td-leaders" title="TD Leaders">
-          <div className="grid gap-2 md:grid-cols-3">
-            {vm.tdLeaders.map((view) => (
-              <TDCard key={view.id} view={view} />
-            ))}
-          </div>
+          {live ? (
+            <div className="grid gap-2 md:grid-cols-3">
+              {vm.tdLeaders.map((view) => (
+                <TDCard key={view.id} view={view} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState message="No live TD leans." />
+          )}
         </Section>
         <Section id="weather" title="Weather · material">
           {vm.weather.length === 0 ? (
@@ -130,23 +135,31 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
           </div>
         </Section>
         <Section id="overs-unders" title="Overs / Unders">
-          <div className="grid gap-4 xl:grid-cols-2">
-            <div>
-              <h3 className="mb-2 text-xs tracking-wide text-muted uppercase">Overs</h3>
-              <RankingTable views={vm.overs} />
+          {live ? (
+            <div className="grid gap-4 xl:grid-cols-2">
+              <div>
+                <h3 className="mb-2 text-xs tracking-wide text-muted uppercase">Overs</h3>
+                <RankingTable views={vm.overs} />
+              </div>
+              <div>
+                <h3 className="mb-2 text-xs tracking-wide text-muted uppercase">Unders</h3>
+                <RankingTable views={vm.unders} />
+              </div>
             </div>
-            <div>
-              <h3 className="mb-2 text-xs tracking-wide text-muted uppercase">Unders</h3>
-              <RankingTable views={vm.unders} />
-            </div>
-          </div>
+          ) : (
+            <EmptyState message="No live overs / unders." hint="Seed props stay hidden until DraftKings tape is fresh." />
+          )}
         </Section>
         <Section id="parlay-preview" title="Parlay preview">
-          <div className="grid gap-2 md:grid-cols-3">
-            <ParlayCard profile="Conservative" construct={conservative} />
-            <ParlayCard profile="Balanced" construct={balanced} />
-            <ParlayCard profile="Aggressive" construct={aggressive} />
-          </div>
+          {live ? (
+            <div className="grid gap-2 md:grid-cols-3">
+              <ParlayCard profile="Conservative" construct={conservative} />
+              <ParlayCard profile="Balanced" construct={balanced} />
+              <ParlayCard profile="Aggressive" construct={aggressive} />
+            </div>
+          ) : (
+            <EmptyState message="No live parlays." hint="Seed SGPs are quarantined. They are not tickets." />
+          )}
         </Section>
         <Section id="my-card-preview" title="My Card preview">
           <MyCardPreview />
@@ -162,21 +175,29 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
           </div>
         </Section>
         <Section title="Top 5 Opportunities">
-          <div className="space-y-2">
-            {vm.top5.map((view) => (
-              <PropCard key={view.id} view={view} compact />
-            ))}
-          </div>
+          {live ? (
+            <div className="space-y-2">
+              {vm.top5.map((view) => (
+                <PropCard key={view.id} view={view} compact />
+              ))}
+            </div>
+          ) : (
+            <EmptyState message="No live opportunities." />
+          )}
         </Section>
         <Section title="My Card">
           <MyCardPreview />
         </Section>
         <Section title="TDs">
-          <div className="space-y-2">
-            {vm.tdLeaders.map((view) => (
-              <TDCard key={view.id} view={view} />
-            ))}
-          </div>
+          {live ? (
+            <div className="space-y-2">
+              {vm.tdLeaders.map((view) => (
+                <TDCard key={view.id} view={view} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState message="No live TD leans." />
+          )}
         </Section>
         <Section title="Injuries">
           {vm.injuries.slice(0, 4).map((inj) => (
@@ -197,18 +218,18 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
           <Scoreboard rows={vm.environments} />
         </Section>
         <Section title="Overs">
-          {vm.overs.slice(0, 4).map((view) => (
+          {live ? vm.overs.slice(0, 4).map((view) => (
             <div key={view.id} className="mb-2">
               <PropCard view={view} compact />
             </div>
-          ))}
+          )) : <EmptyState message="No live overs." />}
         </Section>
         <Section title="Unders">
-          {vm.unders.slice(0, 4).map((view) => (
+          {live ? vm.unders.slice(0, 4).map((view) => (
             <div key={view.id} className="mb-2">
               <PropCard view={view} compact />
             </div>
-          ))}
+          )) : <EmptyState message="No live unders." />}
         </Section>
         <Section title="Team Totals">
           <div className="grid grid-cols-2 gap-2">
@@ -221,7 +242,7 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
           </div>
         </Section>
         <Section title="Parlays">
-          <ParlayCard profile="Balanced" construct={balanced} />
+          {live ? <ParlayCard profile="Balanced" construct={balanced} /> : <EmptyState message="No live parlays." />}
         </Section>
       </div>
     </div>
