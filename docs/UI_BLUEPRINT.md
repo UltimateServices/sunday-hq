@@ -2,8 +2,6 @@
 
 Visual and interaction contract. Product rules in `MASTER_SPEC.md` still win on language, health, and data honesty. This file wins on shell, component reuse, and page composition.
 
-Page-by-page paste: `docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` (INCOMPLETE; does **not** override Top-10 Home on `/`).
-
 Do **not** invent generic dashboards. Every screen is a research terminal surface.
 
 ## 1. Global shell
