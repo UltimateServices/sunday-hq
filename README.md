@@ -2,7 +2,7 @@
 
 Private NFL Props & Parlay Intelligence Platform for UltimateServices.
 
-This is **not** a simple picks page. Workflow: collect → verify → normalize → model → compare → rank → explain → monitor → record → learn.
+`/` is a live **best picks** homepage. Full research Command Center lives at `/dashboard`. Workflow: collect → verify → normalize → model → compare → rank → explain → monitor → record → learn.
 
 Binding product contract: [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md).  
 Binding UI contract: [`docs/UI_BLUEPRINT.md`](docs/UI_BLUEPRINT.md).
@@ -121,7 +121,7 @@ Suggested Grok routines: `slate` → `injuries` → `weather` → `odds` → `pr
 
 | Phase | Surface | Status |
 | --- | --- | --- |
-| 1 | Shell, Command Center, games, player/team deep dives | LIVE |
+| 1 | Shell, Live Home (`/`), Command Center (`/dashboard`), games, player/team deep dives | LIVE |
 | 2 | Injuries, weather, position boards | LIVE |
 | 3 | Props, touchdowns, team totals, game totals, fantasy | LIVE · seed engine + live DK overlay when fresh |
 | 4 | Matchups, market movement, alerts / What Changed | LIVE · changelog from refresh |

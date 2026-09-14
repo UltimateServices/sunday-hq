@@ -1,11 +1,10 @@
-import { CommandCenter } from "@/components/command-center/CommandCenter";
+import { LiveHome } from "@/components/homepage/LiveHome";
 import { getWeekCatalog } from "@/lib/catalog";
-import { buildCommandCenter } from "@/lib/command-center";
+import { buildHomepage } from "@/lib/homepage";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const catalog = await getWeekCatalog();
-  const vm = buildCommandCenter(catalog);
-  return <CommandCenter vm={vm} />;
+  return <LiveHome vm={buildHomepage(catalog)} />;
 }
