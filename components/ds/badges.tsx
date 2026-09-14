@@ -10,7 +10,7 @@ import type {
   WeatherImpact,
 } from "@/lib/types/domain";
 import { formatMeasured, formatNumber, formatPct, formatSigned } from "@/lib/format";
-import { qualityLabel } from "@/lib/copy";
+import { qualityLabel, qualityTier } from "@/lib/copy";
 
 const TONE: Record<StatusTone, string> = {
   green: "border-good/40 bg-good/10 text-good",
@@ -36,6 +36,12 @@ export function ToneChip({
       {children}
     </span>
   );
+}
+
+export function QualityTierChip({ quality }: { quality: string }) {
+  const tier = qualityTier(quality);
+  const tone: StatusTone = tier === "HIGH" ? "green" : tier === "MEDIUM" ? "blue" : "yellow";
+  return <ToneChip tone={tone}>Data {tier}</ToneChip>;
 }
 
 export function StatusChip({ id }: { id: StatusChipId }) {

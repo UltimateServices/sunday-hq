@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { QualifierGrade, QualifierLens, WhySections } from "@/lib/types/domain";
 import { LENS_LABEL } from "@/lib/copy";
 import { ToneChip } from "./badges";
+import { FocusTrap } from "./FocusTrap";
 import type { StatusTone } from "@/lib/health";
 
 const LENS_TONE: Record<QualifierGrade, StatusTone> = {
@@ -58,7 +59,8 @@ export function WhyDrawer({
       {open ? (
         <div className="fixed inset-0 z-[80] flex justify-end bg-black/55" role="dialog" aria-modal>
           <button className="h-full flex-1 cursor-default" aria-label="Close" onClick={() => setOpen(false)} />
-          <aside className="h-full w-full max-w-md overflow-y-auto border-l border-line bg-bg-elev p-6 shadow-2xl">
+          <FocusTrap onEscape={() => setOpen(false)} className="h-full w-full max-w-md">
+          <aside className="h-full w-full overflow-y-auto border-l border-line bg-bg-elev p-6 shadow-2xl">
             <div className="mb-6 flex items-start justify-between gap-3">
               <div>
                 <p className="text-[13px] text-muted">Why this bet</p>
@@ -85,6 +87,7 @@ export function WhyDrawer({
             <Block title="The market" items={resolved.marketContext} />
             <Block title="How sure we are" items={resolved.dataQuality} />
           </aside>
+          </FocusTrap>
         </div>
       ) : null}
     </>

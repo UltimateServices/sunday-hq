@@ -35,7 +35,7 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 11 | 8 primary cards | PARTIAL | Labels live; gated when not live |
 | 12 | Critical news | DONE | |
 | 13 | What changed | DONE | Six filters |
-| 14 | Scoreboard strip | PARTIAL | Window filters; env still a tier not 0–100 on the strip |
+| 14 | Scoreboard strip | DONE | Window filters + ESTIMATE env 0–100 on cards |
 | 15 | Top opportunities | PARTIAL | Live-gated table |
 | 16 | Top volume | PARTIAL | HIGH tag only; no ELITE scale |
 | 17 | TD leaders | PARTIAL | Cards; RZ columns thin |
@@ -56,12 +56,12 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 32 | Game best bets | PARTIAL | This PR: overs / unders / TDs / team-total lean; no live DK ticket |
 | 33 | Game market movement | PARTIAL | Seed `MARKET_MOVES` only; player-prop tape UNAVAILABLE |
 | 34 | Props filters | PARTIAL | This PR: quick chips + more URL keys |
-| 35 | Prop table | PARTIAL | Sticky; header sort still thin |
+| 35 | Prop table | DONE | Sticky + header sort on RankingTable |
 | 36 | Prop row expansion | PARTIAL | Floor/median/mean/ceiling; alts UNAVAILABLE |
 | 37 | Prop actions | PARTIAL | STAR / ADD / WATCH / Player / Game / Compare |
 | 38 | QB top cards | DONE | This PR: derived from seed props / matchups |
 | 39 | QB table columns | PARTIAL | Still shared RankingTable |
-| 40 | QB detail drawer | MISSING | Use player deep dive |
+| 40 | QB detail drawer | DONE | Matchup drawer + player desk; GAME LOG/MARKET UNAVAILABLE |
 | 41 | RB top cards | DONE | This PR |
 | 42 | RB table columns | PARTIAL | Shared table |
 | 43 | RB role badges | DONE | Derived from depth + seed notes only |
@@ -105,19 +105,19 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 81 | Results filters | PARTIAL | |
 | 82 | Results CLV table | DONE | |
 | 83 | Model perf summary | PARTIAL | |
-| 84 | Performance charts | MISSING | Calibration bars only |
+| 84 | Performance charts | DONE | EXAMPLE reliability bars; REAL stays empty |
 | 85 | Calibration buckets | DONE | |
-| 86 | Player profile header | PARTIAL | No photo |
+| 86 | Player profile header | DONE | Initials placeholder — no invented photo |
 | 87 | Player tabs | DONE | This PR: shell + UNAVAILABLE empty tabs |
 | 88 | Player overview | PARTIAL | Fantasy 3-pack |
-| 89 | Player usage | MISSING | Empty tab — no usage series in seed |
-| 90 | Player prop history | MISSING | Empty tab — Week 1 only |
+| 89 | Player usage | DONE | Field grid DATA UNAVAILABLE — no invented snaps |
+| 90 | Player prop history | DONE | Market/model history DATA UNAVAILABLE |
 | 91 | Team page header | PARTIAL | This PR: implied total + injury count |
 | 92 | Team tabs | PARTIAL | This PR: Overview / Players / Injuries |
 | 93 | Admin sections | DONE | |
 | 94 | Model weights | PARTIAL | |
 | 95 | Thresholds | PARTIAL | |
-| 96 | Sunday routine | PARTIAL | No RUN NOW |
+| 96 | Sunday routine | DONE | RUN NOW listed; odds stage blocked; no Odds API call |
 | 97 | Data health | DONE | |
 | 98 | Mobile CC order | DONE | |
 | 99 | Mobile prop card | DONE | |
@@ -129,7 +129,7 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 105 | Edge display | DONE | Edge/EV prefix on badges; assumed −110 labeled ESTIMATE |
 | 106 | Tooltips | DONE | This PR: InfoTip glossary |
 | 107 | Why standard | DONE | Five sections |
-| 108 | Data quality HIGH/MED/LOW | PARTIAL | Domain enum, not that three-tier UI |
+| 108 | Data quality HIGH/MED/LOW | DONE | Overlay chip on domain quality |
 | 109 | Visual priority | PARTIAL | |
 | 110 | Empty states | DONE | |
 | 111 | Loading skeletons | PARTIAL | Root + props |
@@ -148,22 +148,21 @@ Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MAS
 | 124 | Game comparison | PARKED | Optional later |
 | 125 | Command palette | DONE | This PR: ⌘/Ctrl+K |
 | 126 | Notification center | DONE | Unread/All inbox; kinds only; no invented fade alerts |
-| 127 | My Card negative alert | PARTIAL | Review chips |
-| 128 | My Card positive alert | PARTIAL | Review chips |
+| 127 | My Card negative alert | DONE | Edge-lost / line-moved column |
+| 128 | My Card positive alert | DONE | Edge-improved column |
 | 129 | Sunday timeline | PARTIAL | Next refresh label; not a milestone strip |
 | 130 | Reusable DS | DONE | |
 | 131 | Consistency | PARTIAL | Dead layout files removed |
 | 132 | Performance | PARTIAL | |
 | 133 | CC load priority | PARTIAL | |
-| 134 | Accessibility | PARTIAL | Dialog roles; no focus trap |
+| 134 | Accessibility | DONE | Focus trap + Escape on drawers |
 | 135 | No visual noise | DONE | |
 | 136–140 | Sunday journeys | PARTIAL | Window switcher now global; live tape still tomorrow |
 
 ## Still open (do not invent)
 
 - Live DK player-prop odds / alts / multi-book tape (Odds API tomorrow — do not wire as live)
-- Saved views (sibling PR #14)
-- Position-specific column sets + QB/WR drawers as dedicated tables
-- Performance charts, RUN NOW admin, swipe gestures
+- Saved views / Sunday timeline / volume ELITE (sibling PR #14)
+- Position-specific column sets (shared RankingTable until #14 lands)
 - Fade Board (parked until after live accuracy)
 - Full MASTER BUILD SPEC body — **on main via PR #9**. Do not overwrite.

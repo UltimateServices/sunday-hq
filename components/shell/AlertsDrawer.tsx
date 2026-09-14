@@ -12,6 +12,7 @@ import {
 } from "@/lib/read-alerts";
 import { useLiveAlerts } from "./LiveOpsProvider";
 import { useShell } from "./ShellProvider";
+import { FocusTrap } from "@/components/ds/FocusTrap";
 
 const TABS: Array<"ALL" | AlertKind> = ["ALL", "INJURIES", "WEATHER", "MARKETS", "PROJECTIONS"];
 
@@ -33,7 +34,8 @@ export function AlertsDrawer() {
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60" role="dialog" aria-modal aria-label="Notification center">
       <button className="h-full flex-1" aria-label="Close notification center" onClick={() => setAlertsOpen(false)} />
-      <aside className="h-full w-full max-w-md overflow-y-auto border-l border-line bg-bg-elev p-4">
+      <FocusTrap onEscape={() => setAlertsOpen(false)} className="h-full w-full max-w-md">
+      <aside className="h-full w-full overflow-y-auto border-l border-line bg-bg-elev p-4">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-semibold">Notification center</h2>
@@ -92,6 +94,7 @@ export function AlertsDrawer() {
           )}
         </div>
       </aside>
+      </FocusTrap>
     </div>
   );
 }

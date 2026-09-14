@@ -9,6 +9,7 @@ import { PlayerCard } from "@/components/ds/PlayerCard";
 import { RoleBadge } from "@/components/ds/badges";
 import { WhyDrawer } from "@/components/ds/WhyDrawer";
 import { EmptyState } from "@/components/ds/EmptyState";
+import { FocusTrap } from "@/components/ds/FocusTrap";
 import { SUNDAY_PLAYERS } from "@/data/week1/players";
 import { injuryForPlayer } from "@/data/week1/injuries";
 import { FANTASY_BY_PLAYER } from "@/data/week1/fantasy";
@@ -99,16 +100,20 @@ export function PositionBoard({
           <RankingTable views={views} />
         )}
       </Section>
-      {drawerGrade ? (
+      {drawerGrade && drawerPlayer ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center" role="dialog" aria-modal>
-          <div className="surface w-full max-w-lg p-4">
+          <FocusTrap onEscape={() => setDrawerPlayer(null)} className="w-full max-w-lg">
+          <div className="surface w-full p-4">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-[15px] font-semibold">Matchup · script proxy</p>
+              <p className="text-[15px] font-semibold">Detail · script proxy</p>
               <button type="button" className="text-sm text-muted" onClick={() => setDrawerPlayer(null)}>
                 Close
               </button>
             </div>
             <p className="text-[13px] text-muted">{drawerGrade.note}</p>
+            <p className="mt-2 text-[12px] text-muted">
+              SUMMARY / PROPS / GAME LOG / MARKET live on the player desk. This drawer is matchup factors only — not a coverage rank.
+            </p>
             <div className="mt-3 grid grid-cols-2 gap-2">
               {drawerGrade.factors.map((factor) => (
                 <div key={factor.id} className="rounded-md border border-line bg-bg-elev p-2">
@@ -118,10 +123,14 @@ export function PositionBoard({
                 </div>
               ))}
             </div>
-            <div className="mt-3">
+            <div className="mt-3 flex flex-wrap gap-2">
               <WhyDrawer title="Matchup why" lenses={drawerGrade.lenses} sections={drawerGrade.why} />
+              <Link href={`/players/${drawerPlayer}`} className="action-btn">
+                Open player desk
+              </Link>
             </div>
           </div>
+          </FocusTrap>
         </div>
       ) : null}
       {position === "WR" && matchups.length === 0 ? (

@@ -6,6 +6,7 @@ import { NAV_ITEMS } from "@/lib/nav";
 import { runSearch } from "@/lib/search";
 import { useLiveOps } from "./LiveOpsProvider";
 import { useShell } from "./ShellProvider";
+import { FocusTrap } from "@/components/ds/FocusTrap";
 
 type Command = {
   id: string;
@@ -44,18 +45,15 @@ export function GlobalSearch() {
   }, [query, refreshView, ops, setAlertsOpen, setFinalCard, finalCard]);
 
   useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setSearchOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [setSearchOpen]);
+    if (!searchOpen) setQ("");
+  }, [searchOpen]);
 
   if (!searchOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[12vh]" role="dialog" aria-modal aria-label="Command palette">
-      <div className="w-full max-w-xl rounded-lg border border-line bg-bg-elev p-3 shadow-2xl">
+      <FocusTrap onEscape={() => setSearchOpen(false)} className="w-full max-w-xl">
+      <div className="w-full rounded-lg border border-line bg-bg-elev p-3 shadow-2xl">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-[10px] tracking-wide text-gold uppercase">Command palette · players · teams · games · props · books</p>
           <button type="button" onClick={() => setSearchOpen(false)} className="text-xs text-muted">
@@ -64,6 +62,7 @@ export function GlobalSearch() {
         </div>
         <input
           autoFocus
+          data-autofocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="⌘K · Burrow, CIN, TB@CIN, Chase rec, DraftKings…"
@@ -113,6 +112,7 @@ export function GlobalSearch() {
           ))}
         </ul>
       </div>
+      </FocusTrap>
     </div>
   );
 }

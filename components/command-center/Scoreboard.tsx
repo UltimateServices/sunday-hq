@@ -5,6 +5,9 @@ import { GameCard } from "@/components/ds/GameCard";
 import { WindowSwitcher } from "@/components/ds/WindowSwitcher";
 import { useShell } from "@/components/shell/ShellProvider";
 import type { EnvironmentRow } from "@/lib/command-center";
+import { GAME_BY_ID } from "@/data/week1/games";
+import { WEATHER_BY_GAME } from "@/data/week1/weather";
+import { envScoresFor } from "@/lib/env-scores";
 
 export function Scoreboard({ rows }: { rows: EnvironmentRow[] }) {
   const { gameWindow, setGameWindow } = useShell();
@@ -19,7 +22,10 @@ export function Scoreboard({ rows }: { rows: EnvironmentRow[] }) {
     <div className="space-y-2">
       <WindowSwitcher value={gameWindow} onChange={setGameWindow} />
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {visible.map((row) => (
+        {visible.map((row) => {
+            const game = GAME_BY_ID[row.gameId];
+            const env = game ? envScoresFor(game, WEATHER_BY_GAME[row.gameId]) : null;
+            return (
           <div key={row.gameId} className="min-w-[220px] max-w-[260px] shrink-0">
             <GameCard
               id={row.gameId}
@@ -33,9 +39,11 @@ export function Scoreboard({ rows }: { rows: EnvironmentRow[] }) {
               weatherSummary={row.weatherSummary}
               live={row.live}
               note={row.note}
+              envScore={env?.game ?? null}
             />
           </div>
-        ))}
+            );
+          })}
       </div>
     </div>
   );

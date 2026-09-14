@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { NAV_GROUPS, NAV_ITEMS } from "@/lib/nav";
 import { useShell } from "./ShellProvider";
+import { FocusTrap } from "@/components/ds/FocusTrap";
 
 export function MoreDrawer() {
   const { moreOpen, setMoreOpen } = useShell();
@@ -10,7 +11,8 @@ export function MoreDrawer() {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 lg:hidden" role="dialog" aria-modal>
       <button className="absolute inset-0" aria-label="Close more" onClick={() => setMoreOpen(false)} />
-      <aside className="absolute inset-y-0 right-0 w-[min(100%,320px)] overflow-y-auto border-l border-line bg-bg-elev p-4">
+      <FocusTrap onEscape={() => setMoreOpen(false)} className="absolute inset-y-0 right-0 w-[min(100%,320px)]">
+      <aside className="h-full overflow-y-auto border-l border-line bg-bg-elev p-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-semibold">More</p>
           <button type="button" onClick={() => setMoreOpen(false)} className="text-xs text-muted">
@@ -33,6 +35,7 @@ export function MoreDrawer() {
           </div>
         ))}
       </aside>
+      </FocusTrap>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ConfidenceBadge, EdgeBadge, ToneChip } from "@/components/ds/badges";
+import { ConfidenceBadge, EdgeBadge, QualityTierChip, ToneChip } from "@/components/ds/badges";
 import type { HomeScanRow } from "@/lib/homepage";
 
 export function HomeScanCard({
@@ -37,6 +37,7 @@ export function HomeScanCard({
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         <ConfidenceBadge grade={row.grade} />
         <EdgeBadge value={row.edgeValue} unit={row.edgeUnit} />
+        <QualityTierChip quality={row.quality} />
         <ToneChip tone={row.quality === "VERIFIED" && live ? "blue" : "yellow"}>{row.qualityLabel}</ToneChip>
         {live ? null : <ToneChip tone="orange">Not live</ToneChip>}
       </div>
