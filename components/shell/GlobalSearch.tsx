@@ -44,10 +44,6 @@ export function GlobalSearch() {
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setSearchOpen(true);
-      }
       if (event.key === "Escape") setSearchOpen(false);
     }
     window.addEventListener("keydown", onKey);
@@ -60,7 +56,7 @@ export function GlobalSearch() {
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[12vh]" role="dialog" aria-modal aria-label="Command palette">
       <div className="w-full max-w-xl rounded-lg border border-line bg-bg-elev p-3 shadow-2xl">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-[10px] tracking-wide text-gold uppercase">Command · players · teams · games · props · books</p>
+          <p className="text-[10px] tracking-wide text-gold uppercase">Command palette · players · teams · games · props · books</p>
           <button type="button" onClick={() => setSearchOpen(false)} className="text-xs text-muted">
             Esc
           </button>

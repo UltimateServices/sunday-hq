@@ -1,33 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { GameCard } from "@/components/ds/GameCard";
 import { EmptyState } from "@/components/ds/EmptyState";
 import { EnvScoreTiles } from "@/components/ds/EnvScoreTiles";
 import { ScriptBars } from "@/components/ds/ScriptBars";
-import { useShell } from "@/components/shell/ShellProvider";
 import type { GameDeskRow } from "@/lib/game-desk";
 
 export function GamesBoard({ rows }: { rows: GameDeskRow[] }) {
-  const { gameWindow } = useShell();
   const [openId, setOpenId] = useState<string | null>(null);
-
-  const visible = useMemo(
-    () =>
-      rows.filter((row) => {
-        if (gameWindow === "ALL") return true;
-        return row.window === gameWindow;
-      }),
-    [rows, gameWindow],
-  );
 
   return (
     <div className="space-y-3">
-      {visible.length === 0 ? (
+      {rows.length === 0 ? (
         <EmptyState message="NO PLAYS CURRENTLY MEET YOUR FILTERS" hint="Switch the window chip in the header." />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {visible.map((row) => {
+          {rows.map((row) => {
             const expanded = openId === row.id;
             return (
               <div key={row.id} className="space-y-2">

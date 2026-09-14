@@ -5,7 +5,7 @@ Product overrides: `/` = Top-10 Home · `/dashboard` = Command Center · live-ga
 
 Status: **DONE** ships the item · **PARTIAL** scaffold exists · **MISSING** not started · **PARKED** out of this ship.
 
-Updated with this PR's Sunday-morning workspace pass.
+Updated after PR #9 merged (`docs/UI_BLUEPRINT_PAGE_BY_PAGE.md` + full `docs/MASTER_BUILD_SPEC.md` on `main`). This tracker is coverage, not a second spec.
 
 ## Build phases
 
@@ -166,4 +166,4 @@ Updated with this PR's Sunday-morning workspace pass.
 - Position-specific column sets + QB/WR drawers as dedicated tables
 - Performance charts, RUN NOW admin, swipe gestures
 - Fade Board (parked)
-- Full MASTER BUILD SPEC body (Charlie / Football attachment)
+- Full MASTER BUILD SPEC body — **on main via PR #9**. Do not overwrite.
