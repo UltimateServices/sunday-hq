@@ -10,8 +10,15 @@ export function hasBlobToken(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
 }
 
-export function nwsUserAgent(): string | null {
-  return process.env.NWS_USER_AGENT?.trim() || null;
+export const DEFAULT_NWS_USER_AGENT = "SundayHQ/1.0 (+https://github.com/UltimateServices/sunday-hq)";
+
+/** NWS requires a User-Agent. Prefer NWS_USER_AGENT; otherwise the documented default contact string. */
+export function nwsUserAgent(): string {
+  return process.env.NWS_USER_AGENT?.trim() || DEFAULT_NWS_USER_AGENT;
+}
+
+export function usingDefaultNwsAgent(): boolean {
+  return !process.env.NWS_USER_AGENT?.trim();
 }
 
 export function configuredSecrets(): string[] {

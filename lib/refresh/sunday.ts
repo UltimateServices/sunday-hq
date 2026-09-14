@@ -3,12 +3,13 @@ import { INJURIES } from "@/data/week1/injuries";
 import { WEEK1_META } from "@/data/week1/meta";
 import { WEATHER } from "@/data/week1/weather";
 import { appendChangelog, changeFrom } from "@/lib/ingest/changelog";
-import { hasOddsApiKey, nwsUserAgent } from "@/lib/ingest/env";
+import { hasOddsApiKey, usingDefaultNwsAgent } from "@/lib/ingest/env";
 import { recordIngestMeta, recordStage } from "@/lib/ingest/ops";
 import { ingestOdds } from "@/lib/ingest/run-odds";
 import { fingerprint, readOddsSnapshot, storeBackend } from "@/lib/ingest/store";
 import { STORE_KEYS, type LearnSnapshot, type SundayStage } from "@/lib/ingest/types";
 import { writeJson } from "@/lib/ingest/store";
+import { pullNwsHourly } from "@/lib/weather/nws";
 import { fetchEspnInjuries, fetchEspnScoreboard } from "@/lib/settle/espn";
 import { readResultsSnapshot, settleWeek } from "@/lib/settle/pipeline";
 import { RESULTS } from "@/data/week1/results";
@@ -115,6 +116,21 @@ export async function runInjuries() {
       );
     }
   }
+  if (items.length === 0) {
+    items.push(
+      changeFrom({
+        title: "Injury sweep",
+        from: `${INJURIES.length} seed rows`,
+        to: `${hits.length} ESPN desk matches`,
+        implication: "No headline conflict vs seed. Seed health enum is not auto-replaced.",
+        quality: "CONSENSUS",
+        category: "INJURY",
+        severity: "INFO",
+        asOf,
+        fingerprint: fingerprint(["inj-sweep", hits.length, asOf.slice(0, 13)]),
+      }),
+    );
+  }
   return writeIfNew(
     "injuries",
     items,
@@ -124,90 +140,38 @@ export async function runInjuries() {
   );
 }
 
-const STADIUMS: Record<string, { lat: number; lon: number }> = {
-  "tb-cin": { lat: 39.0954, lon: -84.516 },
-  "no-det": { lat: 42.34, lon: -83.0456 },
-  "nyj-ten": { lat: 36.1665, lon: -86.7713 },
-  "bal-ind": { lat: 39.7601, lon: -86.1639 },
-  "atl-pit": { lat: 40.4468, lon: -80.0158 },
-  "chi-car": { lat: 35.2258, lon: -80.8528 },
-  "cle-jax": { lat: 30.3239, lon: -81.6373 },
-  "buf-hou": { lat: 29.6847, lon: -95.4107 },
-  "was-phi": { lat: 39.9008, lon: -75.1675 },
-  "dal-nyg": { lat: 40.8136, lon: -74.0744 },
-};
-
 export async function runWeather() {
-  const agent = nwsUserAgent();
-  const asOf = new Date().toISOString();
-  if (!agent) {
-    return writeIfNew(
-      "weather",
-      [
-        changeFrom({
-          title: "NWS hourly still DATA UNAVAILABLE",
-          from: "PENDING",
-          to: "UNAVAILABLE",
-          implication: "NWS_USER_AGENT is not set. Outdoor games keep seed ESTIMATE weather. No invented hourly.",
-          quality: "UNAVAILABLE",
-          category: "WEATHER",
-          severity: "WATCH",
-          asOf,
-          fingerprint: "wx-no-agent",
-        }),
-      ],
-      [],
-      "NWS_USER_AGENT missing. Weather stage degraded.",
-      "DEGRADED",
-    );
-  }
-
-  const outdoor = GAMES.filter((game) => !game.indoor && STADIUMS[game.id]);
-  const notes: string[] = [];
-  for (const game of outdoor) {
-    const point = STADIUMS[game.id];
-    try {
-      const meta = await fetch(`https://api.weather.gov/points/${point.lat},${point.lon}`, {
-        headers: { "User-Agent": agent, Accept: "application/geo+json" },
-        cache: "no-store",
-      });
-      if (!meta.ok) {
-        notes.push(`${game.id}: NWS points ${meta.status}`);
-        continue;
-      }
-      const json = (await meta.json()) as { properties?: { forecastHourly?: string } };
-      if (!json.properties?.forecastHourly) {
-        notes.push(`${game.id}: no hourly URL`);
-        continue;
-      }
-      const hourly = await fetch(json.properties.forecastHourly, {
-        headers: { "User-Agent": agent, Accept: "application/geo+json" },
-        cache: "no-store",
-      });
-      notes.push(`${game.id}: hourly ${hourly.ok ? "ok" : hourly.status}`);
-    } catch (error) {
-      notes.push(`${game.id}: ${error instanceof Error ? error.message : "nws fail"}`);
-    }
-  }
-
+  const snapshot = await pullNwsHourly();
+  await writeJson(STORE_KEYS.weather, snapshot);
+  const asOf = snapshot.asOf;
+  const material = snapshot.rows.filter((row) => row.impact === "SIGNIFICANT" || row.impact === "MODERATE");
+  const alerts: AlertItem[] = material.map((row) => ({
+    id: `wx-live-${row.gameId}-${asOf}`,
+    kind: "WEATHER",
+    severity: row.impact === "SIGNIFICANT" ? "IMPORTANT" : "WATCH",
+    title: `${row.gameId} weather ${row.impact}`,
+    body: row.summary,
+    href: `/games/${row.gameId}`,
+    asOf,
+  }));
   return writeIfNew(
     "weather",
     [
       changeFrom({
-        title: "NWS hourly pull",
+        title: snapshot.status === "LIVE" ? "NWS hourly stored" : "NWS hourly degraded",
         from: `${WEATHER.filter((w) => w.impact !== "NONE").length} seed material rows`,
-        to: notes.join(" · ") || "no outdoor pulls",
-        implication: "Hourly was requested. Seed impact labels stay until a verified hourly row is stored.",
-        quality: "CONSENSUS",
+        to: `${snapshot.rows.filter((row) => row.source === "NWS hourly").length} live hourly · roof UNKNOWN on retractable`,
+        implication: `${snapshot.note}${usingDefaultNwsAgent() ? " Using default NWS_USER_AGENT contact string." : ""}`,
+        quality: snapshot.status === "LIVE" ? "VERIFIED" : "UNAVAILABLE",
         category: "WEATHER",
-        severity: "INFO",
+        severity: snapshot.status === "LIVE" ? "INFO" : "WATCH",
         asOf,
-        fingerprint: fingerprint(notes),
+        fingerprint: fingerprint(["wx", snapshot.status, snapshot.note]),
       }),
     ],
-    [],
-    notes.join(" | ") || "No outdoor NWS pulls.",
-    "OK",
+    alerts,
+    snapshot.note,
+    snapshot.status === "LIVE" ? "OK" : "DEGRADED",
   );
 }
 

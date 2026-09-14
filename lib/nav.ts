@@ -31,6 +31,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/wide-receivers", label: "Wide Receivers", short: "WR", icon: "W", readiness: "LIVE", phase: 2, group: "positions" },
   { href: "/tight-ends", label: "Tight Ends", short: "TE", icon: "T", readiness: "LIVE", phase: 2, group: "positions" },
   { href: "/fantasy", label: "Fantasy", short: "FAN", icon: "F", readiness: "LIVE", phase: 3, group: "positions" },
+  { href: "/compare", label: "Compare", short: "CMP", icon: "⇆", readiness: "LIVE", phase: 4, group: "research" },
   { href: "/matchups", label: "Matchups", short: "MATCH", icon: "⚔", readiness: "LIVE", phase: 4, group: "research" },
   { href: "/weather", label: "Weather", short: "WX", icon: "☁", readiness: "LIVE", phase: 2, group: "research" },
   { href: "/injuries", label: "Injuries", short: "INJ", icon: "+", readiness: "LIVE", phase: 2, group: "research" },

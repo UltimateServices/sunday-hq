@@ -72,7 +72,7 @@ export async function ingestOdds(): Promise<OddsSnapshot> {
       note:
         slateEvents.length === 0 && props.length === 0
           ? "The Odds API responded but no Sunday HQ slate games matched. Seed remains in force. No invented DK prices."
-          : `DraftKings tape via The Odds API. ${slateEvents.length} game lines, ${props.length} player-prop sides. Storage ${storeBackend()}.`,
+          : `DraftKings-primary tape via The Odds API (FanDuel / BetMGM / Caesars stored for compare). ${slateEvents.length} game lines, ${props.length} player-prop sides. Storage ${storeBackend()}.`,
     };
     await writeOddsSnapshot(snapshot);
     return snapshot;

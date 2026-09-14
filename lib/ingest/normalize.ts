@@ -1,4 +1,4 @@
-import type { BookId, DataQuality, MarketType, MeasuredNumber, Side } from "@/lib/types/domain";
+import type { BookId, BookQuote, DataQuality, MarketType, MeasuredNumber, Side } from "@/lib/types/domain";
 import { matchGameId, matchPlayerId } from "./names";
 import type { OddsApiEvent, OddsApiMarket } from "./odds-api";
 import type { OverlayGameLine, OverlayPropLine } from "./types";
@@ -34,9 +34,21 @@ function dkSource(asOf: string): string {
   return `DraftKings via The Odds API (${asOf})`;
 }
 
+const BOOK_KEY: Record<string, BookId> = {
+  draftkings: "DRAFTKINGS",
+  fanduel: "FANDUEL",
+  betmgm: "BETMGM",
+  williamhill_us: "CAESARS",
+  caesars: "CAESARS",
+};
+
 function draftKingsMarkets(event: OddsApiEvent): OddsApiMarket[] {
   const book = event.bookmakers?.find((row) => row.key === "draftkings");
   return book?.markets ?? [];
+}
+
+function bookIdFor(key: string): BookId {
+  return BOOK_KEY[key] ?? "UNKNOWN";
 }
 
 export function normalizeGameLines(events: OddsApiEvent[], asOf: string): {
@@ -100,48 +112,83 @@ export function normalizePlayerProps(events: OddsApiEvent[], asOf: string): {
   const unmatched: Array<{ name: string; market: string; reason: string }> = [];
   const source = dkSource(asOf);
 
+  const grouped = new Map<string, OverlayPropLine>();
+
   for (const event of events) {
     const gameId = matchGameId(event.away_team, event.home_team);
     if (!gameId) continue;
-    for (const market of draftKingsMarkets(event)) {
-      const mapped = MARKET_MAP[market.key];
-      if (!mapped) continue;
-      for (const outcome of market.outcomes) {
-        const playerName = outcome.description ?? "";
-        if (!playerName) continue;
-        const side = outcome.name.toLowerCase() === "under" ? "UNDER" : "OVER";
-        const playerId = matchPlayerId(playerName);
-        if (!playerId) {
-          unmatched.push({
-            name: playerName,
-            market: mapped,
-            reason: "Player is not in the Sunday HQ Week 1 desk.",
-          });
-          continue;
+    for (const bookmaker of event.bookmakers ?? []) {
+      const book = bookIdFor(bookmaker.key);
+      for (const market of bookmaker.markets ?? []) {
+        const mapped = MARKET_MAP[market.key];
+        if (!mapped) continue;
+        for (const outcome of market.outcomes) {
+          const playerName = outcome.description ?? "";
+          if (!playerName) continue;
+          const side = (outcome.name.toLowerCase() === "under" ? "UNDER" : "OVER") as Side;
+          const playerId = matchPlayerId(playerName);
+          if (!playerId) {
+            if (book === "DRAFTKINGS") {
+              unmatched.push({
+                name: playerName,
+                market: mapped,
+                reason: "Player is not in the Sunday HQ Week 1 desk.",
+              });
+            }
+            continue;
+          }
+          const quote: BookQuote = {
+            book,
+            line: measured(
+              outcome.point ?? (mapped === "ANYTIME_TD" ? 0.5 : null),
+              outcome.point !== undefined || mapped === "ANYTIME_TD" ? "VERIFIED" : "UNAVAILABLE",
+              `${book} via The Odds API (${asOf})`,
+              asOf,
+              `${book} player-prop line.`,
+            ),
+            oddsAmerican: measured(
+              outcome.price ?? null,
+              outcome.price !== undefined ? "VERIFIED" : "UNAVAILABLE",
+              `${book} via The Odds API (${asOf})`,
+              asOf,
+              `${book} American odds.`,
+            ),
+          };
+          const key = `${playerId}:${mapped}:${side}:${gameId}`;
+          const existing = grouped.get(key);
+          if (!existing) {
+            grouped.set(key, {
+              playerId,
+              playerName,
+              gameId,
+              market: mapped,
+              side,
+              line: quote.line,
+              oddsAmerican: quote.oddsAmerican,
+              books: [quote],
+            });
+            continue;
+          }
+          existing.books = [...(existing.books ?? []), quote];
+          if (book === "DRAFTKINGS") {
+            existing.line = quote.line;
+            existing.oddsAmerican = quote.oddsAmerican;
+          }
         }
-        props.push({
-          playerId,
-          playerName,
-          gameId,
-          market: mapped,
-          side: side as Side,
-          line: measured(
-            outcome.point ?? (mapped === "ANYTIME_TD" ? 0.5 : null),
-            outcome.point !== undefined || mapped === "ANYTIME_TD" ? "VERIFIED" : "UNAVAILABLE",
-            source,
-            asOf,
-            "DraftKings player-prop line from The Odds API. Not a seed estimate.",
-          ),
-          oddsAmerican: measured(
-            outcome.price ?? null,
-            outcome.price !== undefined ? "VERIFIED" : "UNAVAILABLE",
-            source,
-            asOf,
-            "DraftKings American odds from The Odds API.",
-          ),
-        });
       }
     }
+  }
+
+  for (const row of grouped.values()) {
+    const dk = row.books?.find((quote) => quote.book === "DRAFTKINGS");
+    if (dk) {
+      row.line = dk.line;
+      row.oddsAmerican = dk.oddsAmerican;
+    } else {
+      row.line = measured(row.line.value, "UNAVAILABLE", source, asOf, "DK missing. Other books stored for compare only.");
+      row.oddsAmerican = measured(null, "UNAVAILABLE", source, asOf, "DraftKings price DATA UNAVAILABLE. Do not treat another book as DK.");
+    }
+    props.push(row);
   }
 
   return { props, unmatched };

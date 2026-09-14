@@ -1,20 +1,23 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SeedBanner } from "@/components/shared/SeedBanner";
 import { MatchupsBoard } from "@/components/boards/MatchupsBoard";
-import { MATCHUPS } from "@/data/week1/matchups";
+import { getWeekCatalog } from "@/lib/catalog";
 
-export default function MatchupsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MatchupsPage() {
+  const catalog = await getWeekCatalog();
   return (
     <div className="space-y-6">
       <PageHeader
         layer="Layer 2 · Research Board"
         title="Matchups"
-        lede="BEST / WORST panels by position with factor breakdown. Week 1 scores are LOW SAMPLE. Coverage / box count stay UNAVAILABLE when not wired."
+        lede="BEST / WORST from the live factor engine: coverage/script proxy, volume, environment, weather, injury, OL starters. Admin weights change the overall. Not a PFF coverage rank."
       />
       <SeedBanner>
-        GOOD PLAYER ≠ GOOD MATCHUP ≠ GOOD PROJECTION ≠ GOOD BET. Missing factors are labeled, not invented.
+        GOOD PLAYER ≠ GOOD MATCHUP ≠ GOOD PROJECTION ≠ GOOD BET. Coverage is a script proxy. OL is an ESTIMATE desk module.
       </SeedBanner>
-      <MatchupsBoard grades={MATCHUPS} />
+      <MatchupsBoard grades={catalog.matchups} />
     </div>
   );
 }

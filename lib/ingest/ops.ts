@@ -6,6 +6,7 @@ import { STORE_KEYS, type DataHealthView, type OpsSnapshot, type PublicOps, type
 import { readOddsSnapshot } from "./store";
 import { readChangelog } from "./changelog";
 import { WEEK1_META } from "@/data/week1/meta";
+import type { WeatherSnapshot } from "@/lib/weather/nws";
 
 const STAGES: SundayStage[] = ["slate", "injuries", "weather", "odds", "projections", "settle", "monday-learn"];
 
@@ -101,7 +102,7 @@ export function routineFromOps(ops: OpsSnapshot): SundayRoutineStep[] {
         id: row.id,
         label: row.label,
         status: "LIVE",
-        at: WEEK1_META.lastUpdatedIso,
+        at: ops.asOf ?? WEEK1_META.lastUpdatedIso,
         note: row.fallbackNote,
       };
     }
@@ -126,13 +127,21 @@ export function routineFromOps(ops: OpsSnapshot): SundayRoutineStep[] {
 }
 
 export async function buildHealth(): Promise<DataHealthView> {
-  const [ops, snapshot] = await Promise.all([readOps(), readOddsSnapshot()]);
+  const [ops, snapshot, weather] = await Promise.all([
+    readOps(),
+    readOddsSnapshot(),
+    readJson<WeatherSnapshot>(STORE_KEYS.weather),
+  ]);
   const issues = [...DATA_HEALTH.issues];
   if (!snapshot || snapshot.status !== "LIVE") {
     issues[0] = snapshot?.note || "DraftKings player-prop odds not ingested";
   } else {
     const idx = issues.findIndex((issue) => issue.toLowerCase().includes("player-prop"));
     if (idx >= 0) issues.splice(idx, 1);
+  }
+  if (weather?.status === "LIVE") {
+    const wxIdx = issues.findIndex((issue) => issue.toLowerCase().includes("nws"));
+    if (wxIdx >= 0) issues.splice(wxIdx, 1);
   }
   const failureNote = ops.ingest.lastFailureNote;
   if (

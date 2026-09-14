@@ -4,6 +4,8 @@ import { GAME_BY_ID } from "@/data/week1/games";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { computeBinaryPricing, computePricing, isProbabilityMarket, type EvComputation } from "@/lib/odds";
+import { buildDistribution } from "@/lib/distribution";
+import { bestBookQuote } from "@/lib/books";
 import { healthLabel } from "@/lib/health";
 import { confidenceGrade } from "@/lib/ui/confidence";
 import type {
@@ -51,16 +53,12 @@ export function toPropView(prop: PropMarket, assumedJuice = true): PropView {
         line: prop.line,
         odds: prop.oddsAmerican,
         side: prop.side,
+        market: prop.market,
         allowAssumedJuice: assumedJuice,
       });
 
-  const unavailable: MeasuredNumber = {
-    value: null,
-    quality: "UNAVAILABLE",
-    source: "sunday-hq",
-    asOf: null,
-    note: "Trained distribution tails are Phase 3.",
-  };
+  const dist = buildDistribution({ model: prop.model, line: prop.line, market: prop.market });
+  const best = bestBookQuote(prop.books ?? [], prop.side);
 
   return {
     ...prop,
@@ -90,20 +88,23 @@ export function toPropView(prop: PropMarket, assumedJuice = true): PropView {
       ],
       risks: prop.risks,
       marketContext: [
-        `Book: ${prop.book}. Line quality ${prop.line.quality}.`,
+        `Decision book: DraftKings. Line quality ${prop.line.quality}.`,
         prop.oddsAmerican.note ?? "DK player-prop odds not ingested.",
+        best
+          ? `Best other number: ${best.book} ${best.line.value ?? "—"} / ${best.oddsAmerican.value ?? "DATA UNAVAILABLE"}. Not used as the DK price.`
+          : prop.movement.note,
         prop.movement.note,
       ],
       dataQuality: [
         `Line ${prop.line.quality} · Model ${prop.model.quality} · Odds ${prop.oddsAmerican.quality}`,
-        "Week 1 = LOW SAMPLE. Placeholder model is not a trained engine.",
+        `Dist σ=${dist.sigma.toFixed(1)} ESTIMATE. Floor/ceiling are P10/P90, not a trained residual.`,
       ],
     },
     distribution: {
-      floor: unavailable,
-      mean: prop.model,
-      median: prop.median,
-      ceiling: unavailable,
+      floor: dist.floor,
+      mean: dist.mean,
+      median: dist.median.value !== null ? dist.median : prop.median,
+      ceiling: dist.ceiling,
     },
   };
 }

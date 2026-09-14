@@ -79,7 +79,7 @@ export async function fetchDraftKingsGameLines(): Promise<OddsApiFetchResult> {
     regions: "us",
     markets: "spreads,totals",
     oddsFormat: "american",
-    bookmakers: "draftkings",
+    bookmakers: "draftkings,fanduel,betmgm,caesars",
   });
   return { events: json as OddsApiEvent[], remaining };
 }
@@ -89,7 +89,7 @@ export async function fetchDraftKingsEventProps(eventId: string): Promise<OddsAp
     regions: "us",
     markets: PLAYER_PROP_MARKETS.join(","),
     oddsFormat: "american",
-    bookmakers: "draftkings",
+    bookmakers: "draftkings,fanduel,betmgm,caesars",
   });
   return { events: [json as OddsApiEvent], remaining };
 }

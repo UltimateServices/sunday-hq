@@ -15,7 +15,7 @@ Sidebar groups, in this order (icons + labels):
 1. COMMAND CENTER
 2. GAMES · PROPS · TOUCHDOWNS · TEAM TOTALS · GAME TOTALS
 3. QUARTERBACKS · RUNNING BACKS · WIDE RECEIVERS · TIGHT ENDS · FANTASY
-4. MATCHUPS · WEATHER · INJURIES · MARKET MOVEMENT
+4. COMPARE · MATCHUPS · WEATHER · INJURIES · MARKET MOVEMENT
 5. PARLAYS · BOOSTS · MY CARD
 6. RESULTS · MODEL PERFORMANCE
 7. ADMIN · SETTINGS
@@ -74,7 +74,7 @@ Critical Alerts → Top 5 Opportunities → My Card → TDs → Injuries → Wea
 
 ## 3. Routes (connected workspace)
 
-`/dashboard` `/games` `/games/[id]` `/props` `/quarterbacks` `/running-backs` `/wide-receivers` `/tight-ends` `/touchdowns` `/team-totals` `/game-totals` `/fantasy` `/matchups` `/weather` `/injuries` `/markets` `/parlays` `/boosts` `/my-card` `/results` `/model-performance` `/players/[id]` `/teams/[id]` `/admin` `/settings`
+`/dashboard` `/games` `/games/[id]` `/props` `/quarterbacks` `/running-backs` `/wide-receivers` `/tight-ends` `/touchdowns` `/team-totals` `/game-totals` `/fantasy` `/compare` `/matchups` `/weather` `/injuries` `/markets` `/parlays` `/boosts` `/my-card` `/results` `/model-performance` `/players/[id]` `/teams/[id]` `/admin` `/settings`
 
 `/lines` remains as a redirect to `/markets`. `/` and `/dashboard` share Command Center.
 

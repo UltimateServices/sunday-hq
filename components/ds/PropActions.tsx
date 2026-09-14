@@ -23,7 +23,7 @@ export function PropActions({ view }: { view: PropView }) {
       <Link href={`/games/${view.gameId}`} className="action-btn">
         Open game
       </Link>
-      <Link href={`/props?compare=${view.id}`} className="action-btn">
+      <Link href={`/compare?ids=${view.id}`} className="action-btn">
         Compare
       </Link>
     </div>

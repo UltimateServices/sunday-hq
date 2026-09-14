@@ -8,6 +8,7 @@ import { PROPS } from "@/data/week1/props";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { WEATHER } from "@/data/week1/weather";
 import type { WeekCatalog } from "@/lib/catalog";
+import { weightRankBoost, type ModelWeights } from "@/lib/weights";
 import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
 import { MARKET_LABEL, toPropView, type PropView } from "@/lib/prop-view";
 import { liveStatus } from "@/lib/game-window";
@@ -41,25 +42,51 @@ function rankable(view: PropView): boolean {
   return view.line.value !== null && view.model.value !== null && view.pricing.edge.value !== null;
 }
 
-function byEdgeDesc(a: PropView, b: PropView): number {
-  return (b.pricing.edge.value ?? -999) - (a.pricing.edge.value ?? -999);
+function byEdgeDesc(a: PropView, b: PropView, weights?: ModelWeights, minEdge = 4): number {
+  const boostA = weights
+    ? weightRankBoost({
+        market: a.market,
+        weatherImpact: a.weatherNote.toUpperCase().includes("SIGNIFICANT") ? "SIGNIFICANT" : "NONE",
+        health: a.health,
+        edgeYards: a.pricing.edge.value,
+        weights,
+        minEdgeYards: minEdge,
+      })
+    : 0;
+  const boostB = weights
+    ? weightRankBoost({
+        market: b.market,
+        weatherImpact: b.weatherNote.toUpperCase().includes("SIGNIFICANT") ? "SIGNIFICANT" : "NONE",
+        health: b.health,
+        edgeYards: b.pricing.edge.value,
+        weights,
+        minEdgeYards: minEdge,
+      })
+    : 0;
+  return (b.pricing.edge.value ?? -999) + boostB * 8 - ((a.pricing.edge.value ?? -999) + boostA * 8);
 }
 
-export function buildCommandCenter(catalog?: Pick<WeekCatalog, "games" | "props" | "changes" | "alerts">) {
+export function buildCommandCenter(
+  catalog?: Pick<WeekCatalog, "games" | "props" | "changes" | "alerts" | "weather" | "matchups" | "modelWeights" | "thresholds">,
+) {
   const slate = catalog?.games ?? GAMES;
   const props = catalog?.props ?? PROPS;
   const views = props.map((p) => toPropView(p));
+  const rank = (a: PropView, b: PropView) => byEdgeDesc(a, b, catalog?.modelWeights, catalog?.thresholds.minEdgeYards);
   const overs = views.filter((v) => v.side === "OVER" && v.market !== "ANYTIME_TD");
   const unders = views.filter((v) => v.side === "UNDER");
   const yardage = views.filter((v) => ["PASS_YDS", "RUSH_YDS", "REC_YDS"].includes(v.market));
 
-  const bestOver = [...overs].filter(rankable).sort(byEdgeDesc)[0];
-  const bestUnder = [...unders].filter(rankable).sort(byEdgeDesc)[0];
+  const bestOver = [...overs].filter(rankable).sort(rank)[0];
+  const bestUnder = [...unders].filter(rankable).sort(rank)[0];
   const teamTotals = derivedTeamTotals(slate).sort((a, b) => (b.line.value ?? 0) - (a.line.value ?? 0));
   const bestTeamTotal = teamTotals[0];
   const shootout = slate.find((g) => g.id === "tb-cin") ?? GAMES.find((g) => g.id === "tb-cin")!;
-  const gibbs = views.find((v) => v.playerId === "gibbs" && v.market === "RUSH_YDS");
-  const burrow = views.find((v) => v.playerId === "burrow" && v.side === "OVER");
+  const matchups = catalog?.matchups ?? [];
+  const bestQbMatch = [...matchups].filter((row) => row.position === "QB").sort((a, b) => (b.overall.value ?? 0) - (a.overall.value ?? 0))[0];
+  const bestRbMatch = [...matchups].filter((row) => row.position === "RB").sort((a, b) => (b.overall.value ?? 0) - (a.overall.value ?? 0))[0];
+  const qbPlayer = bestQbMatch ? PLAYER_BY_ID[bestQbMatch.playerId] : null;
+  const rbPlayer = bestRbMatch ? PLAYER_BY_ID[bestRbMatch.playerId] : null;
 
   const summaryCards: SummaryCard[] = [
     {
@@ -101,17 +128,21 @@ export function buildCommandCenter(catalog?: Pick<WeekCatalog, "games" | "props"
     {
       id: "best-qb",
       label: "Best QB Matchup",
-      value: burrow ? "Joe Burrow vs TB" : "DATA UNAVAILABLE",
-      sub: "GOOD PLAYER + high total. Matchup engine PENDING. GOOD BET UNKNOWN.",
-      href: "/players/burrow",
+      value: qbPlayer ? `${qbPlayer.name} (${bestQbMatch?.overall.value ?? "—"})` : "DATA UNAVAILABLE",
+      sub: bestQbMatch
+        ? `${bestQbMatch.note} GOOD BET stays UNKNOWN without a DK price.`
+        : "Matchup engine has no QB row.",
+      href: qbPlayer ? `/players/${qbPlayer.id}` : "/matchups",
       tone: "blue",
     },
     {
       id: "best-rb",
       label: "Best RB Matchup",
-      value: gibbs ? "Jahmyr Gibbs vs NO" : "DATA UNAVAILABLE",
-      sub: "Indoor favorite. Box-count engine PENDING.",
-      href: "/players/gibbs",
+      value: rbPlayer ? `${rbPlayer.name} (${bestRbMatch?.overall.value ?? "—"})` : "DATA UNAVAILABLE",
+      sub: bestRbMatch
+        ? `${bestRbMatch.note} OL module is in the grade. Coverage is a script proxy.`
+        : "Matchup engine has no RB row.",
+      href: rbPlayer ? `/players/${rbPlayer.id}` : "/matchups",
       tone: "green",
     },
     {
@@ -138,7 +169,7 @@ export function buildCommandCenter(catalog?: Pick<WeekCatalog, "games" | "props"
     const spread = game.spreadHome.value;
     const spreadText =
       spread === null ? "DATA UNAVAILABLE" : spread === 0 ? "PK" : spread < 0 ? `${home} ${spread}` : `${away} -${spread}`;
-    const wx = WEATHER.find((w) => w.gameId === game.id);
+    const wx = (catalog?.weather ?? WEATHER).find((w) => w.gameId === game.id);
     return {
       gameId: game.id,
       matchup: `${away} @ ${home}`,
@@ -147,20 +178,22 @@ export function buildCommandCenter(catalog?: Pick<WeekCatalog, "games" | "props"
       indoor: game.indoor,
       tier: environmentFor(game, {
         qbDowngrade: game.id === "atl-pit",
-        weatherRisk: game.id === "cle-jax",
+        weatherRisk: wx?.impact === "SIGNIFICANT",
       }),
       note:
         game.id === "tb-cin"
           ? "Sunday ceiling"
           : game.id === "nyj-ten"
             ? "Sunday floor (39.5 DK / 38.5 seed opener)"
-            : game.id === "cle-jax"
-              ? "Heat / storms"
-              : game.id === "atl-pit"
-                ? "Rush starts"
-                : game.indoor
-                  ? "Indoor"
-                  : "Outdoor · hourly WX PENDING",
+            : game.id === "atl-pit"
+              ? "Rush starts"
+              : wx?.indoor || wx?.roof === "FIXED"
+                ? "Indoor / fixed roof"
+                : wx?.source === "NWS hourly"
+                  ? wx.summary
+                  : game.indoor
+                    ? "Indoor"
+                    : (wx?.summary ?? "Outdoor · NWS hourly not stored"),
       kickoff: game.kickoffLabel,
       window: (game.window === "SNF" ? "SNF" : game.window === "LATE" ? "4PM" : "1PM") as EnvironmentRow["window"],
       live: liveStatus(game),
@@ -179,7 +212,7 @@ export function buildCommandCenter(catalog?: Pick<WeekCatalog, "games" | "props"
     .sort((a, b) => (b.line.value ?? 0) - (a.line.value ?? 0));
 
   const criticalNews = NEWS.filter((n) => n.severity === "CRITICAL" || n.severity === "WATCH");
-  const materialWeather = WEATHER.filter((w) => w.impact === "SIGNIFICANT" || w.impact === "MODERATE");
+  const materialWeather = (catalog?.weather ?? WEATHER).filter((w) => w.impact === "SIGNIFICANT" || w.impact === "MODERATE");
   const materialInjuries = INJURIES.filter((i) =>
     ["OUT", "QUESTIONABLE", "GAME_TIME_DECISION", "EXPECTED_LIMITED", "HIGH_RISK"].includes(i.health),
   );
@@ -201,8 +234,8 @@ export function buildCommandCenter(catalog?: Pick<WeekCatalog, "games" | "props"
     news: criticalNews,
     changes: catalog?.changes ?? CHANGES,
     alerts: (catalog?.alerts ?? ALERTS).filter((a) => a.severity === "CRITICAL" || a.severity === "IMPORTANT"),
-    opportunities: [...views].filter(rankable).sort(byEdgeDesc).slice(0, 8),
-    top5: [...views].filter(rankable).sort(byEdgeDesc).slice(0, 5),
+    opportunities: [...views].filter(rankable).sort(rank).slice(0, catalog?.thresholds.maxCard ?? 8),
+    top5: [...views].filter(rankable).sort(rank).slice(0, 5),
     volume,
     tdLeaders: views.filter((v) => v.market === "ANYTIME_TD"),
     environments,

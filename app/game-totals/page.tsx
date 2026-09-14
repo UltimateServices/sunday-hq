@@ -16,7 +16,7 @@ export default async function GameTotalsPage() {
         lede="Sunday totals. Live DraftKings overlay when the snapshot is fresh; otherwise seed DK-via-ESPN with a stale warning."
       />
       <SeedBanner>{catalog.staleWarning ?? catalog.liveBanner}</SeedBanner>
-      <GameTotalsBoard rows={gameTotalRows(catalog.games)} />
+      <GameTotalsBoard rows={gameTotalRows(catalog.games, catalog.weather)} />
     </div>
   );
 }

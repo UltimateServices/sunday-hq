@@ -11,15 +11,21 @@ import { FRESH_MS, type OddsSnapshot } from "@/lib/ingest/types";
 import { readJson, readOddsSnapshot, storeBackend } from "@/lib/ingest/store";
 import { STORE_KEYS, type LearnSnapshot } from "@/lib/ingest/types";
 import { readResultsSnapshot } from "@/lib/settle/pipeline";
+import { overlayWeather, type WeatherSnapshot } from "@/lib/weather/nws";
+import { buildMatchupGrades } from "@/lib/matchup/engine";
+import { weightsFromAdmin, type ModelThresholds, type ModelWeights, type WeightsSnapshot } from "@/lib/weights";
+import { readWeights } from "@/lib/weights-store";
 import type {
   AlertItem,
   CalibrationBucket,
   ChangeItem,
   Game,
   MarketMoveEvent,
+  MatchupGrade,
   PropMarket,
   ResultRow,
   SundayRoutineStep,
+  WeatherRecord,
 } from "@/lib/types/domain";
 import { nextRefreshLabel } from "@/lib/refresh/windows";
 
@@ -71,6 +77,11 @@ export type WeekCatalog = {
   lastRefreshIso: string;
   storage: ReturnType<typeof storeBackend>;
   health: Awaited<ReturnType<typeof buildHealth>>;
+  weather: WeatherRecord[];
+  matchups: MatchupGrade[];
+  modelWeights: ModelWeights;
+  adminWeights: WeightsSnapshot;
+  thresholds: ModelThresholds;
 };
 
 function snapshotFresh(snapshot: OddsSnapshot | null): boolean {
@@ -111,6 +122,7 @@ function overlayProps(snapshot: OddsSnapshot | null, fresh: boolean): PropMarket
       book: "DRAFTKINGS",
       line: hit.line,
       oddsAmerican: hit.oddsAmerican,
+      books: hit.books,
       movement: {
         direction: moved,
         note:
@@ -179,13 +191,15 @@ export function liveMarketMoves(games: Game[], snapshot: OddsSnapshot | null): M
 }
 
 export async function getWeekCatalog(): Promise<WeekCatalog> {
-  const [snapshot, changelog, results, ops, health, learn] = await Promise.all([
+  const [snapshot, changelog, results, ops, health, learn, weatherSnap, weightsSnap] = await Promise.all([
     readOddsSnapshot(),
     readChangelog(),
     readResultsSnapshot(),
     readOps(),
     buildHealth(),
     readJson<LearnSnapshot>(STORE_KEYS.learn),
+    readJson<WeatherSnapshot>(STORE_KEYS.weather),
+    readWeights(),
   ]);
   const fresh = snapshotFresh(snapshot);
   if (snapshot) {
@@ -218,6 +232,14 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
         note: fresh && snapshot ? `Live DK game lines overlaid. ${snapshot.note}` : source.note,
       };
     }
+    if (source.id === "nws") {
+      return {
+        ...source,
+        status: weatherSnap?.status === "LIVE" ? ("LIVE" as const) : ("PENDING" as const),
+        lastPull: weatherSnap?.asOf ?? ops.stages.weather.lastRunAt,
+        note: weatherSnap?.note ?? source.note,
+      };
+    }
     return source;
   });
 
@@ -241,9 +263,9 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
     if (row.id === "wx") {
       return {
         ...row,
-        status: ops.stages.weather.lastStatus === "OK" ? "LIVE" : "PENDING",
-        last: ops.stages.weather.lastRunAt,
-        note: ops.stages.weather.lastNote || row.note,
+        status: weatherSnap?.status === "LIVE" || ops.stages.weather.lastStatus === "OK" ? "LIVE" : "PENDING",
+        last: weatherSnap?.asOf ?? ops.stages.weather.lastRunAt,
+        note: weatherSnap?.note || ops.stages.weather.lastNote || row.note,
       };
     }
     if (row.id === "inactives") {
@@ -260,6 +282,9 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
   const flags = FEATURE_FLAGS.map((flag) =>
     flag.id === "live-odds" ? { ...flag, on: Boolean(fresh && snapshot?.status === "LIVE") } : flag,
   );
+  const weather = overlayWeather(weatherSnap);
+  const modelWeights = weightsFromAdmin(weightsSnap.weights);
+  const matchups = buildMatchupGrades(games, weather, modelWeights);
 
   return {
     games,
@@ -293,6 +318,11 @@ export async function getWeekCatalog(): Promise<WeekCatalog> {
     lastRefreshIso: lastIso,
     storage: storeBackend(),
     health,
+    weather,
+    matchups,
+    modelWeights,
+    adminWeights: weightsSnap,
+    thresholds: weightsSnap.thresholds,
   };
 }
 

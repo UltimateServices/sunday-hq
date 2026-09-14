@@ -12,9 +12,9 @@ import { INJURIES } from "@/data/week1/injuries";
 import { NEWS } from "@/data/week1/news";
 import { SUNDAY_PLAYERS } from "@/data/week1/players";
 import { TEAM_BY_ID } from "@/data/week1/teams";
-import { WEATHER_BY_GAME } from "@/data/week1/weather";
 import { getWeekCatalog } from "@/lib/catalog";
-import { formatNumber, spreadLabel } from "@/lib/format";
+import { gameScript } from "@/lib/game-script";
+import { formatNumber, formatPct, spreadLabel } from "@/lib/format";
 import { toPropView } from "@/lib/prop-view";
 import { derivedTeamTotals, environmentFor, impliedTeamTotals } from "@/lib/team-totals";
 
@@ -32,7 +32,8 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
 
   const away = TEAM_BY_ID[game.awayTeamId];
   const home = TEAM_BY_ID[game.homeTeamId];
-  const wx = WEATHER_BY_GAME[game.id];
+  const wx = catalog.weather.find((row) => row.gameId === game.id);
+  const script = gameScript(game);
   const implied = impliedTeamTotals(game);
   const totals = derivedTeamTotals(catalog.games).filter((row) => row.gameId === game.id);
   const props = catalog.props.filter((p) => p.gameId === game.id).map((p) => toPropView(p));
@@ -41,7 +42,7 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
   const players = SUNDAY_PLAYERS.filter((p) => p.teamId === game.awayTeamId || p.teamId === game.homeTeamId);
   const tier = environmentFor(game, {
     qbDowngrade: game.id === "atl-pit",
-    weatherRisk: game.id === "cle-jax",
+    weatherRisk: wx?.impact === "SIGNIFICANT",
   });
 
   return (
@@ -79,7 +80,7 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
           ]}
           risks={[
             "Game environment is not a parlay ticket.",
-            "Matchup engine PENDING — do not invent defensive ranks.",
+            "Coverage on /matchups is a script proxy, not a CB rank.",
           ]}
         />
       </Section>
@@ -97,12 +98,29 @@ export default async function GameDeepDive({ params }: PageProps<"/games/[gameId
         </Section>
       ) : null}
 
+      <Section title="Game script">
+        <article className="rounded-lg border border-line bg-card p-3">
+          <p className="text-[10px] tracking-wide text-muted uppercase">ESTIMATE · spread logistic</p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            <Tile label={`${TEAM_BY_ID[game.homeTeamId].abbr} P(win)`} value={formatPct(script.pHomeWin)} />
+            <Tile label="P(blowout)" value={formatPct(script.pBlowout)} />
+            <Tile label="Cover" value="~50% (no vig split)" />
+          </div>
+          <p className="mt-3 text-sm">{script.note}</p>
+          <p className="mt-2 text-sm text-muted">QB home: {script.qb.home}</p>
+          <p className="text-sm text-muted">QB away: {script.qb.away}</p>
+          <p className="mt-2 text-sm text-muted">RB home: {script.rb.home}</p>
+          <p className="text-sm text-muted">RB away: {script.rb.away}</p>
+        </article>
+      </Section>
+
       {wx ? (
         <Section title="Weather">
           <article className="rounded-lg border border-line bg-card p-3">
             <div className="mb-2 flex flex-wrap gap-1">
               <StatusBadge tone={wx.impact === "SIGNIFICANT" ? "orange" : "blue"}>{wx.impact}</StatusBadge>
               <DataStatus quality={wx.quality} />
+              <StatusBadge tone={wx.roof === "UNKNOWN" ? "yellow" : "blue"}>Roof {wx.roof ?? "UNKNOWN"}</StatusBadge>
             </div>
             <p className="font-semibold">{wx.summary}</p>
             <p className="text-sm text-muted">{wx.impactNote}</p>
