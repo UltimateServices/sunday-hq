@@ -15,7 +15,9 @@ export function MobileHeader() {
       <div className="flex items-center justify-between gap-2 px-4 py-3">
         <div>
           <p className="text-[17px] font-semibold tracking-tight">Sunday HQ</p>
-          <p className="text-[12px] text-muted">Week {meta.week} · {ops.lastRefreshLabel || meta.lastRefreshLabel}</p>
+          <p className="text-[12px] text-muted">
+            Week {meta.week} · {ops.lastRefreshLabel || meta.lastRefreshLabel}
+          </p>
         </div>
         <div className="flex items-center gap-1.5">
           <ToneChip tone={ops.liveGate.actionable ? "green" : "red"}>

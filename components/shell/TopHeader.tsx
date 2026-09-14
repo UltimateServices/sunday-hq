@@ -24,7 +24,10 @@ export function TopHeader() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[13px]">
-          <span className="text-muted">Updated {viewRefreshedAt ? new Date(viewRefreshedAt).toLocaleTimeString() : ops.lastRefreshLabel || meta.lastRefreshLabel}</span>
+          <span className="text-muted">
+            Updated {viewRefreshedAt ? new Date(viewRefreshedAt).toLocaleTimeString() : ops.lastRefreshLabel || meta.lastRefreshLabel}
+          </span>
+          <span className="text-muted">Next {ops.nextRefreshLabel || meta.nextRefreshLabel}</span>
           <button type="button" onClick={refreshView} className="action-btn">
             Refresh
           </button>
