@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { SEED_CARD } from "@/data/week1/card";
 import { PROP_BY_ID } from "@/data/week1/props";
 import { applyLockToBet, buildLockSnapshot, livePropFromSnapshot } from "@/lib/card/lock";
@@ -70,6 +70,17 @@ export function ShellProvider({ children }: { children: React.ReactNode }) {
 
   const refreshView = useCallback(() => {
     setViewRefreshedAt(new Date().toISOString());
+  }, []);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const addToCard = useCallback((propId: string) => {
