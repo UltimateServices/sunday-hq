@@ -84,7 +84,7 @@ INFO / WATCH / IMPORTANT / CRITICAL. Do not overuse CRITICAL.
 Show data health, current source count, degraded sources, stale times, and detail view.
 
 9. COMMAND CENTER PAGE
-Default page after login. (PRODUCT OVERRIDE: implemented as /dashboard; / is Top-10 Home)
+Default page after login. (Product OVERRIDE: this is `/dashboard`; `/` is Top-10 Home.)
 
 10. COMMAND CENTER HERO
 Show NFL Sunday, week, date, games, props analyzed, qualified edges, injury flags, weather flags, market moves.
@@ -246,7 +246,7 @@ Meaningful Weather Games first, then All Outdoor Games.
 Game, stadium, temp, wind, gust, rain, snow, humidity, field, severity, market impacts.
 
 62. WEATHER TIMELINE
-Kickoff / Q2 / halftime / Q3 / Q4 when supported.
+Kickoff / Q2 / Halftime / Q3 / Q4 when supported.
 
 63. INJURIES PAGE
 Filters TEAM / POSITION / STATUS / IMPACT / GAME.
@@ -371,6 +371,7 @@ Position, Game, Market, Book, Confidence, Edge, Health, Weather, Apply, Clear.
 
 103. STANDARD BADGES
 HEALTHY / QUESTIONABLE / LIMITED / OUT / DOME / WIND / RAIN / SNOW / ROLE CHANGE / LINE MOVE / STEAM / HIGH EDGE / HIGH VOLATILITY / LOW SAMPLE / SOURCE CONFLICT / STALE DATA.
+(Note: player health still uses Master Spec taxonomy; HEALTHY badge is data-health only.)
 
 104. CONFIDENCE
 A+ / A / A- / B+ / B / B- / C / PASS, optionally numeric detail.
