@@ -24,9 +24,11 @@ export function volumeSource(catalog?: Pick<WeekCatalog, "props">): PropView[] {
   return source.map((prop) => toPropView(prop));
 }
 
+const YARDAGE_MARKETS = new Set(["PASS_YDS", "RUSH_YDS", "REC_YDS", "RECEPTIONS", "COMPLETIONS"]);
+
 export function volumeRows(views: PropView[]): VolumeRow[] {
   return views
-    .filter((view) => view.market !== "ANYTIME_TD" && view.side === "OVER")
+    .filter((view) => YARDAGE_MARKETS.has(view.market) && view.side === "OVER")
     .map((view) => {
       const game = GAME_BY_ID[view.gameId];
       const wx = WEATHER_BY_GAME[view.gameId];
