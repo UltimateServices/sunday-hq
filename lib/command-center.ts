@@ -1,3 +1,4 @@
+import { SUNDAY_ROUTINE } from "@/data/week1/admin";
 import { AVOIDS, CHANGES, NEWS } from "@/data/week1/news";
 import { ALERTS } from "@/data/week1/alerts";
 import { GAMES } from "@/data/week1/games";
@@ -83,6 +84,7 @@ export function buildCommandCenter(
     | "liveBanner"
     | "staleWarning"
     | "oddsFresh"
+    | "routine"
   >,
 ) {
   const liveGate: LiveGate | undefined = catalog?.liveGate;
@@ -313,6 +315,7 @@ export function buildCommandCenter(
     liveBanner: catalog?.liveBanner,
     staleWarning: catalog?.staleWarning ?? null,
     tape: catalog?.oddsFresh ? ("LIVE" as const) : ("ESTIMATE" as const),
+    routine: catalog?.routine ?? SUNDAY_ROUTINE,
   };
 }
 

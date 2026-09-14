@@ -14,8 +14,11 @@ import { PLAYER_BY_ID } from "@/data/week1/players";
 import { PARLAYS } from "@/data/week1/parlays";
 import { TEAM_BY_ID } from "@/data/week1/teams";
 import { formatNumber } from "@/lib/format";
+import { sundayMilestones } from "@/lib/sunday-timeline";
+import { VolumeTable } from "@/components/boards/VolumeTable";
 import { PrimaryCards } from "./PrimaryCards";
 import { Scoreboard } from "./Scoreboard";
+import { SundayTimeline } from "./SundayTimeline";
 import { WhatChanged } from "./WhatChanged";
 import { MyCardPreview } from "./MyCardPreview";
 
@@ -68,6 +71,9 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
         <Section id="scoreboard" title="Sunday scoreboard" lede="Environment and weather at a glance.">
           <Scoreboard rows={vm.environments} />
         </Section>
+        <Section id="sunday-timeline" title="Sunday timeline" lede="Slate, inactives, pregame, refresh, late window, SNF. RUN NOW stays on Admin.">
+          <SundayTimeline milestones={sundayMilestones(vm.routine)} />
+        </Section>
         <Section id="top-opportunities" title="Top opportunities" lede="Ranked by edge. Assumed −110 EV is an estimate, never a DraftKings price.">
           {live ? (
             <RankingTable views={vm.opportunities} />
@@ -75,8 +81,8 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
             <EmptyState message="No live opportunities." hint="Seed props stay hidden until DraftKings tape is fresh." />
           )}
         </Section>
-        <Section id="top-volume" title="Top volume" lede="Highest-volume looks, not automatic bets.">
-          {live ? <RankingTable views={vm.volume} /> : <EmptyState message="No live volume rows." />}
+        <Section id="top-volume" title="Top volume" lede="Highest-volume looks, not automatic bets. Stability is LOW / MEDIUM / HIGH / ELITE.">
+          {live ? <VolumeTable views={vm.volume} /> : <EmptyState message="No live volume rows." />}
         </Section>
         <Section id="td-leaders" title="Touchdown leaders" lede="Anytime TD research leans.">
           {live ? (
@@ -226,6 +232,9 @@ export function CommandCenter({ vm }: { vm: CommandCenterVM }) {
         </Section>
         <Section title="Games">
           <Scoreboard rows={vm.environments} />
+        </Section>
+        <Section title="Sunday timeline">
+          <SundayTimeline milestones={sundayMilestones(vm.routine)} />
         </Section>
         <Section title="Overs">
           {live ? (
