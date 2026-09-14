@@ -77,7 +77,7 @@ Open https://sunday-hq.vercel.app
 | You should see | You should not see |
 | --- | --- |
 | Banner: **Live DraftKings tape** | **Not live — do not bet from this page.** |
-| Ranked singles on Home | Seed parlays / seed ATD clusters as tickets |
+| Four Top-10 lists on Home (live labels) | Seed parlays / seed ATD clusters as tickets |
 | `/admin` keys marked **Set** | A invented American odds on a prop |
 
 If the banner is still “Not live”:
@@ -92,7 +92,7 @@ If the banner is still “Not live”:
 - `POST /api/ingest/odds` — The Odds API, DraftKings-primary, FanDuel/BetMGM/Caesars compare-only.
 - `GET/POST /api/cron/sunday-refresh?stage=…` — slate, injuries, weather, odds, projections, settle, monday-learn.
 - `vercel.json` Sunday/Monday UTC crons (Bearer = `CRON_SECRET`).
-- Live gate: homepage, parlays, props, TDs, boosts, compare, team/game totals, Command Center pick cards stay **hidden** until `oddsFresh && snapshot.status === "LIVE"`.
+- Live gate: parlays, props, TDs, boosts, compare, team/game totals, Command Center pick cards stay **hidden** until `oddsFresh && snapshot.status === "LIVE"`. Home keeps the Top-10 layout with **Not live** labels — never a live bet slip on seed.
 - NWS weather runs with a documented default User-Agent if `NWS_USER_AGENT` is unset.
 - Fade Board stays **PARKED**.
 

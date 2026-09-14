@@ -12,10 +12,10 @@ export default async function DashboardPage() {
       <p className="text-[13px] text-muted">
         Full research desk.{" "}
         <Link href="/" className="text-gold hover:underline">
-          Back to best picks
+          Back to Top 10
         </Link>
         {!catalog.liveGate.actionable
-          ? " Pick cards stay hidden until live tape is fresh."
+          ? " Home lists stay labeled not live. Desk pick cards stay hidden until tape is fresh."
           : ""}
       </p>
       <CommandCenter vm={buildCommandCenter(catalog)} />
