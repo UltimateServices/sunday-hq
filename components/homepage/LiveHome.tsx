@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertRow } from "@/components/ds/AlertRow";
 import { StatusChip, ToneChip } from "@/components/ds/badges";
 import { EmptyState } from "@/components/ds/EmptyState";
 import { HomePickCard } from "@/components/homepage/HomePickCard";
@@ -27,13 +26,19 @@ export function LiveHome({ vm }: { vm: HomepageVM }) {
   const playerPicks = useMemo(() => (chip === "TEAM_TOTALS" ? [] : vm.picks[chip]), [chip, vm.picks]);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="mx-auto max-w-2xl space-y-4 pb-8">
       <header className="space-y-2">
-        <p className="text-[10px] tracking-[0.2em] text-gold uppercase">Sunday HQ · Live</p>
-        <h1 className="text-2xl font-semibold tracking-tight">Best picks this week</h1>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] tracking-[0.2em] text-gold uppercase">Sunday HQ · Live</p>
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Best picks this week</h1>
+          </div>
+          <Link href="/dashboard" className="shrink-0 pt-1 text-[11px] text-gold hover:underline">
+            Full Command Center
+          </Link>
+        </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <ToneChip tone="blue">Week {vm.week}</ToneChip>
-          <ToneChip tone="blue">{vm.slateLabel}</ToneChip>
           <ToneChip tone="purple">Last {vm.lastRefreshLabel}</ToneChip>
           <ToneChip tone={vm.healthState === "DEGRADED" ? "orange" : "green"}>
             {vm.healthState === "DEGRADED" ? "Degraded" : "Healthy"}
@@ -42,34 +47,42 @@ export function LiveHome({ vm }: { vm: HomepageVM }) {
           {vm.tape === "STALE" ? <StatusChip id="STALE_DATA" /> : null}
           {vm.tape === "ESTIMATE" ? <ToneChip tone="yellow">ESTIMATE</ToneChip> : null}
         </div>
-        <p className="text-[12px] text-muted">{vm.tape === "LIVE" ? vm.liveBanner : vm.staleWarning ?? vm.liveBanner}</p>
-        {vm.healthIssues.length > 0 ? (
-          <p className="text-[11px] text-muted">{vm.healthIssues.join(" · ")}</p>
-        ) : null}
+        <p className="text-[11px] text-muted">{vm.tape === "LIVE" ? vm.liveBanner : vm.staleWarning ?? vm.liveBanner}</p>
       </header>
 
       {vm.alerts.length > 0 ? (
-        <section aria-label="Critical alerts" className="space-y-2">
+        <section aria-label="Critical alerts" className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-card">
           {vm.alerts.map((alert) => (
-            <AlertRow key={alert.id} alert={alert} />
+            <Link key={alert.id} href={alert.href} className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-card-hover">
+              <ToneChip tone={alert.severity === "CRITICAL" ? "red" : "orange"}>{alert.severity}</ToneChip>
+              <span className="min-w-0 truncate text-[12px] font-medium">{alert.title}</span>
+            </Link>
           ))}
         </section>
       ) : null}
 
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-card px-3 py-2">
+        <p className="text-[12px]">
+          <span className="text-[10px] tracking-wide text-muted uppercase">My Card</span>
+          <span className="ml-2">
+            <span className="num text-gold">{watching}</span> watching
+            <span className="text-muted"> · </span>
+            <span className="num text-gold">{ready}</span> ready
+          </span>
+        </p>
+        <Link href="/my-card" className="action-btn">
+          Open
+        </Link>
+      </div>
+
       <section className="space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-semibold tracking-wide uppercase">Best picks this week</h2>
-            <p className="text-[11px] text-muted">
-              Overs, unders, and TDs mixed by edge + confidence. One list — not three copies of the same board.
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-1 overflow-x-auto pb-1">
+        <div className="flex gap-1 overflow-x-auto pb-1" role="tablist" aria-label="Pick filters">
           {CHIPS.map((item) => (
             <button
               key={item.id}
               type="button"
+              role="tab"
+              aria-selected={chip === item.id}
               onClick={() => setChip(item.id)}
               className={`action-btn shrink-0 ${chip === item.id ? "border-gold/60 text-gold" : ""}`}
             >
@@ -98,28 +111,6 @@ export function LiveHome({ vm }: { vm: HomepageVM }) {
           </div>
         )}
       </section>
-
-      <section className="rounded-lg border border-line bg-card p-3">
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <p className="text-[10px] tracking-wide text-muted uppercase">My Card</p>
-            <p className="text-sm">
-              <span className="num text-gold">{watching}</span> watching
-              <span className="text-muted"> · </span>
-              <span className="num text-gold">{ready}</span> ready
-            </p>
-          </div>
-          <Link href="/my-card" className="action-btn">
-            Open card
-          </Link>
-        </div>
-      </section>
-
-      <p className="pb-2 text-center">
-        <Link href="/dashboard" className="text-sm text-gold hover:underline">
-          Full Command Center
-        </Link>
-      </p>
     </div>
   );
 }

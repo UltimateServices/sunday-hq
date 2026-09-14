@@ -6,7 +6,7 @@ import { teamTotalRows, type TeamTotalRow } from "@/lib/team-total-view";
 import type { AlertItem, ConfidenceGrade } from "@/lib/types/domain";
 
 export const HOME_PICK_LIMIT = 10;
-export const HOME_ALERT_LIMIT = 5;
+export const HOME_ALERT_LIMIT = 4;
 
 export type HomeTape = "LIVE" | "STALE" | "ESTIMATE";
 export type HomeChip = "ALL" | "OVERS" | "UNDERS" | "TDS" | "TEAM_TOTALS";

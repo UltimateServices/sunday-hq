@@ -20,11 +20,12 @@ export function TeamTotalPickCard({ row, rank }: { row: TeamTotalRow; rank: numb
           </Link>
           <p className="text-[11px] text-muted">{row.matchup}</p>
         </div>
-        <div className="text-right">
+        <div className="flex shrink-0 flex-col items-end gap-1">
           <p className="text-[10px] text-muted uppercase">Derived</p>
           <p className="num text-xl font-semibold text-gold">
             {row.side === "OVER" ? "O" : "U"} {formatNumber(row.line.value)}
           </p>
+          <WhyDrawer title={`${row.teamAbbr} team total`} lenses={row.lenses} sections={row.why} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 text-[11px]">
@@ -40,9 +41,6 @@ export function TeamTotalPickCard({ row, rank }: { row: TeamTotalRow; rank: numb
       <p className="mt-2 text-[11px] text-muted">
         Derived from DK spread + total. Not a listed DraftKings team-total ticket.
       </p>
-      <div className="mt-3 flex justify-end">
-        <WhyDrawer title={`${row.teamAbbr} team total`} lenses={row.lenses} sections={row.why} />
-      </div>
     </article>
   );
 }

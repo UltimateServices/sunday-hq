@@ -51,7 +51,7 @@ export function HomePickCard({
             {view.teamAbbr} · {view.position} · {view.matchup}
           </p>
         </div>
-        <div className="text-right">
+        <div className="flex shrink-0 flex-col items-end gap-1">
           <p className="text-[10px] text-muted uppercase">{MARKET_LABEL[view.market]}</p>
           {td ? (
             <>
@@ -63,6 +63,7 @@ export function HomePickCard({
               {view.side === "OVER" ? "O" : "U"} {formatMeasured(view.line)}
             </p>
           )}
+          <WhyDrawer title={`${view.playerName} ${MARKET_LABEL[view.market]}`} lenses={view.lenses} sections={view.whySections} />
         </div>
       </div>
       <div className="mb-2 flex flex-wrap gap-1">
@@ -92,9 +93,8 @@ export function HomePickCard({
           ? "Assumed -110 EV is ESTIMATE for ranking only. Not a DraftKings ticket."
           : view.pricing.ev.note ?? view.movement.note}
       </p>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-3">
         <PropActions view={view} />
-        <WhyDrawer title={`${view.playerName} ${MARKET_LABEL[view.market]}`} lenses={view.lenses} sections={view.whySections} />
       </div>
     </article>
   );
