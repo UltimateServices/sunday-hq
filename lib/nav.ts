@@ -20,7 +20,8 @@ export type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Command Center", short: "HOME", icon: "⌘", readiness: "LIVE", phase: 1, group: "command" },
+  { href: "/", label: "Home", short: "HOME", icon: "⌂", readiness: "LIVE", phase: 1, group: "command" },
+  { href: "/dashboard", label: "Command Center", short: "CC", icon: "⌘", readiness: "LIVE", phase: 1, group: "command" },
   { href: "/games", label: "Games", short: "GAMES", icon: "▦", readiness: "LIVE", phase: 1, group: "slate" },
   { href: "/props", label: "Props", short: "PROPS", icon: "☰", readiness: "LIVE", phase: 3, group: "slate" },
   { href: "/touchdowns", label: "Touchdowns", short: "TD", icon: "†", readiness: "LIVE", phase: 3, group: "slate" },
@@ -55,7 +56,7 @@ export const NAV_GROUPS: { id: NavGroupId; label: string }[] = [
 ];
 
 export const MOBILE_TABS = [
-  { href: "/", label: "Home", icon: "⌘" },
+  { href: "/", label: "Home", icon: "⌂" },
   { href: "/games", label: "Games", icon: "▦" },
   { href: "/props", label: "Props", icon: "☰" },
   { href: "/my-card", label: "My Card", icon: "▣" },
@@ -65,6 +66,7 @@ export function titleFromPath(pathname: string): string {
   if (pathname.startsWith("/games/") && pathname !== "/games") return "Game Deep Dive";
   if (pathname.startsWith("/players/")) return "Player Deep Dive";
   if (pathname.startsWith("/teams/")) return "Team Deep Dive";
+  if (pathname === "/") return "Home";
   if (pathname === "/dashboard") return "Command Center";
   return NAV_ITEMS.find((item) => item.href === pathname)?.label ?? "Sunday HQ";
 }

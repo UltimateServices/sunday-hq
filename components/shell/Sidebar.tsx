@@ -47,7 +47,7 @@ export function Sidebar() {
                 {items.map((item) => {
                   const active =
                     item.href === "/"
-                      ? pathname === "/" || pathname === "/dashboard"
+                      ? pathname === "/"
                       : pathname === item.href || pathname.startsWith(`${item.href}/`);
                   return (
                     <li key={item.href}>
